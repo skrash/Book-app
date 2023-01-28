@@ -13,14 +13,6 @@ interface BookItemRepository {
 
     fun getBookItemList(): LiveData<List<BookItem>>
 
-    suspend fun addToMyBookList(bookItem: BookItem)
-
-    suspend fun getMyBookList(): LiveData<List<BookItem>>
-
-    suspend fun getMyBook(bookItemId: Int): BookItem
-
-    suspend fun deleteBookItemFromMyList(bookItem: BookItem)
-
     suspend fun openBookItem(bookItem: BookItem)
 
 }

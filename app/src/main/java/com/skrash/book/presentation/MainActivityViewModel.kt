@@ -7,20 +7,22 @@ import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.Genres
 import com.skrash.book.domain.usecases.AddBookItemUseCase
 import com.skrash.book.domain.usecases.GetBookItemListUseCase
+import com.skrash.book.domain.usecases.MyList.AddToMyBookListUseCase
+import com.skrash.book.domain.usecases.MyList.GetMyBookListUseCase
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MainActivityViewModel @Inject constructor(
-    private val getBookItemList: GetBookItemListUseCase,
-    private val addBookItemUseCase: AddBookItemUseCase
+    private val getMyBookListUseCase: GetMyBookListUseCase,
+    private val addToMyBookListUseCase: AddToMyBookListUseCase
 ) : ViewModel() {
 
-    val bookList = getBookItemList.getBookItemList()
+    val bookList = getMyBookListUseCase.getMyBookList()
 
     init {
         viewModelScope.launch {
             for( i in 0 until 10) {
-                addBookItemUseCase.addBookItem(
+                addToMyBookListUseCase.addToMyBookList(
                     BookItem(
                         i.toString(),
                         i.toString(),

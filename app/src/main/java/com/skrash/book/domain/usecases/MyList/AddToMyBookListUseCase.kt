@@ -5,10 +5,10 @@ import com.skrash.book.domain.entities.BookItem
 import javax.inject.Inject
 
 class AddToMyBookListUseCase @Inject constructor(
-    private val bookItemRepository: BookItemRepository
+    private val myBookItemRepository: MyBookItemRepository
 ) {
 
-    suspend fun addToBookList(bookItem: BookItem){
-        bookItemRepository.addToMyBookList(bookItem)
+    suspend fun addToMyBookList(bookItem: BookItem){
+        myBookItemRepository.addToMyBookList(bookItem)
     }
 }
