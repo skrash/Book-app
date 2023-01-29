@@ -1,13 +1,17 @@
 package com.skrash.book.presentation
 
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import com.skrash.book.R
 import com.skrash.book.databinding.ActivityMainBinding
 import com.skrash.book.presentation.bookInfoActivity.BookInfoActivity
 import javax.inject.Inject
+import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
 
@@ -41,6 +45,30 @@ class MainActivity : AppCompatActivity() {
             adapter = bookListAdapter
         }
         setupClickListener()
+        setupSwipeListener(binding.mainRecycler)
+    }
+
+    private fun setupSwipeListener(rvShopList: RecyclerView) {
+        val callback = object : ItemTouchHelper.SimpleCallback(
+            0,
+            ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+        ) {
+
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val item = bookListAdapter.currentList[viewHolder.adapterPosition]
+                viewModel.deleteShopItem(item)
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(callback)
+        itemTouchHelper.attachToRecyclerView(rvShopList)
     }
 
     private fun setupClickListener(){

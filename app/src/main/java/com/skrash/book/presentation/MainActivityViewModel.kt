@@ -8,16 +8,24 @@ import com.skrash.book.domain.entities.Genres
 import com.skrash.book.domain.usecases.AddBookItemUseCase
 import com.skrash.book.domain.usecases.GetBookItemListUseCase
 import com.skrash.book.domain.usecases.MyList.AddToMyBookListUseCase
+import com.skrash.book.domain.usecases.MyList.DeleteBookItemFromMyListUseCase
 import com.skrash.book.domain.usecases.MyList.GetMyBookListUseCase
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class MainActivityViewModel @Inject constructor(
     private val getMyBookListUseCase: GetMyBookListUseCase,
-    private val addToMyBookListUseCase: AddToMyBookListUseCase
+    private val addToMyBookListUseCase: AddToMyBookListUseCase,
+    private val deleteBookItemFromMyListUseCase: DeleteBookItemFromMyListUseCase
 ) : ViewModel() {
 
     val bookList = getMyBookListUseCase.getMyBookList()
+
+    fun deleteShopItem(bookItem: BookItem){
+        viewModelScope.launch {
+            deleteBookItemFromMyListUseCase.deleteBookItemFromMyList(bookItem)
+        }
+    }
 
     init {
         viewModelScope.launch {
