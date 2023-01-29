@@ -2,9 +2,11 @@ package com.skrash.book.presentation
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.RecyclerView.LayoutManager
+import com.skrash.book.R
 import com.skrash.book.databinding.ActivityMainBinding
+import com.skrash.book.presentation.bookInfoActivity.BookInfoActivity
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
@@ -37,6 +39,14 @@ class MainActivity : AppCompatActivity() {
         with(binding.mainRecycler){
             bookListAdapter = BookListAdapter()
             adapter = bookListAdapter
+        }
+        setupClickListener()
+    }
+
+    private fun setupClickListener(){
+        bookListAdapter.onBookItemClickListener = {
+            val intent = BookInfoActivity.newIntentOpenItem(this, it.id)
+            startActivity(intent)
         }
     }
 }

@@ -3,4 +3,6 @@
 
     <string name="genres">Жанры</string>
     <string name="tags">Теги</string>
+
+    <string name="button_open">Открыть</string>
 </resources>

@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.skrash.book.presentation.bookInfoActivity.BookInfoViewModel" />
+    </data>
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".presentation.BookInfoFragment">
+
+        <ImageView
+            android:id="@+id/imCover"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:src="@drawable/ic_launcher_background"
+            />
+
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/imCover"
+            app:layout_constraintTop_toBottomOf="@id/imCover"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="@{viewModel.bookItem.title}"
+            />
+
+        <TextView
+            android:id="@+id/tvAuthor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/tvTitle"
+            app:layout_constraintTop_toBottomOf="@id/tvTitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="@{viewModel.bookItem.author}"
+            />
+
+        <TextView
+            android:id="@+id/tvDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/tvAuthor"
+            app:layout_constraintTop_toBottomOf="@id/tvAuthor"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="@{viewModel.bookItem.description}"
+            />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/preview_bottom_barrier"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="imCover, tvTitle, tvAuthor, tvDescription"
+            />
+
+        <ImageView
+            android:id="@+id/imRating1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:adjustViewBounds="true"
+            android:maxWidth="25dp"
+            android:src="@mipmap/ic_launcher_round"
+            app:layout_constraintEnd_toStartOf="@id/imRating2"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/preview_bottom_barrier" />
+
+        <ImageView
+            android:id="@+id/imRating2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:adjustViewBounds="true"
+            android:maxWidth="25dp"
+            android:src="@mipmap/ic_launcher_round"
+            app:layout_constraintEnd_toStartOf="@id/imRating3"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/imRating1"
+            app:layout_constraintTop_toBottomOf="@id/preview_bottom_barrier" />
+
+        <ImageView
+            android:id="@+id/imRating3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:adjustViewBounds="true"
+            android:maxWidth="25dp"
+            android:src="@mipmap/ic_launcher_round"
+            app:layout_constraintEnd_toStartOf="@id/imRating4"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/imRating2"
+            app:layout_constraintTop_toBottomOf="@id/preview_bottom_barrier" />
+
+        <ImageView
+            android:id="@+id/imRating4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:adjustViewBounds="true"
+            android:maxWidth="25dp"
+            android:src="@mipmap/ic_launcher_round"
+            app:layout_constraintEnd_toStartOf="@id/imRating5"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/imRating3"
+            app:layout_constraintTop_toBottomOf="@id/preview_bottom_barrier" />
+
+        <ImageView
+            android:id="@+id/imRating5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:adjustViewBounds="true"
+            android:maxWidth="25dp"
+            android:src="@mipmap/ic_launcher_round"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/imRating4"
+            app:layout_constraintTop_toBottomOf="@id/preview_bottom_barrier" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/rating_bottom_barrier"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="imRating1, imRating2, imRating3, imRating4, imRating5" />
+
+        <ImageView
+            android:id="@+id/imPopularity1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:adjustViewBounds="true"
+            android:maxWidth="25dp"
+            android:src="@mipmap/ic_launcher_round"
+            app:layout_constraintEnd_toStartOf="@id/imRating2"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rating_bottom_barrier" />
+
+        <ImageView
+            android:id="@+id/imPopularity2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:adjustViewBounds="true"
+            android:maxWidth="25dp"
+            android:src="@mipmap/ic_launcher_round"
+            app:layout_constraintEnd_toStartOf="@id/imRating3"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/imRating1"
+            app:layout_constraintTop_toBottomOf="@id/rating_bottom_barrier" />
+
+        <ImageView
+            android:id="@+id/imPopularity3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:adjustViewBounds="true"
+            android:maxWidth="25dp"
+            android:src="@mipmap/ic_launcher_round"
+            app:layout_constraintEnd_toStartOf="@id/imRating4"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/imRating2"
+            app:layout_constraintTop_toBottomOf="@id/rating_bottom_barrier" />
+
+        <ImageView
+            android:id="@+id/imPopularity4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:adjustViewBounds="true"
+            android:maxWidth="25dp"
+            android:src="@mipmap/ic_launcher_round"
+            app:layout_constraintEnd_toStartOf="@id/imRating5"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/imRating3"
+            app:layout_constraintTop_toBottomOf="@id/rating_bottom_barrier" />
+
+        <ImageView
+            android:id="@+id/imPopularity5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:adjustViewBounds="true"
+            android:maxWidth="25dp"
+            android:src="@mipmap/ic_launcher_round"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            app:layout_constraintStart_toEndOf="@id/imRating4"
+            app:layout_constraintTop_toBottomOf="@id/rating_bottom_barrier" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/popularity_bottom_barrier"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="imPopularity1, imPopularity2, imPopularity3, imPopularity4, imPopularity5"
+            />
+
+        <TextView
+            android:id="@+id/tvGenres"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/popularity_bottom_barrier"
+            app:layout_constraintTop_toBottomOf="@+id/popularity_bottom_barrier"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="@{viewModel.bookItem.genres.toString()}"
+            />
+
+        <TextView
+            android:id="@+id/tvTags"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/tvGenres"
+            app:layout_constraintTop_toBottomOf="@id/tvGenres"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="@{viewModel.bookItem.tags}"
+            />
+
+        <Button
+            android:id="@+id/btnOpen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/button_open"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTags"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

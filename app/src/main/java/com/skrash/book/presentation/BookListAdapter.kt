@@ -12,6 +12,7 @@ import com.skrash.book.domain.entities.BookItem
 
 class BookListAdapter : ListAdapter<BookItem, BookListAdapter.BookItemViewHolder>(BookItemDiffUtilCallback()){
 
+    var onBookItemClickListener: ((BookItem) -> Unit)? = null
 
     inner class BookItemViewHolder(
         val binding: ViewDataBinding
@@ -30,6 +31,9 @@ class BookListAdapter : ListAdapter<BookItem, BookListAdapter.BookItemViewHolder
     override fun onBindViewHolder(holder: BookItemViewHolder, position: Int) {
         val bookItem = getItem(position)
         val binding = holder.binding
+        binding.root.setOnClickListener {
+            onBookItemClickListener?.invoke(bookItem)
+        }
         when(binding){
             is BookItemBinding -> {
                 binding.bookItem = bookItem
