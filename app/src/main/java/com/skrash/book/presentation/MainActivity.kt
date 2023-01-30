@@ -4,6 +4,7 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -31,12 +32,19 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        init()
         setupRecyclerView()
         viewModel = ViewModelProvider(this, viewModelFactory)[MainActivityViewModel::class.java]
         viewModel.bookList.observe(this){
             bookListAdapter.submitList(it)
         }
 
+    }
+
+    private fun init(){
+        val toggle = ActionBarDrawerToggle(this, binding.drawlerLayout, binding.included.toolbar, R.string.button_open, R.string.button_closed)
+        binding.drawlerLayout.addDrawerListener(toggle)
+        toggle.syncState()
     }
 
     private fun setupRecyclerView(){

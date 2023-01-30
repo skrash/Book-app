@@ -5,4 +5,10 @@
     <string name="tags">Теги</string>
 
     <string name="button_open">Открыть</string>
+
+    <!-- nav menu strings -->
+    <string name="my_book">Мои книги</string>
+    <string name="general_book">Обзор книг</string>
+
+    <string name="button_closed">Закрыть</string>
 </resources>
