@@ -40,7 +40,7 @@ class MainActivityViewModel @Inject constructor(
                         Random.nextInt(1, 5) + Random.nextFloat(),
                         Random.nextInt(1, 5) + Random.nextFloat(),
                         Genres.nan,
-                        "1,2,3,4,5,6",
+                        "${this.toString()}1,${this.toString()}2,${this.toString()}3,${this.toString()}4,${this.toString()}5,${this.toString()}6,${this.toString()}7",
                         "img",
                         ".pdf",
                         i
