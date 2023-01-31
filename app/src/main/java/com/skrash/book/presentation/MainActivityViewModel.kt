@@ -28,25 +28,4 @@ class MainActivityViewModel @Inject constructor(
             deleteBookItemFromMyListUseCase.deleteBookItemFromMyList(bookItem)
         }
     }
-
-    init {
-        viewModelScope.launch {
-            for( i in 0 until 10) {
-                addToMyBookListUseCase.addToMyBookList(
-                    BookItem(
-                        i.toString(),
-                        i.toString(),
-                        i.toString(),
-                        Random.nextInt(1, 5) + Random.nextFloat(),
-                        Random.nextInt(1, 5) + Random.nextFloat(),
-                        Genres.nan,
-                        "${this.toString()}1,${this.toString()}2,${this.toString()}3,${this.toString()}4,${this.toString()}5,${this.toString()}6,${this.toString()}7",
-                        "img",
-                        ".pdf",
-                        i
-                    )
-                )
-            }
-        }
-    }
 }
