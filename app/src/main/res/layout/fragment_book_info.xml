@@ -69,6 +69,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/preview_bottom_barrier"
             android:rating="@{viewModel.bookItem.rating}"
+            android:isIndicator="true"
             />
 
         <RatingBar
@@ -78,6 +79,7 @@
             android:rating="@{viewModel.bookItem.popularity}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/ratingBar"
+            android:isIndicator="true"
             />
 
         <TextView

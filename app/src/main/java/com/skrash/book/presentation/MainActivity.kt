@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -81,8 +82,21 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupClickListener(){
         bookListAdapter.onBookItemClickListener = {
-            val intent = BookInfoActivity.newIntentOpenItem(this, it.id)
-            startActivity(intent)
+            if (binding.fragmentContainer == null) // check landscape orientation
+            {
+                val intent = BookInfoActivity.newIntentOpenItem(this, it.id)
+                startActivity(intent)
+            }else{
+                launchFragment(BookInfoFragment.newInstanceOpenItem(it.id))
+            }
         }
+    }
+
+    private fun launchFragment(fragment: Fragment){
+        supportFragmentManager.popBackStack()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 }

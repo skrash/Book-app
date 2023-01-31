@@ -64,6 +64,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/preview_bottom_barrier"
             android:rating="@{bookItem.rating}"
+            android:isIndicator="true"
             />
 
         <RatingBar
@@ -73,6 +74,7 @@
             android:rating="@{bookItem.popularity}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/ratingBar"
+            android:isIndicator="true"
             />
 
         <Button
