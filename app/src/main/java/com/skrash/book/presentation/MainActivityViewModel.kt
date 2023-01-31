@@ -12,6 +12,8 @@ import com.skrash.book.domain.usecases.MyList.DeleteBookItemFromMyListUseCase
 import com.skrash.book.domain.usecases.MyList.GetMyBookListUseCase
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.random.Random
+import kotlin.random.nextInt
 
 class MainActivityViewModel @Inject constructor(
     private val getMyBookListUseCase: GetMyBookListUseCase,
@@ -35,8 +37,8 @@ class MainActivityViewModel @Inject constructor(
                         i.toString(),
                         i.toString(),
                         i.toString(),
-                        i.toFloat(),
-                        i.toFloat(),
+                        Random.nextInt(1, 5) + Random.nextFloat(),
+                        Random.nextInt(1, 5) + Random.nextFloat(),
                         Genres.nan,
                         "1,2,3,4,5,6",
                         "img",
