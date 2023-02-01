@@ -15,6 +15,7 @@ class MyBookItemMapper @Inject constructor() {
         genres = bookItem.genres,
         tags = bookItem.tags,
         cover = bookItem.cover,
+        path = bookItem.path,
         fileExtension = bookItem.fileExtension
     )
 
@@ -28,6 +29,7 @@ class MyBookItemMapper @Inject constructor() {
         genres = myBookItemDbModel.genres,
         tags = myBookItemDbModel.tags,
         cover = myBookItemDbModel.cover,
+        path = myBookItemDbModel.path,
         fileExtension = myBookItemDbModel.fileExtension
     )
 

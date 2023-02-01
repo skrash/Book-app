@@ -9,10 +9,11 @@ data class BookItem(
     val genres: Genres,
     val tags: String,
     val cover: String,
+    val path: String,
     val fileExtension: String,
     var id: Int = UNDEFINED_ID
 ){
     companion object {
-        const val UNDEFINED_ID = -1
+        const val UNDEFINED_ID = 0
     }
 }

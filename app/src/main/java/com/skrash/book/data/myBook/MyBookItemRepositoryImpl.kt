@@ -31,4 +31,7 @@ class MyBookItemRepositoryImpl @Inject constructor(
         myBookListDao.deleteMyBookItem(bookItem.id)
     }
 
+    override suspend fun editMyBookItem(bookItem: BookItem) {
+        myBookListDao.addMyBookItem(mapper.mapDomainToDbModel(bookItem))
+    }
 }

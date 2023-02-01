@@ -1,5 +1,6 @@
 package com.skrash.book.presentation
 
+import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -11,11 +12,13 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.skrash.book.R
 import com.skrash.book.databinding.ActivityMainBinding
+import com.skrash.book.presentation.addBookActivity.AddBookActivity
+import com.skrash.book.presentation.addBookActivity.AddBookItemFragment
 import com.skrash.book.presentation.bookInfoActivity.BookInfoActivity
 import javax.inject.Inject
 import kotlin.concurrent.thread
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedListener {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var bookListAdapter: BookListAdapter
@@ -39,7 +42,14 @@ class MainActivity : AppCompatActivity() {
         viewModel.bookList.observe(this){
             bookListAdapter.submitList(it)
         }
-
+        binding.btnAdd.setOnClickListener {
+            if (binding.fragmentContainer == null){
+                val intent = AddBookActivity.newIntentAddBook(this)
+                startActivity(intent)
+            } else {
+                launchFragment(AddBookItemFragment.newInstanceAddItem())
+            }
+        }
     }
 
     private fun init(){
@@ -81,6 +91,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupClickListener(){
+        bookListAdapter.onEditBookClickListener = {
+            if (binding.fragmentContainer == null){
+                val intent = AddBookActivity.newIntentEditBook(this, it.id)
+                startActivity(intent)
+            } else {
+                launchFragment(AddBookItemFragment.newInstanceEditItem(it.id))
+            }
+        }
         bookListAdapter.onBookItemClickListener = {
             if (binding.fragmentContainer == null) // check landscape orientation
             {
@@ -98,5 +116,9 @@ class MainActivity : AppCompatActivity() {
             .replace(R.id.fragmentContainer, fragment)
             .addToBackStack(null)
             .commit()
+    }
+
+    override fun onEditingFinishedListener() {
+        supportFragmentManager.popBackStack()
     }
 }

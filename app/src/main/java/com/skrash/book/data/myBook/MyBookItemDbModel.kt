@@ -17,5 +17,6 @@ data class MyBookItemDbModel
     val genres: Genres,
     val tags: String,
     val cover: String,
+    val path: String,
     val fileExtension: String
 )

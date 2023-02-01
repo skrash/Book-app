@@ -15,6 +15,7 @@ import com.skrash.book.domain.entities.BookItem
 class BookListAdapter : ListAdapter<BookItem, BookListAdapter.BookItemViewHolder>(BookItemDiffUtilCallback()){
 
     var onBookItemClickListener: ((BookItem) -> Unit)? = null
+    var onEditBookClickListener: ((BookItem) -> Unit)? = null
 
     inner class BookItemViewHolder(
         val binding: ViewDataBinding
@@ -52,6 +53,9 @@ class BookListAdapter : ListAdapter<BookItem, BookListAdapter.BookItemViewHolder
                     binding.tvTags.text = null
                     binding.btnCloseTags.visibility = View.GONE
                     binding.tagsContainer.visibility = View.GONE
+                }
+                binding.btnEdit.setOnClickListener {
+                    onEditBookClickListener?.invoke(bookItem)
                 }
                 binding.bookItem = bookItem
             }

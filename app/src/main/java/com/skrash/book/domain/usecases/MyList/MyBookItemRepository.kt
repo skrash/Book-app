@@ -12,4 +12,7 @@ interface MyBookItemRepository {
     suspend fun getMyBook(bookItemId: Int): BookItem
 
     suspend fun deleteBookItemFromMyList(bookItem: BookItem)
+
+    suspend fun editMyBookItem(bookItem: BookItem)
+
 }

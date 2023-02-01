@@ -63,6 +63,9 @@ class BookInfoFragment : Fragment() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         viewModel.getBookItem(bookItemId)
+        binding.btnOpen.setOnClickListener {
+            TODO()
+        }
     }
 
     companion object {

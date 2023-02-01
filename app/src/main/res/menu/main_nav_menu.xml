@@ -4,6 +4,7 @@
     tools:showIn="navigation_view">
 
     <item
+        android:icon="@drawable/ic_baseline_home_24"
         android:id="@+id/menuMyBook"
         android:title="@string/my_book" />
     <item
