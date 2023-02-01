@@ -1,6 +1,34 @@
 <resources>
     <string name="app_name">Book</string>
 
+    <!-- nav menu strings -->
+    
+    <string name="my_book">Мои книги</string>
+    <string name="general_book">Обзор книг</string>
+    
+    <!-- button string -->
+    
     <string name="genres">Жанры</string>
     <string name="tags">Теги</string>
+    <string name="button_open">Открыть</string>
+    <string name="button_closed">Закрыть</string>
+    <string name="button_add_book">Добавить книгу</string>
+    
+    <!-- input hints -->
+    
+    <string name="hintTitle">Название</string>
+    <string name="hintAuthor">Автор</string>
+    <string name="hintDescription">Описание</string>
+    <string name="hintGenres">Жанры</string>
+    <string name="hintTags">Теги, через запятую</string>
+    <string name="hintPath">Выберите файл</string>
+
+    <!-- errors -->
+    <string name="error_input_title">Некорректное название книги</string>
+    <string name="error_input_author">Некорректное имя автора</string>
+    <string name="error_input_description">Некорректное описание</string>
+    <string name="error_input_genres">Некорректные жанры</string>
+    <string name="error_input_tags">Некорректные теги</string>
+    <string name="error_input_path">Некорректный путь к файлу</string>
+
 </resources>

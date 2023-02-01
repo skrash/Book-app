@@ -5,10 +5,10 @@ import com.skrash.book.domain.entities.BookItem
 import javax.inject.Inject
 
 class GetMyBookUseCase @Inject constructor(
-    private val bookItemRepository: BookItemRepository
+    private val myBookItemRepository: MyBookItemRepository
 ){
 
     suspend fun getMyBook(bookItemId: Int): BookItem {
-        return bookItemRepository.getMyBook(bookItemId)
+        return myBookItemRepository.getMyBook(bookItemId)
     }
 }

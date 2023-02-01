@@ -2,6 +2,7 @@
 <layout>
 
     <data>
+
         <variable
             name="bookItem"
             type="com.skrash.book.domain.entities.BookItem" />
@@ -57,163 +58,43 @@
             app:barrierDirection="bottom"
             app:constraint_referenced_ids="imCover, tvTitle, tvAuthor" />
 
-        <ImageView
-            android:id="@+id/imRating1"
+        <RatingBar
+            android:id="@+id/ratingBar"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:adjustViewBounds="true"
-            android:maxWidth="25dp"
-            android:src="@mipmap/ic_launcher_round"
-            app:layout_constraintEnd_toStartOf="@id/imRating2"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintHorizontal_chainStyle="packed"
+            android:layout_height="50dp"
+            android:isIndicator="true"
+            android:rating="@{bookItem.rating}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/preview_bottom_barrier" />
 
-        <ImageView
-            android:id="@+id/imRating2"
+        <RatingBar
+            android:id="@+id/popularityBar"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:adjustViewBounds="true"
-            android:maxWidth="25dp"
-            android:src="@mipmap/ic_launcher_round"
-            app:layout_constraintEnd_toStartOf="@id/imRating3"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toEndOf="@id/imRating1"
-            app:layout_constraintTop_toBottomOf="@id/preview_bottom_barrier" />
-
-        <ImageView
-            android:id="@+id/imRating3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:adjustViewBounds="true"
-            android:maxWidth="25dp"
-            android:src="@mipmap/ic_launcher_round"
-            app:layout_constraintEnd_toStartOf="@id/imRating4"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toEndOf="@id/imRating2"
-            app:layout_constraintTop_toBottomOf="@id/preview_bottom_barrier" />
-
-        <ImageView
-            android:id="@+id/imRating4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:adjustViewBounds="true"
-            android:maxWidth="25dp"
-            android:src="@mipmap/ic_launcher_round"
-            app:layout_constraintEnd_toStartOf="@id/imRating5"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toEndOf="@id/imRating3"
-            app:layout_constraintTop_toBottomOf="@id/preview_bottom_barrier" />
-
-        <ImageView
-            android:id="@+id/imRating5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:adjustViewBounds="true"
-            android:maxWidth="25dp"
-            android:src="@mipmap/ic_launcher_round"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toEndOf="@id/imRating4"
-            app:layout_constraintTop_toBottomOf="@id/preview_bottom_barrier" />
-
-        <androidx.constraintlayout.widget.Barrier
-            android:id="@+id/rating_bottom_barrier"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:orientation="vertical"
-            app:barrierDirection="bottom"
-            app:constraint_referenced_ids="imRating1, imRating2, imRating3, imRating4, imRating5" />
-
-        <ImageView
-            android:id="@+id/imPopularity1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:adjustViewBounds="true"
-            android:maxWidth="25dp"
-            android:src="@mipmap/ic_launcher_round"
-            app:layout_constraintEnd_toStartOf="@id/imRating2"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintHorizontal_chainStyle="packed"
+            android:layout_height="50dp"
+            android:isIndicator="true"
+            android:rating="@{bookItem.popularity}"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/rating_bottom_barrier" />
+            app:layout_constraintTop_toBottomOf="@id/ratingBar" />
 
-        <ImageView
-            android:id="@+id/imPopularity2"
+        <ImageButton
+            android:id="@+id/btnEdit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:adjustViewBounds="true"
-            android:maxWidth="25dp"
-            android:src="@mipmap/ic_launcher_round"
-            app:layout_constraintEnd_toStartOf="@id/imRating3"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toEndOf="@id/imRating1"
-            app:layout_constraintTop_toBottomOf="@id/rating_bottom_barrier" />
-
-        <ImageView
-            android:id="@+id/imPopularity3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:adjustViewBounds="true"
-            android:maxWidth="25dp"
-            android:src="@mipmap/ic_launcher_round"
-            app:layout_constraintEnd_toStartOf="@id/imRating4"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toEndOf="@id/imRating2"
-            app:layout_constraintTop_toBottomOf="@id/rating_bottom_barrier" />
-
-        <ImageView
-            android:id="@+id/imPopularity4"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:adjustViewBounds="true"
-            android:maxWidth="25dp"
-            android:src="@mipmap/ic_launcher_round"
-            app:layout_constraintEnd_toStartOf="@id/imRating5"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toEndOf="@id/imRating3"
-            app:layout_constraintTop_toBottomOf="@id/rating_bottom_barrier" />
-
-        <ImageView
-            android:id="@+id/imPopularity5"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:adjustViewBounds="true"
-            android:maxWidth="25dp"
-            android:src="@mipmap/ic_launcher_round"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toEndOf="@id/imRating4"
-            app:layout_constraintTop_toBottomOf="@id/rating_bottom_barrier" />
-
-        <androidx.constraintlayout.widget.Barrier
-            android:id="@+id/popularity_bottom_barrier"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:orientation="vertical"
-            app:barrierDirection="bottom"
-            app:constraint_referenced_ids="imPopularity1, imPopularity2, imPopularity3, imPopularity4, imPopularity5" />
+            android:src="@drawable/ic_baseline_edit_24"
+            app:layout_constraintStart_toEndOf="@id/ratingBar"
+            app:layout_constraintTop_toBottomOf="@id/preview_bottom_barrier"
+            />
 
         <Button
             android:id="@+id/btnGenres"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/genres"
+            android:layout_margin="8dp"
             app:layout_constraintEnd_toStartOf="@id/btnTags"
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/popularity_bottom_barrier" />
+            app:layout_constraintTop_toBottomOf="@id/popularityBar" />
 
         <Button
             android:id="@+id/btnTags"
@@ -221,9 +102,43 @@
             android:layout_height="wrap_content"
             android:text="@string/tags"
             app:layout_constraintEnd_toEndOf="parent"
+            android:layout_margin="8dp"
             app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintStart_toStartOf="@id/btnGenres"
-            app:layout_constraintTop_toBottomOf="@id/popularity_bottom_barrier" />
+            app:layout_constraintTop_toBottomOf="@id/popularityBar" />
+
+        <LinearLayout
+            android:id="@+id/tagsContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            android:orientation="horizontal"
+            android:minHeight="50dp"
+            android:minWidth="100dp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/btnGenres">
+
+            <TextView
+                android:id="@+id/tvTags"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_weight="7"
+                />
+
+            <Button
+                android:id="@+id/btnCloseTags"
+                android:text="@string/button_closed"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:minHeight="50dp"
+                android:minWidth="100dp"
+                android:visibility="gone"
+                android:textAlignment="center"
+                android:layout_weight="2"
+                />
+
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

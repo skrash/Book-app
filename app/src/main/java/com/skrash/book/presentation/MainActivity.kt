@@ -1,13 +1,24 @@
 package com.skrash.book.presentation
 
+import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.RecyclerView.LayoutManager
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
+import com.skrash.book.R
 import com.skrash.book.databinding.ActivityMainBinding
+import com.skrash.book.presentation.addBookActivity.AddBookActivity
+import com.skrash.book.presentation.addBookActivity.AddBookItemFragment
+import com.skrash.book.presentation.bookInfoActivity.BookInfoActivity
 import javax.inject.Inject
+import kotlin.concurrent.thread
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedListener {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var bookListAdapter: BookListAdapter
@@ -25,12 +36,26 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        init()
         setupRecyclerView()
         viewModel = ViewModelProvider(this, viewModelFactory)[MainActivityViewModel::class.java]
         viewModel.bookList.observe(this){
             bookListAdapter.submitList(it)
         }
+        binding.btnAdd.setOnClickListener {
+            if (binding.fragmentContainer == null){
+                val intent = AddBookActivity.newIntentAddBook(this)
+                startActivity(intent)
+            } else {
+                launchFragment(AddBookItemFragment.newInstanceAddItem())
+            }
+        }
+    }
 
+    private fun init(){
+        val toggle = ActionBarDrawerToggle(this, binding.drawlerLayout, binding.included.toolbar, R.string.button_open, R.string.button_closed)
+        binding.drawlerLayout.addDrawerListener(toggle)
+        toggle.syncState()
     }
 
     private fun setupRecyclerView(){
@@ -38,5 +63,62 @@ class MainActivity : AppCompatActivity() {
             bookListAdapter = BookListAdapter()
             adapter = bookListAdapter
         }
+        setupClickListener()
+        setupSwipeListener(binding.mainRecycler)
+    }
+
+    private fun setupSwipeListener(rvShopList: RecyclerView) {
+        val callback = object : ItemTouchHelper.SimpleCallback(
+            0,
+            ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+        ) {
+
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val item = bookListAdapter.currentList[viewHolder.adapterPosition]
+                viewModel.deleteShopItem(item)
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(callback)
+        itemTouchHelper.attachToRecyclerView(rvShopList)
+    }
+
+    private fun setupClickListener(){
+        bookListAdapter.onEditBookClickListener = {
+            if (binding.fragmentContainer == null){
+                val intent = AddBookActivity.newIntentEditBook(this, it.id)
+                startActivity(intent)
+            } else {
+                launchFragment(AddBookItemFragment.newInstanceEditItem(it.id))
+            }
+        }
+        bookListAdapter.onBookItemClickListener = {
+            if (binding.fragmentContainer == null) // check landscape orientation
+            {
+                val intent = BookInfoActivity.newIntentOpenItem(this, it.id)
+                startActivity(intent)
+            }else{
+                launchFragment(BookInfoFragment.newInstanceOpenItem(it.id))
+            }
+        }
+    }
+
+    private fun launchFragment(fragment: Fragment){
+        supportFragmentManager.popBackStack()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, fragment)
+            .addToBackStack(null)
+            .commit()
+    }
+
+    override fun onEditingFinishedListener() {
+        supportFragmentManager.popBackStack()
     }
 }

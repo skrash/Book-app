@@ -6,10 +6,10 @@ import com.skrash.book.domain.entities.BookItem
 import javax.inject.Inject
 
 class GetMyBookListUseCase @Inject constructor(
-    private val bookItemRepository: BookItemRepository
+    private val myBookItemRepository: MyBookItemRepository
 ) {
 
-    suspend fun getMyBookList(): LiveData<List<BookItem>>{
-        return bookItemRepository.getMyBookList()
+    fun getMyBookList(): LiveData<List<BookItem>>{
+        return myBookItemRepository.getMyBookList()
     }
 }
