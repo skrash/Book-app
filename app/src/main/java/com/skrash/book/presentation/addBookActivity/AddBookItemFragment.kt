@@ -1,26 +1,28 @@
 package com.skrash.book.presentation.addBookActivity
 
-import android.content.ContentValues
 import android.content.Context
-import android.net.Uri
-import androidx.lifecycle.ViewModelProvider
+import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.viewmodel.viewModelFactory
+import android.widget.PopupMenu
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.skrash.book.R
 import com.skrash.book.databinding.FragmentAddBookItemBinding
 import com.skrash.book.domain.entities.BookItem
-import com.skrash.book.domain.entities.FormatBook
 import com.skrash.book.domain.entities.Genres
 import com.skrash.book.presentation.BookApplication
 import com.skrash.book.presentation.ViewModelFactory
 import javax.inject.Inject
-import kotlin.concurrent.thread
+
 
 class AddBookItemFragment : Fragment() {
 
@@ -139,6 +141,18 @@ class AddBookItemFragment : Fragment() {
             override fun afterTextChanged(s: Editable?) {
             }
         })
+        binding.tiGenres.setOnClickListener {
+            val popupMenu = android.widget.PopupMenu(requireContext(), binding.tiGenres)
+            for (i in Genres.values()) {
+                popupMenu.menu.add(Menu.NONE, i.ordinal, Menu.NONE, i.name)
+            }
+            popupMenu.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener { item: MenuItem? ->
+                binding.tiGenres.setText(item?.title.toString())
+                true
+            })
+            popupMenu.inflate(R.menu.popup_menu_genres)
+            popupMenu.show()
+        }
         binding.tiTags.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
@@ -161,10 +175,18 @@ class AddBookItemFragment : Fragment() {
             override fun afterTextChanged(s: Editable?) {
             }
         })
+        val getContent = registerForActivityResult(ActivityResultContracts.OpenDocument()) {
+            binding.tiPath.setText(it.toString())
+        }
+        binding.tiPath.setOnFocusChangeListener { view, b ->
+            if (b) {
+                getContent.launch(arrayOf("application/pdf"))
+            }
+        }
     }
 
     private fun observeViewModel() {
-        viewModel.shouldCloseScreen.observe(viewLifecycleOwner){
+        viewModel.shouldCloseScreen.observe(viewLifecycleOwner) {
             onEditingFinishedListener.onEditingFinishedListener()
         }
     }
@@ -176,7 +198,7 @@ class AddBookItemFragment : Fragment() {
         }
     }
 
-    private fun launchEditMode(){
+    private fun launchEditMode() {
         viewModel.getBookItem(bookItemId)
         binding.btnCancel.setOnClickListener {
             viewModel.finishWork()
@@ -194,7 +216,7 @@ class AddBookItemFragment : Fragment() {
         }
     }
 
-    private fun launchAddMode(){
+    private fun launchAddMode() {
         binding.btnCancel.setOnClickListener {
             viewModel.finishWork()
         }
@@ -211,7 +233,6 @@ class AddBookItemFragment : Fragment() {
     }
 
     companion object {
-
         private const val SCREEN_MODE = "screen_mode"
         private const val MODE_ADD = "mode_add"
         private const val MODE_EDIT = "mode_edit"
