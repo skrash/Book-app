@@ -62,6 +62,7 @@ class AddBookItemViewModel @Inject constructor(
     }
 
     fun finishEditing(
+        id: Int? = null,
         title: String?,
         author: String?,
         description: String?,
@@ -128,20 +129,40 @@ class AddBookItemViewModel @Inject constructor(
             _errorInputPath.value = true
             return
         }
-        addBookItem(
-            BookItem(
-                title = title.trim(),
-                author = author.trim(),
-                description = description.trim(),
-                rating = 0.0f,
-                popularity = 0.0f,
-                genres = genresParsed,
-                tags = tags.trim(),
-                cover = "", // TODO
-                path = path,
-                fileExtension = fileExtension,
+        if (id == null)
+        {
+            addBookItem(
+                BookItem(
+                    title = title.trim(),
+                    author = author.trim(),
+                    description = description.trim(),
+                    rating = 0.0f,
+                    popularity = 0.0f,
+                    genres = genresParsed,
+                    tags = tags.trim(),
+                    cover = "", // TODO
+                    path = path,
+                    fileExtension = fileExtension,
+                )
             )
-        )
+        } else {
+            addBookItem(
+                BookItem(
+                    id = id,
+                    title = title.trim(),
+                    author = author.trim(),
+                    description = description.trim(),
+                    rating = 0.0f,
+                    popularity = 0.0f,
+                    genres = genresParsed,
+                    tags = tags.trim(),
+                    cover = "", // TODO
+                    path = path,
+                    fileExtension = fileExtension,
+                )
+            )
+        }
+
         finishWork()
     }
 

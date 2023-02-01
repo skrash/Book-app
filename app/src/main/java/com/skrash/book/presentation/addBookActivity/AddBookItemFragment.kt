@@ -183,6 +183,7 @@ class AddBookItemFragment : Fragment() {
         }
         binding.btnSave.setOnClickListener {
             viewModel.finishEditing(
+                id = bookItemId,
                 binding.tiTitle.text?.toString(),
                 binding.tiAuthor.text?.toString(),
                 binding.tiDescription.text?.toString(),
@@ -199,12 +200,12 @@ class AddBookItemFragment : Fragment() {
         }
         binding.btnSave.setOnClickListener {
             viewModel.finishEditing(
-                binding.tiTitle.text?.toString(),
-                binding.tiAuthor.text?.toString(),
-                binding.tiDescription.text?.toString(),
-                binding.tiGenres.text?.toString(),
-                binding.tiTags.text?.toString(),
-                binding.tiPath.text?.toString()
+                title = binding.tiTitle.text?.toString(),
+                author = binding.tiAuthor.text?.toString(),
+                description = binding.tiDescription.text?.toString(),
+                genres = binding.tiGenres.text?.toString(),
+                tags = binding.tiTags.text?.toString(),
+                path = binding.tiPath.text?.toString()
             )
         }
     }
