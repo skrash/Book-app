@@ -7,7 +7,7 @@
         android:id="@+id/drawlerLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".presentation.MainActivity">
+        tools:context=".presentation.mainAcitivity.MainActivity">
 
         
         <androidx.constraintlayout.widget.ConstraintLayout

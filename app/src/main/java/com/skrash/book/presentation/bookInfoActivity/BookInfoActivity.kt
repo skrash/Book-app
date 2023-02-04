@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.skrash.book.R
 import com.skrash.book.domain.entities.BookItem
-import com.skrash.book.presentation.BookInfoFragment
 
 class BookInfoActivity : AppCompatActivity() {
 

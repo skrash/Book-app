@@ -3,6 +3,7 @@ package com.skrash.book.presentation.addBookActivity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.provider.DocumentsContract
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -21,6 +22,7 @@ import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.Genres
 import com.skrash.book.presentation.BookApplication
 import com.skrash.book.presentation.ViewModelFactory
+import java.io.File
 import javax.inject.Inject
 
 
@@ -176,7 +178,10 @@ class AddBookItemFragment : Fragment() {
             }
         })
         val getContent = registerForActivityResult(ActivityResultContracts.OpenDocument()) {
-            binding.tiPath.setText(it.toString())
+            if (it != null) {
+                val file = File(it.path)
+                binding.tiPath.setText(file.absolutePath.replace("/document/raw:", ""))
+            }
         }
         binding.tiPath.setOnFocusChangeListener { view, b ->
             if (b) {

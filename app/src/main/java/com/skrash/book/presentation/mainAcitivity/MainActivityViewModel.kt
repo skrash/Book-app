@@ -1,4 +1,4 @@
-package com.skrash.book.presentation
+package com.skrash.book.presentation.mainAcitivity
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

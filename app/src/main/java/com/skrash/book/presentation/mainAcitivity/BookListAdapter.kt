@@ -1,9 +1,8 @@
-package com.skrash.book.presentation
+package com.skrash.book.presentation.mainAcitivity
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.ListAdapter
@@ -12,7 +11,9 @@ import com.skrash.book.R
 import com.skrash.book.databinding.BookItemBinding
 import com.skrash.book.domain.entities.BookItem
 
-class BookListAdapter : ListAdapter<BookItem, BookListAdapter.BookItemViewHolder>(BookItemDiffUtilCallback()){
+class BookListAdapter : ListAdapter<BookItem, BookListAdapter.BookItemViewHolder>(
+    BookItemDiffUtilCallback()
+){
 
     var onBookItemClickListener: ((BookItem) -> Unit)? = null
     var onEditBookClickListener: ((BookItem) -> Unit)? = null

@@ -1,22 +1,26 @@
-package com.skrash.book.presentation
+package com.skrash.book.presentation.mainAcitivity
 
-import android.content.Intent
-import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.skrash.book.R
 import com.skrash.book.databinding.ActivityMainBinding
+import com.skrash.book.presentation.BookApplication
+import com.skrash.book.presentation.ViewModelFactory
 import com.skrash.book.presentation.addBookActivity.AddBookActivity
 import com.skrash.book.presentation.addBookActivity.AddBookItemFragment
 import com.skrash.book.presentation.bookInfoActivity.BookInfoActivity
+import com.skrash.book.presentation.bookInfoActivity.BookInfoFragment
 import javax.inject.Inject
-import kotlin.concurrent.thread
+
 
 class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedListener {
 
@@ -35,6 +39,7 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
 
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        isStoragePermissionGranted()
         setContentView(binding.root)
         init()
         setupRecyclerView()
@@ -49,6 +54,25 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
             } else {
                 launchFragment(AddBookItemFragment.newInstanceAddItem())
             }
+        }
+    }
+
+    private fun isStoragePermissionGranted(): Boolean {
+        return if (Build.VERSION.SDK_INT >= 23) {
+            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED
+            ) {
+                true
+            } else {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    1
+                )
+                false
+            }
+        } else {
+            true
         }
     }
 

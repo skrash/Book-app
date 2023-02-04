@@ -1,4 +1,4 @@
-package com.skrash.book.presentation
+package com.skrash.book.presentation.bookInfoActivity
 
 import android.content.Context
 import android.os.Bundle
@@ -9,7 +9,9 @@ import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import com.skrash.book.databinding.FragmentBookInfoBinding
 import com.skrash.book.domain.entities.BookItem
-import com.skrash.book.presentation.bookInfoActivity.BookInfoViewModel
+import com.skrash.book.presentation.BookApplication
+import com.skrash.book.presentation.ViewModelFactory
+import com.skrash.book.presentation.openBookActivity.OpenBookActivity
 import javax.inject.Inject
 
 class BookInfoFragment : Fragment() {
@@ -64,7 +66,9 @@ class BookInfoFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         viewModel.getBookItem(bookItemId)
         binding.btnOpen.setOnClickListener {
-            TODO()
+            if(viewModel.bookItem.value != null){
+                startActivity(OpenBookActivity.newIntent(requireContext(), viewModel.bookItem.value!!.id))
+            }
         }
     }
 
