@@ -2,17 +2,14 @@ package com.skrash.book.data
 
 import android.graphics.Bitmap
 import android.graphics.pdf.PdfRenderer
-import android.net.Uri
 import android.os.ParcelFileDescriptor
 import android.util.Log
-import androidx.core.net.toUri
 import androidx.lifecycle.LiveData
 import com.skrash.book.data.myBook.MyBookItemMapper
 import com.skrash.book.data.myBook.MyBookListDao
 import com.skrash.book.domain.BookItemRepository
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.FormatBook
-import kotlinx.coroutines.delay
 import java.io.File
 import javax.inject.Inject
 
@@ -47,36 +44,21 @@ class BookItemRepositoryImpl @Inject constructor(
         return BookListGeneral.bookListGeneral
     }
 
-    override suspend fun openBookItem(path: String, type: FormatBook, width: Int, height: Int): Bitmap {
+    override suspend fun openBookItem(path: String, type: FormatBook): Any {
         val file = File(path)
 
         when(type){
             FormatBook.PDF -> {
-                return openPDF(file, width, height)
+                return openPDF(file)
             }
         }
     }
 
-    private fun openPDF(file: File, width: Int, height: Int): Bitmap{
+    private fun openPDF(file: File): Any{
         Log.d("TEST", file.path)
         val fileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
         pdfRenderer = PdfRenderer(fileDescriptor)
-        page = pdfRenderer!!.openPage(0)
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_4444)
-        if (page == null) {
-            throw RuntimeException("Incorrect number page is null")
-        }
-        page!!.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-        return bitmap
-    }
-
-    override fun closeBook()
-    {
-        if (page == null){
-            throw RuntimeException("")
-        }
-        page!!.close()
-        pdfRenderer!!.close()
+        return pdfRenderer!!
     }
 
     private fun updateGeneralBookList(){

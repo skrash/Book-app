@@ -10,7 +10,7 @@ class OpenBookItemUseCase @Inject constructor(
     private val bookItemRepository: BookItemRepository
 ) {
 
-    suspend fun openBookItem(path: String, type: FormatBook, width: Int, height: Int): Bitmap{
-        return bookItemRepository.openBookItem(path, type, width, height)
+    suspend fun openBookItem(path: String, type: FormatBook): Any{
+        return bookItemRepository.openBookItem(path, type)
     }
 }

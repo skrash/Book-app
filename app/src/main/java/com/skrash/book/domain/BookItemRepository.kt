@@ -15,7 +15,6 @@ interface BookItemRepository {
 
     fun getBookItemList(): LiveData<List<BookItem>>
 
-    suspend fun openBookItem(path: String, type: FormatBook, width: Int, height: Int): Bitmap
+    suspend fun openBookItem(path: String, type: FormatBook): Any
 
-    fun closeBook()
 }
