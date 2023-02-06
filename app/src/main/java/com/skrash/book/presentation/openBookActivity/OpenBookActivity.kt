@@ -6,7 +6,10 @@ import android.content.Intent
 import android.graphics.Point
 import android.os.Bundle
 import android.util.Log
+import android.view.KeyEvent
 import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
@@ -60,20 +63,20 @@ class OpenBookActivity : AppCompatActivity() {
 
     @SuppressLint("SetTextI18n")
     private fun adapterInit(width: Int, height: Int) {
-        with(binding.rvMain){
+        with(binding.rvMain) {
             pageAdapter = PageAdapter(viewModel, width, height)
             adapter = pageAdapter
         }
-        viewModel.pageList.observe(this){
+        viewModel.pageList.observe(this) {
             pageAdapter.submitList(it)
         }
-        viewModel.page.observe(this){
+        viewModel.page.observe(this) {
             binding.fabPageNum.text = it + " " + getString(R.string.page)
         }
         setupAdapterListener()
     }
 
-    private fun setupAdapterListener(){
+    private fun setupAdapterListener() {
         binding.rvMain.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
@@ -89,6 +92,24 @@ class OpenBookActivity : AppCompatActivity() {
                 Log.d("TEST5", viewModel.page.value!!)
             }
         })
+        binding.fabPageNum.setOnClickListener {
+            binding.fabPageNum.visibility = View.GONE
+            binding.editText.visibility = View.VISIBLE
+            binding.editText.setOnEditorActionListener { textView, i, event ->
+                if(event != null && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER) || (i == EditorInfo.IME_ACTION_DONE)) {
+                    binding.editText.visibility = View.GONE
+                    val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(binding.editText.windowToken, 0)
+                    Log.d("TEST6", (binding.editText.text.toString().toInt() * viewModel.height).toString())
+                    binding.rvMain.scrollToPosition(binding.editText.text.toString().toInt())
+                    viewModel.jumpTo(binding.editText.text.toString().toInt())
+                }
+                false
+            }
+            binding.editText.requestFocus()
+            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(binding.editText, InputMethodManager.SHOW_IMPLICIT)
+        }
     }
 
     private fun parseIntent() {

@@ -23,6 +23,8 @@
     <string name="hintTags">Теги, через запятую</string>
     <string name="hintPath">Выберите файл</string>
 
+    <string name="page_hint">0</string>
+
     <!-- errors -->
     <string name="error_input_title">Некорректное название книги</string>
     <string name="error_input_author">Некорректное имя автора</string>

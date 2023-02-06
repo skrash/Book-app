@@ -27,6 +27,9 @@ class OpenBookViewModel @Inject constructor(
     private var _offsetResidual = 0
 
     private var _height = 0
+    val height
+    get() = _height
+
     private var _page = MutableLiveData("0")
     val page: MutableLiveData<String>
         get() = _page
@@ -57,6 +60,11 @@ class OpenBookViewModel @Inject constructor(
             _offsetResidual += offset % _height
         }
         Log.d("TEST5", "offset $offset, _offsetResidual $_offsetResidual")
+    }
+
+    fun jumpTo(page: Int){
+        _page.value = page.toString()
+        _offsetResidual = 0
     }
 
     private suspend fun initPDF(path: String) {

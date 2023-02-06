@@ -18,6 +18,24 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editText"
+                android:maxLines="1"
+                android:layout_margin="60dp"
+                android:inputType="number"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="@string/page_hint"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <TextView
