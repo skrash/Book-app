@@ -57,9 +57,6 @@ class OpenBookActivity : AppCompatActivity() {
         viewModel.init(bookItemId, height)
         adapterInit(width, height)
     }
-//        binding.btnClose.setOnClickListener {
-//            viewModel.closeRender()
-//        }
 
     @SuppressLint("SetTextI18n")
     private fun adapterInit(width: Int, height: Int) {

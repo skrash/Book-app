@@ -50,7 +50,7 @@ class OpenBookViewModel @Inject constructor(
         _page.value = (_page.value!!.toInt() + ( offset / _height)).toString()
         Log.d("TEST5", ((_offsetResidual + offset) / _height > 1).toString())
         Log.d("TEST5", ((_offsetResidual + offset) / _height).toString())
-        if ((_offsetResidual + offset) / _height >= 1)
+        if ((_offsetResidual + offset) / _height >= 1 || (_offsetResidual + offset) / _height <= -1)
         {
             _page.value = (_page.value!!.toInt()+ (_offsetResidual + offset) / _height).toString()
             _offsetResidual += offset % _height
