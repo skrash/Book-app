@@ -17,7 +17,6 @@ import kotlin.random.nextInt
 
 class MainActivityViewModel @Inject constructor(
     private val getMyBookListUseCase: GetMyBookListUseCase,
-    private val addToMyBookListUseCase: AddToMyBookListUseCase,
     private val deleteBookItemFromMyListUseCase: DeleteBookItemFromMyListUseCase
 ) : ViewModel() {
 
