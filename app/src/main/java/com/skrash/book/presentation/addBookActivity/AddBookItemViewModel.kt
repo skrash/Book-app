@@ -142,6 +142,7 @@ class AddBookItemViewModel @Inject constructor(
                     tags = tags.trim(),
                     cover = "", // TODO
                     path = path,
+                    startOnPage = 0,
                     fileExtension = fileExtension,
                 )
             )
@@ -158,6 +159,7 @@ class AddBookItemViewModel @Inject constructor(
                     tags = tags.trim(),
                     cover = "", // TODO
                     path = path,
+                    startOnPage = 0,
                     fileExtension = fileExtension,
                 )
             )

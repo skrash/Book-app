@@ -18,10 +18,7 @@ import com.skrash.book.databinding.ActivityOpenBookBinding
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.presentation.BookApplication
 import com.skrash.book.presentation.ViewModelFactory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import javax.inject.Inject
 
 
@@ -70,6 +67,13 @@ class OpenBookActivity : AppCompatActivity() {
         viewModel.page.observe(this) {
             binding.fabPageNum.text = it + " " + getString(R.string.page)
         }
+        // if start not 0 page
+        viewModel.bookItem.observe(this){
+            Log.d("TEST7", "start page: ${it.startOnPage.toString()}")
+            if (it.startOnPage != 0){
+                goToPage(it.startOnPage)
+            }
+        }
         setupAdapterListener()
     }
 
@@ -98,8 +102,7 @@ class OpenBookActivity : AppCompatActivity() {
                     val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
                     imm.hideSoftInputFromWindow(binding.editText.windowToken, 0)
                     Log.d("TEST6", (binding.editText.text.toString().toInt() * viewModel.height).toString())
-                    binding.rvMain.scrollToPosition(binding.editText.text.toString().toInt())
-                    viewModel.jumpTo(binding.editText.text.toString().toInt())
+                    goToPage(binding.editText.text.toString().toInt())
                 }
                 false
             }
@@ -107,6 +110,26 @@ class OpenBookActivity : AppCompatActivity() {
             val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(binding.editText, InputMethodManager.SHOW_IMPLICIT)
         }
+    }
+
+    private fun goToPage(page: Int){
+        binding.rvMain.scrollToPosition(page)
+        viewModel.jumpTo(page)
+    }
+
+    private fun saveCurrentPage(page: Int){
+        viewModel.finish(page)
+    }
+
+    override fun onDestroy() {
+        saveCurrentPage(viewModel.page.value.toString().toInt())
+        super.onDestroy()
+    }
+
+    override fun onBackPressed() {
+        Log.d("TEST7", "BACK PRESSED")
+        saveCurrentPage(viewModel.page.value.toString().toInt())
+        super.onBackPressed()
     }
 
     private fun parseIntent() {
