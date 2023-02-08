@@ -4,19 +4,22 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Point
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
+import android.view.Menu
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
+import androidx.core.view.iterator
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.skrash.book.R
 import com.skrash.book.databinding.ActivityOpenBookBinding
 import com.skrash.book.domain.entities.BookItem
-import com.skrash.book.domain.entities.Bookmark
 import com.skrash.book.presentation.BookApplication
 import com.skrash.book.presentation.ViewModelFactory
 import kotlinx.coroutines.*
@@ -59,12 +62,18 @@ class OpenBookActivity : AppCompatActivity() {
             for (i in it) {
                 Log.d("TEST8", "observed page: ${i.page.toString()}")
                 bookmarkSetImg(viewModel.page.value!!.toInt() == i.page)
+                addBookmarkToNavMenu(i.page, i.page.toString())
             }
         }
         viewModel.page.observe(this) {
             Log.d("TEST11", "curr page $it")
             bookmarkSetImg(isPageHaveBookmark(it.toInt()))
         }
+    }
+
+    private fun addBookmarkToNavMenu(idItem: Int, title: String){
+        Log.d("TEST14", "ADD MENU $idItem")
+        binding.navBookmark.menu.add(Menu.NONE, idItem, Menu.NONE, title)
     }
 
     private fun bookmarkSetImg(active: Boolean){
@@ -125,6 +134,11 @@ class OpenBookActivity : AppCompatActivity() {
                     viewModel.addBookmark(viewModel.page.value!!.toInt())
                 }
             }
+        }
+        binding.navBookmark.setNavigationItemSelectedListener{
+            goToPage(it.title.toString().toInt())
+            binding.flRoot.closeDrawer(GravityCompat.START)
+            true
         }
     }
 

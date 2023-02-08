@@ -148,10 +148,10 @@ class AddBookItemFragment : Fragment() {
             for (i in Genres.values()) {
                 popupMenu.menu.add(Menu.NONE, i.ordinal, Menu.NONE, i.name)
             }
-            popupMenu.setOnMenuItemClickListener(PopupMenu.OnMenuItemClickListener { item: MenuItem? ->
+            popupMenu.setOnMenuItemClickListener{ item: MenuItem? ->
                 binding.tiGenres.setText(item?.title.toString())
                 true
-            })
+            }
             popupMenu.inflate(R.menu.popup_menu_genres)
             popupMenu.show()
         }
