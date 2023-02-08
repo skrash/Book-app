@@ -65,8 +65,10 @@ class OpenBookViewModel @Inject constructor(
             }
             _height = height
             _offsetResidual = _height / 2
-            _bookmarkList.addSource(getBookmarkListUseCase.getBookmarkList(_bookItem.value!!.id)){
-                bookmark -> _bookmarkList.value = bookmark
+            if (_bookmarkList.value == null){
+                _bookmarkList.addSource(getBookmarkListUseCase.getBookmarkList(_bookItem.value!!.id)){
+                        bookmark -> _bookmarkList.value = bookmark
+                }
             }
             Log.d("TEST8", _bookmarkList?.value.toString())
         }
