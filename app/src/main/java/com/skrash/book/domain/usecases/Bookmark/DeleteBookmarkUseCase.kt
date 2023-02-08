@@ -6,7 +6,7 @@ class DeleteBookmarkUseCase @Inject constructor(
     private val bookmarkRepository: BookmarkRepository
 )  {
 
-    suspend fun deleteBookmark(bookmarkID: Int){
-        bookmarkRepository.deleteBookmark(bookmarkID)
+    suspend fun deleteBookmark(bookmarkID: Int, pageNum: Int){
+        bookmarkRepository.deleteBookmark(bookmarkID, pageNum)
     }
 }

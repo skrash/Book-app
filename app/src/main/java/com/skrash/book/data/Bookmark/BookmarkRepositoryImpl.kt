@@ -16,8 +16,8 @@ class BookmarkRepositoryImpl @Inject constructor(
         bookmarkDao.addBookmarkItem(mapper.mapBookmarkToBookmarkDbModel(bookmark))
     }
 
-    override suspend fun deleteBookmark(bookmarkID: Int) {
-        bookmarkDao.deleteBookmarkItem(bookmarkID)
+    override suspend fun deleteBookmark(bookmarkID: Int, pageNum: Int) {
+        bookmarkDao.deleteBookmarkItem(bookmarkID, pageNum)
     }
 
     override fun getListBookmark(bookmarkID: Int): LiveData<List<Bookmark>> = Transformations.map(

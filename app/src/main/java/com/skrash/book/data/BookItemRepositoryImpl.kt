@@ -21,7 +21,6 @@ class BookItemRepositoryImpl @Inject constructor(
     private val bookList = mutableListOf<BookItem>()
     private var autoIncrement = 0
     private var pdfRenderer: PdfRenderer? = null
-    private var page: PdfRenderer.Page? = null
 
     override suspend fun addBookItem(bookItem: BookItem) {
         if (bookItem.id == BookItem.UNDEFINED_ID){

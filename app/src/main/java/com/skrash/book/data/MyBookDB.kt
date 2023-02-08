@@ -1,4 +1,4 @@
-package com.skrash.book.data.myBook
+package com.skrash.book.data
 
 import android.app.Application
 import androidx.room.Database
@@ -8,8 +8,10 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.skrash.book.data.Bookmark.BookMarkDbModel
 import com.skrash.book.data.Bookmark.BookmarkDao
+import com.skrash.book.data.myBook.MyBookItemDbModel
+import com.skrash.book.data.myBook.MyBookListDao
 
-@Database(entities = [MyBookItemDbModel::class, BookMarkDbModel::class], version = 3, exportSchema = false)
+@Database(entities = [MyBookItemDbModel::class, BookMarkDbModel::class], version = 4, exportSchema = false)
 abstract class MyBookDB: RoomDatabase() {
 
     abstract fun myBookListDao(): MyBookListDao
@@ -34,23 +36,16 @@ abstract class MyBookDB: RoomDatabase() {
                     MyBookDB::class.java,
                     DB_NAME
                 )
-                    .addMigrations(MIGRATION_1_2)
-                    .addMigrations(MIGRATION_2_3)
+                    .addMigrations(MIGRATION_3_4)
                     .build()
                 INSTANCE = db
                 return db
             }
         }
 
-        private val MIGRATION_1_2 = object : Migration(1,2){
+        private val MIGRATION_3_4 = object : Migration(3,4){
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE book_items ADD COLUMN path TEXT DEFAULT '' NOT NULL")
-            }
-        }
-        private val MIGRATION_2_3 = object : Migration(2,3){
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE book_items ADD COLUMN startOnPage INTEGER DEFAULT 0 NOT NULL")
-                database.execSQL("CREATE TABLE `bookmark`(`bookmarkID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `bookID` INTEGER NOT NULL, `page` INTEGER NOT NULL, FOREIGN KEY(\"bookID\") REFERENCES \"book_items\"(\"id\") ON DELETE CASCADE)")
+                database.execSQL("ALTER TABLE bookmark ADD COLUMN comment TEXT DEFAULT '' NOT NULL")
             }
         }
     }

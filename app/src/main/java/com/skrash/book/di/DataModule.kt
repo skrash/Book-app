@@ -4,7 +4,7 @@ import android.app.Application
 import com.skrash.book.data.BookItemRepositoryImpl
 import com.skrash.book.data.Bookmark.BookmarkDao
 import com.skrash.book.data.Bookmark.BookmarkRepositoryImpl
-import com.skrash.book.data.myBook.MyBookDB
+import com.skrash.book.data.MyBookDB
 import com.skrash.book.data.myBook.MyBookItemRepositoryImpl
 import com.skrash.book.data.myBook.MyBookListDao
 import com.skrash.book.domain.BookItemRepository

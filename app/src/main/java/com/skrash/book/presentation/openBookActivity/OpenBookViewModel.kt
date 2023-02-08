@@ -12,6 +12,7 @@ import com.skrash.book.domain.entities.Bookmark
 import com.skrash.book.domain.entities.FormatBook
 import com.skrash.book.domain.usecases.AddBookItemUseCase
 import com.skrash.book.domain.usecases.Bookmark.AddBookmarkUseCase
+import com.skrash.book.domain.usecases.Bookmark.DeleteBookmarkUseCase
 import com.skrash.book.domain.usecases.Bookmark.GetBookmarkListUseCase
 import com.skrash.book.domain.usecases.GetBookItemUseCase
 import com.skrash.book.domain.usecases.MyList.AddToMyBookListUseCase
@@ -24,10 +25,10 @@ import javax.inject.Inject
 class OpenBookViewModel @Inject constructor(
     private val getBookItemUseCase: GetBookItemUseCase,
     private val openBookItemUseCase: OpenBookItemUseCase,
-    private val addToMyBookListUseCase: AddToMyBookListUseCase,
     private val addBookmarkUseCase: AddBookmarkUseCase,
     private val getBookmarkListUseCase: GetBookmarkListUseCase,
-    private val updateStartOnPageUseCase: UpdateStartOnPageUseCase
+    private val updateStartOnPageUseCase: UpdateStartOnPageUseCase,
+    private val deleteBookmarkUseCase: DeleteBookmarkUseCase
 ) : ViewModel() {
 
     private var _pageList = MutableLiveData<List<Int>>()
@@ -106,8 +107,17 @@ class OpenBookViewModel @Inject constructor(
     fun addBookmark(page: Int) {
         viewModelScope.launch {
             Log.d("TEST10", "bookid = ${_bookItem.value!!.id}, page = $page")
-            val bookmark = Bookmark(bookID = _bookItem.value!!.id, page = page)
+            val bookmark = Bookmark(bookID = _bookItem.value!!.id, page = page, comment = "")
             addBookmarkUseCase.addBookmark(bookmark)
+        }
+    }
+
+    fun deleteBookmark(page: Int){
+        viewModelScope.launch {
+            if(_bookItem.value != null){
+                Log.d("TEST12", "delete bookId: ${_bookItem.value!!.id}, page: $page")
+                deleteBookmarkUseCase.deleteBookmark(_bookItem.value!!.id, page)
+            }
         }
     }
 }

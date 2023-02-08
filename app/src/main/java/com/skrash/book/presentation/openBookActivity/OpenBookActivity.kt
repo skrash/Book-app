@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.skrash.book.R
 import com.skrash.book.databinding.ActivityOpenBookBinding
 import com.skrash.book.domain.entities.BookItem
+import com.skrash.book.domain.entities.Bookmark
 import com.skrash.book.presentation.BookApplication
 import com.skrash.book.presentation.ViewModelFactory
 import kotlinx.coroutines.*
@@ -57,37 +58,38 @@ class OpenBookActivity : AppCompatActivity() {
         viewModel.bookmarkList.observe(this) {
             for (i in it) {
                 Log.d("TEST8", "observed page: ${i.page.toString()}")
-                if (viewModel.page.value!!.toInt() == i.page) {
-                    binding.imBookmark.setImageResource(R.mipmap.ic_bookmark_colored_foreground)
-                    binding.imBookmark.alpha = 1.0f
-                    coroutine.launch {
-                        delay(1500)
-                        binding.imBookmark.alpha = 0.1f
-                    }
-                }
+                bookmarkSetImg(viewModel.page.value!!.toInt() == i.page)
             }
         }
         viewModel.page.observe(this) {
             Log.d("TEST11", "curr page $it")
-            if (viewModel.bookmarkList.value != null) {
-                for (i in viewModel.bookmarkList.value!!) {
-                    if (i.page == it.toInt()){
-                        Log.d("TEST11", "bookmark page ${i.page}")
-                        binding.imBookmark.setImageResource(R.mipmap.ic_bookmark_colored_foreground)
-                        binding.imBookmark.alpha = 1.0f
-                        coroutine.launch {
-                            delay(1500)
-                            binding.imBookmark.alpha = 0.1f
-                        }
-                        break
-                    } else {
-                        Log.d("TEST11", "no bookmark, curr page: $it bookmark ${i.page}")
-                        binding.imBookmark.setImageResource(R.drawable.bookmark)
-                        binding.imBookmark.alpha = 0.1f
-                    }
+            bookmarkSetImg(isPageHaveBookmark(it.toInt()))
+        }
+    }
+
+    private fun bookmarkSetImg(active: Boolean){
+        if (active){
+            binding.imBookmark.setImageResource(R.mipmap.ic_bookmark_colored_foreground)
+            binding.imBookmark.alpha = 1.0f
+            coroutine.launch {
+                delay(1500)
+                binding.imBookmark.alpha = 0.1f
+            }
+        } else {
+            binding.imBookmark.setImageResource(R.drawable.bookmark)
+            binding.imBookmark.alpha = 0.1f
+        }
+    }
+
+    private fun isPageHaveBookmark(page: Int): Boolean {
+        if (viewModel.bookmarkList.value != null) {
+            for (i in viewModel.bookmarkList.value!!) {
+                if (i.page == page) {
+                    return true
                 }
             }
         }
+        return false
     }
 
     private fun setupListeners() {
@@ -112,7 +114,17 @@ class OpenBookActivity : AppCompatActivity() {
             imm.showSoftInput(binding.editText, InputMethodManager.SHOW_IMPLICIT)
         }
         binding.imBookmark.setOnClickListener {
-            viewModel.addBookmark(viewModel.page.value!!.toInt())
+            if (viewModel.page.value != null) {
+                Log.d("TEST12", "imBook clicked, page: ${viewModel.page.value!!.toInt()}")
+                if (isPageHaveBookmark(viewModel.page.value!!.toInt())) {
+                    bookmarkSetImg(false)
+                    Log.d("TEST12","mode delete")
+                    viewModel.deleteBookmark(viewModel.page.value!!.toInt())
+                } else {
+                    Log.d("TEST12","mode add")
+                    viewModel.addBookmark(viewModel.page.value!!.toInt())
+                }
+            }
         }
     }
 

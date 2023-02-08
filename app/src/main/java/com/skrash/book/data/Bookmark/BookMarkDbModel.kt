@@ -15,5 +15,6 @@ class BookMarkDbModel(
     @PrimaryKey(autoGenerate = true)
     val bookmarkID: Int,
     val bookID: Int,
-    val page: Int
+    val page: Int,
+    val comment: String
 )
