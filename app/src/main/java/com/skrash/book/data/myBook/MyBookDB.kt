@@ -7,11 +7,13 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.skrash.book.data.Bookmark.BookMarkDbModel
+import com.skrash.book.data.Bookmark.BookmarkDao
 
 @Database(entities = [MyBookItemDbModel::class, BookMarkDbModel::class], version = 3, exportSchema = false)
 abstract class MyBookDB: RoomDatabase() {
 
     abstract fun myBookListDao(): MyBookListDao
+    abstract fun bookmarkDao(): BookmarkDao
 
     companion object {
 
@@ -40,12 +42,12 @@ abstract class MyBookDB: RoomDatabase() {
             }
         }
 
-        val MIGRATION_1_2 = object : Migration(1,2){
+        private val MIGRATION_1_2 = object : Migration(1,2){
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("ALTER TABLE book_items ADD COLUMN path TEXT DEFAULT '' NOT NULL")
             }
         }
-        val MIGRATION_2_3 = object : Migration(2,3){
+        private val MIGRATION_2_3 = object : Migration(2,3){
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("ALTER TABLE book_items ADD COLUMN startOnPage INTEGER DEFAULT 0 NOT NULL")
                 database.execSQL("CREATE TABLE `bookmark`(`bookmarkID` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `bookID` INTEGER NOT NULL, `page` INTEGER NOT NULL, FOREIGN KEY(\"bookID\") REFERENCES \"book_items\"(\"id\") ON DELETE CASCADE)")

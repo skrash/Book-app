@@ -8,7 +8,7 @@ class GetBookmarkListUseCase @Inject constructor(
     private val bookmarkRepository: BookmarkRepository
 )  {
 
-    fun getBookmarkList(): LiveData<List<Bookmark>>{
-        return bookmarkRepository.getListBookmark()
+    fun getBookmarkList(bookmarkID: Int): LiveData<List<Bookmark>>{
+        return bookmarkRepository.getListBookmark(bookmarkID)
     }
 }

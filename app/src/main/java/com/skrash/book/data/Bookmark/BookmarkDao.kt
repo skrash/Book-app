@@ -12,9 +12,9 @@ interface BookmarkDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addBookmarkItem(bookMarkDbModel: BookMarkDbModel)
 
-    @Query("DELETE FROM bookmark WHERE id=:bookmarkId")
+    @Query("DELETE FROM bookmark WHERE bookmarkID=:bookmarkId")
     suspend fun deleteBookmarkItem(bookmarkId: Int)
 
-    @Query("SELECT * FROM bookmark")
-    fun getBookmarkList(): LiveData<List<BookMarkDbModel>>
+    @Query("SELECT * FROM bookmark WHERE bookID=:bookmarks")
+    fun getBookmarkList(bookmarks: Int): LiveData<List<BookMarkDbModel>>
 }

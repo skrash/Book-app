@@ -15,4 +15,6 @@ interface MyBookItemRepository {
 
     suspend fun editMyBookItem(bookItem: BookItem)
 
+    suspend fun updateStartOnPage(pageNum: Int, bookID: Int)
+
 }

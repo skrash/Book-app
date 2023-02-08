@@ -20,4 +20,7 @@ interface MyBookListDao {
 
     @Query("SELECT * FROM book_items WHERE id=:bookItemID LIMIT 1")
     suspend fun getBookItem(bookItemID: Int): MyBookItemDbModel
+
+    @Query("UPDATE book_items SET startOnPage=:pageNum WHERE id=:bookID")
+    suspend fun updatePage(pageNum: Int, bookID: Int)
 }

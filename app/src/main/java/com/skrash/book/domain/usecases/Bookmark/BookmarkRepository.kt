@@ -9,5 +9,5 @@ interface BookmarkRepository {
 
     suspend fun deleteBookmark(bookmarkID: Int)
 
-    fun getListBookmark(): LiveData<List<Bookmark>>
+    fun getListBookmark(bookmarkID: Int): LiveData<List<Bookmark>>
 }

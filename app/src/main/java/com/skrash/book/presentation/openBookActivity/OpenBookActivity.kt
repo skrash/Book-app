@@ -53,6 +53,67 @@ class OpenBookActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this, viewModelFactory)[OpenBookViewModel::class.java]
         viewModel.init(bookItemId, height)
         adapterInit(width, height)
+        setupListeners()
+        viewModel.bookmarkList.observe(this) {
+            for (i in it) {
+                Log.d("TEST8", "observed page: ${i.page.toString()}")
+                if (viewModel.page.value!!.toInt() == i.page) {
+                    binding.imBookmark.setImageResource(R.mipmap.ic_bookmark_colored_foreground)
+                    binding.imBookmark.alpha = 1.0f
+                    coroutine.launch {
+                        delay(1500)
+                        binding.imBookmark.alpha = 0.1f
+                    }
+                }
+            }
+        }
+        viewModel.page.observe(this) {
+            Log.d("TEST11", "curr page $it")
+            if (viewModel.bookmarkList.value != null) {
+                for (i in viewModel.bookmarkList.value!!) {
+                    if (i.page == it.toInt()){
+                        Log.d("TEST11", "bookmark page ${i.page}")
+                        binding.imBookmark.setImageResource(R.mipmap.ic_bookmark_colored_foreground)
+                        binding.imBookmark.alpha = 1.0f
+                        coroutine.launch {
+                            delay(1500)
+                            binding.imBookmark.alpha = 0.1f
+                        }
+                        break
+                    } else {
+                        Log.d("TEST11", "no bookmark, curr page: $it bookmark ${i.page}")
+                        binding.imBookmark.setImageResource(R.drawable.bookmark)
+                        binding.imBookmark.alpha = 0.1f
+                    }
+                }
+            }
+        }
+    }
+
+    private fun setupListeners() {
+        binding.fabPageNum.setOnClickListener {
+            binding.fabPageNum.visibility = View.GONE
+            binding.editText.visibility = View.VISIBLE
+            binding.editText.setOnEditorActionListener { textView, i, event ->
+                if (event != null && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER) || (i == EditorInfo.IME_ACTION_DONE)) {
+                    binding.editText.visibility = View.GONE
+                    val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+                    imm.hideSoftInputFromWindow(binding.editText.windowToken, 0)
+                    Log.d(
+                        "TEST6",
+                        (binding.editText.text.toString().toInt() * viewModel.height).toString()
+                    )
+                    goToPage(binding.editText.text.toString().toInt())
+                }
+                false
+            }
+            binding.editText.requestFocus()
+            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(binding.editText, InputMethodManager.SHOW_IMPLICIT)
+        }
+        binding.imBookmark.setOnClickListener {
+            viewModel.addBookmark(viewModel.page.value!!.toInt())
+        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -68,9 +129,9 @@ class OpenBookActivity : AppCompatActivity() {
             binding.fabPageNum.text = it + " " + getString(R.string.page)
         }
         // if start not 0 page
-        viewModel.bookItem.observe(this){
+        viewModel.bookItem.observe(this) {
             Log.d("TEST7", "start page: ${it.startOnPage.toString()}")
-            if (it.startOnPage != 0){
+            if (it.startOnPage != 0) {
                 goToPage(it.startOnPage)
             }
         }
@@ -93,31 +154,14 @@ class OpenBookActivity : AppCompatActivity() {
                 Log.d("TEST5", viewModel.page.value!!)
             }
         })
-        binding.fabPageNum.setOnClickListener {
-            binding.fabPageNum.visibility = View.GONE
-            binding.editText.visibility = View.VISIBLE
-            binding.editText.setOnEditorActionListener { textView, i, event ->
-                if(event != null && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER) || (i == EditorInfo.IME_ACTION_DONE)) {
-                    binding.editText.visibility = View.GONE
-                    val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-                    imm.hideSoftInputFromWindow(binding.editText.windowToken, 0)
-                    Log.d("TEST6", (binding.editText.text.toString().toInt() * viewModel.height).toString())
-                    goToPage(binding.editText.text.toString().toInt())
-                }
-                false
-            }
-            binding.editText.requestFocus()
-            val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.showSoftInput(binding.editText, InputMethodManager.SHOW_IMPLICIT)
-        }
     }
 
-    private fun goToPage(page: Int){
+    private fun goToPage(page: Int) {
         binding.rvMain.scrollToPosition(page)
         viewModel.jumpTo(page)
     }
 
-    private fun saveCurrentPage(page: Int){
+    private fun saveCurrentPage(page: Int) {
         viewModel.finish(page)
     }
 

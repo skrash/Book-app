@@ -2,6 +2,7 @@ package com.skrash.book.di
 
 import android.app.Application
 import com.skrash.book.data.BookItemRepositoryImpl
+import com.skrash.book.data.Bookmark.BookmarkDao
 import com.skrash.book.data.Bookmark.BookmarkRepositoryImpl
 import com.skrash.book.data.myBook.MyBookDB
 import com.skrash.book.data.myBook.MyBookItemRepositoryImpl
@@ -36,6 +37,14 @@ interface DataModule {
             application: Application
         ): MyBookListDao {
             return MyBookDB.getInstance(application).myBookListDao()
+        }
+
+        @ApplicationScope
+        @Provides
+        fun provideBookmarkDao(
+            application: Application
+        ): BookmarkDao {
+            return MyBookDB.getInstance(application).bookmarkDao()
         }
     }
 

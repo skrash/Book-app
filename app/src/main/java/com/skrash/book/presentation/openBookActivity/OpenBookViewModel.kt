@@ -3,14 +3,19 @@ package com.skrash.book.presentation.openBookActivity
 import android.graphics.pdf.PdfRenderer
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skrash.book.domain.entities.BookItem
+import com.skrash.book.domain.entities.Bookmark
 import com.skrash.book.domain.entities.FormatBook
 import com.skrash.book.domain.usecases.AddBookItemUseCase
+import com.skrash.book.domain.usecases.Bookmark.AddBookmarkUseCase
+import com.skrash.book.domain.usecases.Bookmark.GetBookmarkListUseCase
 import com.skrash.book.domain.usecases.GetBookItemUseCase
 import com.skrash.book.domain.usecases.MyList.AddToMyBookListUseCase
+import com.skrash.book.domain.usecases.MyList.UpdateStartOnPageUseCase
 import com.skrash.book.domain.usecases.OpenBookItemUseCase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -19,7 +24,10 @@ import javax.inject.Inject
 class OpenBookViewModel @Inject constructor(
     private val getBookItemUseCase: GetBookItemUseCase,
     private val openBookItemUseCase: OpenBookItemUseCase,
-    private val addToMyBookListUseCase: AddToMyBookListUseCase
+    private val addToMyBookListUseCase: AddToMyBookListUseCase,
+    private val addBookmarkUseCase: AddBookmarkUseCase,
+    private val getBookmarkListUseCase: GetBookmarkListUseCase,
+    private val updateStartOnPageUseCase: UpdateStartOnPageUseCase
 ) : ViewModel() {
 
     private var _pageList = MutableLiveData<List<Int>>()
@@ -37,8 +45,12 @@ class OpenBookViewModel @Inject constructor(
         get() = _height
 
     private var _page = MutableLiveData("0")
-    val page: MutableLiveData<String>
+    val page: LiveData<String>
         get() = _page
+
+    private var _bookmarkList = MediatorLiveData<List<Bookmark>>()
+    val bookmarkList
+        get() = _bookmarkList
 
     private val _bookItem = MutableLiveData<BookItem>()
     val bookItem: LiveData<BookItem>
@@ -52,6 +64,10 @@ class OpenBookViewModel @Inject constructor(
             }
             _height = height
             _offsetResidual = _height / 2
+            _bookmarkList.addSource(getBookmarkListUseCase.getBookmarkList(_bookItem.value!!.id)){
+                bookmark -> _bookmarkList.value = bookmark
+            }
+            Log.d("TEST8", _bookmarkList?.value.toString())
         }
     }
 
@@ -83,22 +99,15 @@ class OpenBookViewModel @Inject constructor(
     fun finish(page: Int) {
         viewModelScope.launch {
             Log.d("TEST7", "bookitem starton: $page")
-            addToMyBookListUseCase.addToMyBookList(
-                BookItem(
-                    id = bookItem!!.value!!.id,
-                    title = bookItem!!.value!!.title,
-                    author = bookItem!!.value!!.author,
-                    description = bookItem!!.value!!.description,
-                    rating = bookItem!!.value!!.rating,
-                    popularity = bookItem!!.value!!.popularity,
-                    genres = bookItem!!.value!!.genres,
-                    tags = bookItem!!.value!!.tags,
-                    cover = bookItem!!.value!!.cover,
-                    path = bookItem!!.value!!.path,
-                    startOnPage = page,
-                    fileExtension = bookItem!!.value!!.fileExtension,
-                )
-            )
+            updateStartOnPageUseCase.updateStartOnPage(page, bookItem!!.value!!.id)
+        }
+    }
+
+    fun addBookmark(page: Int) {
+        viewModelScope.launch {
+            Log.d("TEST10", "bookid = ${_bookItem.value!!.id}, page = $page")
+            val bookmark = Bookmark(bookID = _bookItem.value!!.id, page = page)
+            addBookmarkUseCase.addBookmark(bookmark)
         }
     }
 }

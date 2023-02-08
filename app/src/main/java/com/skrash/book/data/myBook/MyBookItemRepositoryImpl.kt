@@ -11,8 +11,6 @@ class MyBookItemRepositoryImpl @Inject constructor(
     private val mapper: MyBookItemMapper
 ): MyBookItemRepository {
 
-    private val myBookList = mutableListOf<BookItem>()
-
     override suspend fun addToMyBookList(bookItem: BookItem) {
         myBookListDao.addMyBookItem(mapper.mapDomainToDbModel(bookItem))
     }
@@ -33,5 +31,9 @@ class MyBookItemRepositoryImpl @Inject constructor(
 
     override suspend fun editMyBookItem(bookItem: BookItem) {
         myBookListDao.addMyBookItem(mapper.mapDomainToDbModel(bookItem))
+    }
+
+    override suspend fun updateStartOnPage(pageNum: Int, bookID: Int) {
+        myBookListDao.updatePage(pageNum, bookID)
     }
 }
