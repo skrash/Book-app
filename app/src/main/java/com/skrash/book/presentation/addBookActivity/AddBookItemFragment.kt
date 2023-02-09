@@ -2,7 +2,10 @@ package com.skrash.book.presentation.addBookActivity
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.pdf.PdfDocument
+import android.graphics.pdf.PdfRenderer
 import android.os.Bundle
+import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract
 import android.text.Editable
 import android.text.TextWatcher
@@ -20,6 +23,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.skrash.book.R
 import com.skrash.book.databinding.FragmentAddBookItemBinding
 import com.skrash.book.domain.entities.BookItem
+import com.skrash.book.domain.entities.FormatBook
 import com.skrash.book.domain.entities.Genres
 import com.skrash.book.presentation.BookApplication
 import com.skrash.book.presentation.RequestFileAccess
@@ -183,6 +187,9 @@ class AddBookItemFragment : Fragment() {
             if(RequestFileAccess.isStoragePermissionGranted(requireActivity() as AddBookActivity)){
                 if (it != null) {
                     val file = File(it.path)
+                    val fileExt = file.absoluteFile.path.substringAfterLast('.', "")
+                    Log.d("TEST20", "fileExt: $fileExt")
+                    autoPaste(file, FormatBook.valueOf(fileExt.uppercase()))
                     binding.tiPath.setText(file.absolutePath.replace("/document/raw:", ""))
                 }
             } else {
@@ -192,6 +199,27 @@ class AddBookItemFragment : Fragment() {
         binding.tiPath.setOnFocusChangeListener { view, b ->
             if (b) {
                 getContent.launch(arrayOf("application/pdf"))
+            }
+        }
+    }
+
+    private fun autoPaste(file:File, formatBook: FormatBook){
+        when(formatBook){
+            FormatBook.PDF -> {
+                val fileName = file.absoluteFile.path.substringAfterLast("/")
+                Log.d("TEST20", "fileName: $fileName")
+                val regexAuthor = "[A-ZА-ЯЁa-zа-яё]+ ([A-ZА-ЯЁ]{1}[.]){1,2}".toRegex()
+                val tryAuthor = regexAuthor.findAll(fileName)
+                var authorString = ""
+                var title = fileName
+                for (i in tryAuthor){
+                    title = title.replace(i.value, "")
+                    authorString += " ${i.value} "
+                }
+                binding.tiTitle.setText(title)
+                if (authorString != ""){
+                    binding.tiAuthor.setText(authorString)
+                }
             }
         }
     }
