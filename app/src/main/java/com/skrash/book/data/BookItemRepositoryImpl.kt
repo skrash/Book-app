@@ -16,14 +16,14 @@ import javax.inject.Inject
 class BookItemRepositoryImpl @Inject constructor(
     private val mapper: MyBookItemMapper,
     private val myBookListDao: MyBookListDao
-): BookItemRepository {
+) : BookItemRepository {
 
     private val bookList = mutableListOf<BookItem>()
     private var autoIncrement = 0
     private var pdfRenderer: PdfRenderer? = null
 
     override suspend fun addBookItem(bookItem: BookItem) {
-        if (bookItem.id == BookItem.UNDEFINED_ID){
+        if (bookItem.id == BookItem.UNDEFINED_ID) {
             bookItem.id = autoIncrement++
         }
         bookList.add(bookItem)
@@ -46,21 +46,37 @@ class BookItemRepositoryImpl @Inject constructor(
     override suspend fun openBookItem(path: String, type: FormatBook): Any {
         val file = File(path)
 
-        when(type){
+        when (type) {
             FormatBook.PDF -> {
                 return openPDF(file)
             }
         }
     }
 
-    private fun openPDF(file: File): Any{
+    override suspend fun getBookCover(bookFormat: FormatBook, path: String, width: Int, height: Int): Bitmap {
+        when(bookFormat){
+            FormatBook.PDF -> {
+                val renderer =
+                    openBookItem(path, FormatBook.PDF) as PdfRenderer
+                val page = renderer.openPage(0)
+                val bitmap = Bitmap.createBitmap(
+                    width, height,
+                    Bitmap.Config.ARGB_4444
+                )
+                page!!.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                return bitmap
+            }
+        }
+    }
+
+    private fun openPDF(file: File): Any {
         Log.d("TEST", file.path)
         val fileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
         pdfRenderer = PdfRenderer(fileDescriptor)
         return pdfRenderer!!
     }
 
-    private fun updateGeneralBookList(){
+    private fun updateGeneralBookList() {
         BookListGeneral.bookListGeneral.postValue(bookList.toList())
     }
 }

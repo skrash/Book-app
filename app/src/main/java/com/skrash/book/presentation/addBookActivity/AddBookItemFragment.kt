@@ -189,7 +189,7 @@ class AddBookItemFragment : Fragment() {
                     val file = File(it.path)
                     val fileExt = file.absoluteFile.path.substringAfterLast('.', "")
                     Log.d("TEST20", "fileExt: $fileExt")
-                    autoPaste(file, FormatBook.valueOf(fileExt.uppercase()))
+                    autoPaste(file.absolutePath.replace("/document/raw:", ""), FormatBook.valueOf(fileExt.uppercase()))
                     binding.tiPath.setText(file.absolutePath.replace("/document/raw:", ""))
                 }
             } else {
@@ -203,10 +203,10 @@ class AddBookItemFragment : Fragment() {
         }
     }
 
-    private fun autoPaste(file:File, formatBook: FormatBook){
+    private fun autoPaste(path: String, formatBook: FormatBook){
         when(formatBook){
             FormatBook.PDF -> {
-                val fileName = file.absoluteFile.path.substringAfterLast("/")
+                val fileName = path.substringAfterLast("/")
                 Log.d("TEST20", "fileName: $fileName")
                 val regexAuthor = "[A-ZА-ЯЁa-zа-яё]+ ([A-ZА-ЯЁ]{1}[.]){1,2}".toRegex()
                 val tryAuthor = regexAuthor.findAll(fileName)
@@ -226,6 +226,10 @@ class AddBookItemFragment : Fragment() {
                     binding.tiAuthor.setText(authorString)
                 }
             }
+        }
+        viewModel.getCover(path, COVER_SIZE, COVER_SIZE)
+        viewModel.imageCover.observe(viewLifecycleOwner){
+            binding.ivCover.setImageBitmap(it)
         }
     }
 
@@ -277,6 +281,7 @@ class AddBookItemFragment : Fragment() {
     }
 
     companion object {
+        private const val COVER_SIZE = 300
         private const val SCREEN_MODE = "screen_mode"
         private const val MODE_ADD = "mode_add"
         private const val MODE_EDIT = "mode_edit"

@@ -1,5 +1,7 @@
 package com.skrash.book.presentation.addBookActivity
 
+import android.graphics.Bitmap
+import android.graphics.pdf.PdfRenderer
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,16 +10,23 @@ import androidx.lifecycle.viewModelScope
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.FormatBook
 import com.skrash.book.domain.entities.Genres
+import com.skrash.book.domain.usecases.GetBookCoverUseCase
 import com.skrash.book.domain.usecases.MyList.AddToMyBookListUseCase
 import com.skrash.book.domain.usecases.MyList.GetMyBookUseCase
+import com.skrash.book.domain.usecases.OpenBookItemUseCase
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
 
 class AddBookItemViewModel @Inject constructor(
     private val addToMyBookListUseCase: AddToMyBookListUseCase,
-    private val getMyBookUseCase: GetMyBookUseCase
+    private val getMyBookUseCase: GetMyBookUseCase,
+    private val getBookCoverUseCase: GetBookCoverUseCase
 ) : ViewModel() {
+
+    private val _imageCover = MutableLiveData<Bitmap>()
+    val imageCover
+    get() = _imageCover
 
     private val _bookItem = MutableLiveData<BookItem>()
     val bookItem: LiveData<BookItem>
@@ -82,7 +91,7 @@ class AddBookItemViewModel @Inject constructor(
             _errorInputAuthor.value = true
             return
         }
-        if (author.length > 50){
+        if (author.length > 50) {
             _errorInputAuthor.value = true
             return
         }
@@ -90,7 +99,7 @@ class AddBookItemViewModel @Inject constructor(
             _errorInputDescription.value = true
             return
         }
-        if (description.length > 10000){
+        if (description.length > 10000) {
             _errorInputDescription.value = true
             return
         }
@@ -100,7 +109,7 @@ class AddBookItemViewModel @Inject constructor(
         }
         try {
             Genres.valueOf(genres)
-        } catch (e: java.lang.Exception){
+        } catch (e: java.lang.Exception) {
             _errorInputGenres.value = true
             return
         }
@@ -109,7 +118,7 @@ class AddBookItemViewModel @Inject constructor(
             _errorInputTags.value = true
             return
         }
-        if(!tags.matches(Regex("[а-яё]+|[а-яё][, \\s[а-яё]]+"))){
+        if (!tags.matches(Regex("[а-яё]+|[а-яё][, \\s[а-яё]]+"))) {
             _errorInputTags.value = true
             return
         }
@@ -120,20 +129,19 @@ class AddBookItemViewModel @Inject constructor(
         }
         try {
             File(path)
-        } catch (e:Exception) {
+        } catch (e: Exception) {
             _errorInputPath.value = true
             Log.d("TEST", "failed create file")
             Log.d("TEST", e.stackTraceToString())
             return
         }
         val fileExtension = path.substringAfterLast('.', "").lowercase()
-        if(!FormatBook.values().map { it.string_name }.contains(fileExtension)) {
+        if (!FormatBook.values().map { it.string_name }.contains(fileExtension)) {
             _errorInputPath.value = true
             Log.d("TEST", "failed map file format")
             return
         }
-        if (id == null)
-        {
+        if (id == null) {
             addBookItem(
                 BookItem(
                     title = title.trim(),
@@ -169,6 +177,13 @@ class AddBookItemViewModel @Inject constructor(
         }
 
         finishWork()
+    }
+
+    fun getCover(path: String, width: Int, height: Int) {
+        viewModelScope.launch {
+            val formatFile = path.substringAfterLast(".", "").uppercase()
+            _imageCover.value = getBookCoverUseCase.getBookCover(FormatBook.valueOf(formatFile), path, width, height)
+        }
     }
 
     fun getBookItem(bookItemId: Int) {

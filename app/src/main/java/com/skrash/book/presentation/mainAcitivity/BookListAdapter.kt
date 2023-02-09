@@ -17,6 +17,7 @@ class BookListAdapter : ListAdapter<BookItem, BookListAdapter.BookItemViewHolder
 
     var onBookItemClickListener: ((BookItem) -> Unit)? = null
     var onEditBookClickListener: ((BookItem) -> Unit)? = null
+    var loadCoverFunction: ((BookItemViewHolder, BookItem) -> Unit)? = null
 
     inner class BookItemViewHolder(
         val binding: ViewDataBinding
@@ -38,6 +39,7 @@ class BookListAdapter : ListAdapter<BookItem, BookListAdapter.BookItemViewHolder
         binding.root.setOnClickListener {
             onBookItemClickListener?.invoke(bookItem)
         }
+        loadCoverFunction?.invoke(holder, bookItem)
         when(binding){
             is BookItemBinding -> {
                 binding.btnTags.setOnClickListener {

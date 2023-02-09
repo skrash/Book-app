@@ -12,12 +12,17 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.skrash.book.R
 import com.skrash.book.databinding.ActivityMainBinding
+import com.skrash.book.databinding.BookItemBinding
+import com.skrash.book.domain.entities.FormatBook
 import com.skrash.book.presentation.BookApplication
 import com.skrash.book.presentation.ViewModelFactory
 import com.skrash.book.presentation.addBookActivity.AddBookActivity
 import com.skrash.book.presentation.addBookActivity.AddBookItemFragment
 import com.skrash.book.presentation.bookInfoActivity.BookInfoActivity
 import com.skrash.book.presentation.bookInfoActivity.BookInfoFragment
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -109,6 +114,15 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
                 startActivity(intent)
             }else{
                 launchFragment(BookInfoFragment.newInstanceOpenItem(it.id))
+            }
+        }
+        bookListAdapter.loadCoverFunction = {
+            holder, itemBook ->
+            val scope = CoroutineScope(Dispatchers.Main)
+            scope.launch {
+                val bitmap = viewModel.getBookCover(FormatBook.valueOf(itemBook.fileExtension.uppercase()), itemBook.path, 150, 150)
+                val bindingCover = holder.binding as BookItemBinding
+                bindingCover.imCover.setImageBitmap(bitmap)
             }
         }
     }

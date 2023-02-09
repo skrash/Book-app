@@ -17,4 +17,6 @@ interface BookItemRepository {
 
     suspend fun openBookItem(path: String, type: FormatBook): Any
 
+    suspend fun getBookCover(bookFormat: FormatBook, path: String, width: Int, height: Int): Bitmap
+
 }
