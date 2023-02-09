@@ -40,16 +40,19 @@ class MainActivityViewModel @Inject constructor(
     fun initializeFromDefaultPath() {
         val booksPathsArray = listOf<File>(
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
         )
         for (i in booksPathsArray) {
             val book = i.listFiles { _, fileName ->
                 fileName.contains(".pdf") || fileName.contains(".PDF")
             }
-            for (filePath in book!!) {
-                if (checkBookNotInMyList(filePath.absolutePath)){
-                    val bookItem = compileDefaultBookItem(filePath.absolutePath, FormatBook.PDF)
-                    viewModelScope.launch {
-                        addToMyBookListUseCase.addToMyBookList(bookItem)
+            if (book != null){
+                for (filePath in book!!) {
+                    if (checkBookNotInMyList(filePath.absolutePath)){
+                        val bookItem = compileDefaultBookItem(filePath.absolutePath, FormatBook.PDF)
+                        viewModelScope.launch {
+                            addToMyBookListUseCase.addToMyBookList(bookItem)
+                        }
                     }
                 }
             }

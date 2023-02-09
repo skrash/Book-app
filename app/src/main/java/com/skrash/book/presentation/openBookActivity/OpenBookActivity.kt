@@ -3,7 +3,9 @@ package com.skrash.book.presentation.openBookActivity
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.Point
+import android.graphics.pdf.PdfRenderer
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -23,6 +25,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.skrash.book.R
 import com.skrash.book.databinding.ActivityOpenBookBinding
+import com.skrash.book.databinding.PageItemBinding
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.Bookmark
 import com.skrash.book.presentation.BookApplication
@@ -62,10 +65,14 @@ class OpenBookActivity : AppCompatActivity() {
         val height = size.y
         val width = size.x
         viewModel = ViewModelProvider(this, viewModelFactory)[OpenBookViewModel::class.java]
-        if (RequestFileAccess.isStoragePermissionGranted(this)){
+        if (RequestFileAccess.isStoragePermissionGranted(this)) {
             viewModel.init(bookItemId, height)
         } else {
-            Toast.makeText(this, getString(R.string.permission_file_access_denied), Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                this,
+                getString(R.string.permission_file_access_denied),
+                Toast.LENGTH_LONG
+            ).show()
         }
         adapterInit(width, height)
         setupListeners()
@@ -85,15 +92,20 @@ class OpenBookActivity : AppCompatActivity() {
         }
     }
 
-    private fun addBookmarkToNavMenu(listBookmark: List<Bookmark>){
+    private fun addBookmarkToNavMenu(listBookmark: List<Bookmark>) {
         bookmarkMenu.clear()
-        for (i in listBookmark){
-            bookmarkMenu.add(bookmarkMenu.item.itemId, i.page, Menu.NONE, "${i.page} ${getString(R.string.page)}")
+        for (i in listBookmark) {
+            bookmarkMenu.add(
+                bookmarkMenu.item.itemId,
+                i.page,
+                Menu.NONE,
+                "${i.page} ${getString(R.string.page)}"
+            )
         }
     }
 
-    private fun bookmarkSetImg(active: Boolean){
-        if (active){
+    private fun bookmarkSetImg(active: Boolean) {
+        if (active) {
             binding.imBookmark.setImageResource(R.mipmap.ic_bookmark_colored_foreground)
             binding.imBookmark.alpha = 1.0f
             coroutine.launch {
@@ -143,15 +155,15 @@ class OpenBookActivity : AppCompatActivity() {
                 Log.d("TEST12", "imBook clicked, page: ${viewModel.page.value!!.toInt()}")
                 if (isPageHaveBookmark(viewModel.page.value!!.toInt())) {
                     bookmarkSetImg(false)
-                    Log.d("TEST12","mode delete")
+                    Log.d("TEST12", "mode delete")
                     viewModel.deleteBookmark(viewModel.page.value!!.toInt())
                 } else {
-                    Log.d("TEST12","mode add")
+                    Log.d("TEST12", "mode add")
                     viewModel.addBookmark(viewModel.page.value!!.toInt())
                 }
             }
         }
-        binding.navBookmark.setNavigationItemSelectedListener{
+        binding.navBookmark.setNavigationItemSelectedListener {
             goToPage(it.itemId)
             binding.flRoot.closeDrawer(GravityCompat.START)
             true
@@ -161,7 +173,7 @@ class OpenBookActivity : AppCompatActivity() {
     @SuppressLint("SetTextI18n")
     private fun adapterInit(width: Int, height: Int) {
         with(binding.rvMain) {
-            pageAdapter = PageAdapter(viewModel, width, height)
+            pageAdapter = PageAdapter()
             adapter = pageAdapter
         }
         viewModel.pageList.observe(this) {
@@ -175,6 +187,19 @@ class OpenBookActivity : AppCompatActivity() {
             Log.d("TEST7", "start page: ${it.startOnPage.toString()}")
             if (it.startOnPage != 0) {
                 goToPage(it.startOnPage)
+            }
+        }
+        pageAdapter.renderPageImage = { holder, position ->
+            if (viewModel.pdfRenderer != null) {
+                val page = viewModel.pdfRenderer!!.openPage(position)
+                val bitmap = Bitmap.createBitmap(
+                    width, height,
+                    Bitmap.Config.ARGB_4444
+                )
+                page!!.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                val holderBinding = holder.binding as PageItemBinding
+                holderBinding.ivMain.setImageBitmap(bitmap)
+                page.close()
             }
         }
         setupAdapterListener()

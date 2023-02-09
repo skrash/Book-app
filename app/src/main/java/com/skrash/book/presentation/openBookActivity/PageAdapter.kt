@@ -13,10 +13,12 @@ import com.skrash.book.R
 import com.skrash.book.databinding.PageItemBinding
 
 
-class PageAdapter(private val viewModel: OpenBookViewModel, private val width: Int, private val height: Int) :
+class PageAdapter :
     ListAdapter<Int, PageAdapter.PageAdapterHolder>(
         BookPageDiffCallback()
     ) {
+
+    var renderPageImage: ((holder: PageAdapter.PageAdapterHolder, position: Int) -> Unit)? = null
 
     inner class PageAdapterHolder(
         val binding: ViewDataBinding
@@ -38,16 +40,7 @@ class PageAdapter(private val viewModel: OpenBookViewModel, private val width: I
     override fun onBindViewHolder(holder: PageAdapter.PageAdapterHolder, position: Int) {
         when (val binding = holder.binding) {
             is PageItemBinding -> {
-                if (viewModel.pdfRenderer != null) {
-                    val page = viewModel.pdfRenderer!!.openPage(position)
-                    val bitmap = Bitmap.createBitmap(
-                        width, height,
-                        Bitmap.Config.ARGB_4444
-                    )
-                    page!!.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-                    binding.ivMain.setImageBitmap(bitmap)
-                    page.close()
-                }
+                renderPageImage?.invoke(holder, position)
             }
         }
     }
