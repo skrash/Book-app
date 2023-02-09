@@ -115,18 +115,21 @@ class AddBookItemViewModel @Inject constructor(
         }
         if (path == null) {
             _errorInputPath.value = true
+            Log.d("TEST", "path is null")
             return
         }
         try {
             File(path)
         } catch (e:Exception) {
             _errorInputPath.value = true
+            Log.d("TEST", "failed create file")
             Log.d("TEST", e.stackTraceToString())
             return
         }
-        val fileExtension = path.substringAfterLast('.', "")
+        val fileExtension = path.substringAfterLast('.', "").lowercase()
         if(!FormatBook.values().map { it.string_name }.contains(fileExtension)) {
             _errorInputPath.value = true
+            Log.d("TEST", "failed map file format")
             return
         }
         if (id == null)

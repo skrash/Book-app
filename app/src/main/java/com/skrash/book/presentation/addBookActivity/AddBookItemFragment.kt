@@ -214,8 +214,13 @@ class AddBookItemFragment : Fragment() {
                 var title = fileName
                 for (i in tryAuthor){
                     title = title.replace(i.value, "")
-                    authorString += " ${i.value} "
+                    if (i.value != ""){
+                        authorString += "${i.value},"
+                    }
                 }
+                title = title.replace("." + title.substringAfterLast(".", ""), "")
+                title = title.replace("[,.-]+".toRegex(), "")
+                title = title.trim()
                 binding.tiTitle.setText(title)
                 if (authorString != ""){
                     binding.tiAuthor.setText(authorString)
