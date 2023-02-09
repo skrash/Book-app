@@ -1,7 +1,6 @@
 package com.skrash.book.presentation.mainAcitivity
 
 import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -39,7 +38,6 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
 
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        isStoragePermissionGranted()
         setContentView(binding.root)
         init()
         setupRecyclerView()
@@ -54,25 +52,6 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
             } else {
                 launchFragment(AddBookItemFragment.newInstanceAddItem())
             }
-        }
-    }
-
-    private fun isStoragePermissionGranted(): Boolean {
-        return if (Build.VERSION.SDK_INT >= 23) {
-            if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED
-            ) {
-                true
-            } else {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                    1
-                )
-                false
-            }
-        } else {
-            true
         }
     }
 

@@ -9,10 +9,14 @@ import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
 import android.view.Menu
+import android.view.MenuItem
+import android.view.SubMenu
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.menu.MenuView.ItemView
 import androidx.core.view.GravityCompat
 import androidx.core.view.iterator
 import androidx.lifecycle.ViewModelProvider
@@ -20,7 +24,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.skrash.book.R
 import com.skrash.book.databinding.ActivityOpenBookBinding
 import com.skrash.book.domain.entities.BookItem
+import com.skrash.book.domain.entities.Bookmark
 import com.skrash.book.presentation.BookApplication
+import com.skrash.book.presentation.RequestFileAccess
 import com.skrash.book.presentation.ViewModelFactory
 import kotlinx.coroutines.*
 import javax.inject.Inject
@@ -41,6 +47,7 @@ class OpenBookActivity : AppCompatActivity() {
     val coroutine = CoroutineScope(Dispatchers.Main)
 
     private lateinit var pageAdapter: PageAdapter
+    private lateinit var bookmarkMenu: SubMenu
 
     override fun onCreate(savedInstanceState: Bundle?) {
         component.inject(this)
@@ -55,14 +62,21 @@ class OpenBookActivity : AppCompatActivity() {
         val height = size.y
         val width = size.x
         viewModel = ViewModelProvider(this, viewModelFactory)[OpenBookViewModel::class.java]
-        viewModel.init(bookItemId, height)
+        if (RequestFileAccess.isStoragePermissionGranted(this)){
+            viewModel.init(bookItemId, height)
+        } else {
+            Toast.makeText(this, getString(R.string.permission_file_access_denied), Toast.LENGTH_LONG).show()
+        }
         adapterInit(width, height)
         setupListeners()
+        //  Menu Bookmark create
+        bookmarkMenu = binding.navBookmark.menu.addSubMenu("${getString(R.string.bookmark)}")
+        //
         viewModel.bookmarkList.observe(this) {
+            addBookmarkToNavMenu(it)
             for (i in it) {
                 Log.d("TEST8", "observed page: ${i.page.toString()}")
                 bookmarkSetImg(viewModel.page.value!!.toInt() == i.page)
-                addBookmarkToNavMenu(i.page, i.page.toString())
             }
         }
         viewModel.page.observe(this) {
@@ -71,9 +85,11 @@ class OpenBookActivity : AppCompatActivity() {
         }
     }
 
-    private fun addBookmarkToNavMenu(idItem: Int, title: String){
-        Log.d("TEST14", "ADD MENU $idItem")
-        binding.navBookmark.menu.add(Menu.NONE, idItem, Menu.NONE, title)
+    private fun addBookmarkToNavMenu(listBookmark: List<Bookmark>){
+        bookmarkMenu.clear()
+        for (i in listBookmark){
+            bookmarkMenu.add(bookmarkMenu.item.itemId, i.page, Menu.NONE, "${i.page} ${getString(R.string.page)}")
+        }
     }
 
     private fun bookmarkSetImg(active: Boolean){
@@ -136,7 +152,7 @@ class OpenBookActivity : AppCompatActivity() {
             }
         }
         binding.navBookmark.setNavigationItemSelectedListener{
-            goToPage(it.title.toString().toInt())
+            goToPage(it.itemId)
             binding.flRoot.closeDrawer(GravityCompat.START)
             true
         }

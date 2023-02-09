@@ -13,6 +13,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -21,6 +22,7 @@ import com.skrash.book.databinding.FragmentAddBookItemBinding
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.Genres
 import com.skrash.book.presentation.BookApplication
+import com.skrash.book.presentation.RequestFileAccess
 import com.skrash.book.presentation.ViewModelFactory
 import java.io.File
 import javax.inject.Inject
@@ -178,9 +180,13 @@ class AddBookItemFragment : Fragment() {
             }
         })
         val getContent = registerForActivityResult(ActivityResultContracts.OpenDocument()) {
-            if (it != null) {
-                val file = File(it.path)
-                binding.tiPath.setText(file.absolutePath.replace("/document/raw:", ""))
+            if(RequestFileAccess.isStoragePermissionGranted(requireActivity() as AddBookActivity)){
+                if (it != null) {
+                    val file = File(it.path)
+                    binding.tiPath.setText(file.absolutePath.replace("/document/raw:", ""))
+                }
+            } else {
+                Toast.makeText(requireContext(), requireContext().getString(R.string.permission_file_access_denied), Toast.LENGTH_LONG).show()
             }
         }
         binding.tiPath.setOnFocusChangeListener { view, b ->

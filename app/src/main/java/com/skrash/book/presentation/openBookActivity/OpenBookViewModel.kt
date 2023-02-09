@@ -65,9 +65,9 @@ class OpenBookViewModel @Inject constructor(
             }
             _height = height
             _offsetResidual = _height / 2
-            if (_bookmarkList.value == null){
-                _bookmarkList.addSource(getBookmarkListUseCase.getBookmarkList(_bookItem.value!!.id)){
-                        bookmark -> _bookmarkList.value = bookmark
+            if (_bookmarkList.value == null) {
+                _bookmarkList.addSource(getBookmarkListUseCase.getBookmarkList(_bookItem.value!!.id)) { bookmark ->
+                    _bookmarkList.value = bookmark
                 }
             }
             Log.d("TEST8", _bookmarkList?.value.toString())
@@ -102,7 +102,9 @@ class OpenBookViewModel @Inject constructor(
     fun finish(page: Int) {
         viewModelScope.launch {
             Log.d("TEST7", "bookitem starton: $page")
-            updateStartOnPageUseCase.updateStartOnPage(page, bookItem!!.value!!.id)
+            if(bookItem.value != null){
+                updateStartOnPageUseCase.updateStartOnPage(page, bookItem.value!!.id)
+            }
         }
     }
 
@@ -114,9 +116,9 @@ class OpenBookViewModel @Inject constructor(
         }
     }
 
-    fun deleteBookmark(page: Int){
+    fun deleteBookmark(page: Int) {
         viewModelScope.launch {
-            if(_bookItem.value != null){
+            if (_bookItem.value != null) {
                 Log.d("TEST12", "delete bookId: ${_bookItem.value!!.id}, page: $page")
                 deleteBookmarkUseCase.deleteBookmark(_bookItem.value!!.id, page)
             }
