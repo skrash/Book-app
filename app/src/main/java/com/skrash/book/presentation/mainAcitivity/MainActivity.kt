@@ -15,6 +15,7 @@ import com.skrash.book.databinding.ActivityMainBinding
 import com.skrash.book.databinding.BookItemBinding
 import com.skrash.book.domain.entities.FormatBook
 import com.skrash.book.presentation.BookApplication
+import com.skrash.book.presentation.RequestFileAccess
 import com.skrash.book.presentation.ViewModelFactory
 import com.skrash.book.presentation.addBookActivity.AddBookActivity
 import com.skrash.book.presentation.addBookActivity.AddBookItemFragment
@@ -49,6 +50,9 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         viewModel = ViewModelProvider(this, viewModelFactory)[MainActivityViewModel::class.java]
         viewModel.bookList.observe(this){
             bookListAdapter.submitList(it)
+            if (RequestFileAccess.isStoragePermissionGranted(this)){
+                initBookList()
+            }
         }
         binding.btnAdd.setOnClickListener {
             if (binding.fragmentContainer == null){
@@ -58,6 +62,10 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
                 launchFragment(AddBookItemFragment.newInstanceAddItem())
             }
         }
+    }
+
+    private fun initBookList(){
+        viewModel.initializeFromDefaultPath()
     }
 
     private fun init(){
