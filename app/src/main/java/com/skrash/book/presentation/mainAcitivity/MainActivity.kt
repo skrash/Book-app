@@ -1,11 +1,14 @@
 package com.skrash.book.presentation.mainAcitivity
 
 import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -27,7 +30,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
-class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedListener {
+class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedListener, OnRequestPermissionsResultCallback {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var bookListAdapter: BookListAdapter
@@ -145,5 +148,16 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
 
     override fun onEditingFinishedListener() {
         supportFragmentManager.popBackStack()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == 1){
+            initBookList()
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 }
