@@ -151,7 +151,6 @@ class AddBookItemViewModel @Inject constructor(
                     popularity = 0.0f,
                     genres = genresParsed,
                     tags = tags.trim(),
-                    cover = "", // TODO
                     path = path,
                     startOnPage = 0,
                     fileExtension = fileExtension,
@@ -168,7 +167,6 @@ class AddBookItemViewModel @Inject constructor(
                     popularity = 0.0f,
                     genres = genresParsed,
                     tags = tags.trim(),
-                    cover = "", // TODO
                     path = path,
                     startOnPage = 0,
                     fileExtension = fileExtension,

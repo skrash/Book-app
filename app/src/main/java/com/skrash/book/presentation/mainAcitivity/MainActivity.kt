@@ -1,18 +1,17 @@
 package com.skrash.book.presentation.mainAcitivity
 
 import android.Manifest
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.skrash.book.BuildConfig
 import com.skrash.book.R
 import com.skrash.book.databinding.ActivityMainBinding
 import com.skrash.book.databinding.BookItemBinding
@@ -55,10 +54,8 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         viewModel = ViewModelProvider(this, viewModelFactory)[MainActivityViewModel::class.java]
         viewModel.bookList.observe(this) {
             bookListAdapter.submitList(it)
-            if (RequestFileAccess.isStoragePermissionGranted(this)) {
-                initBookList()
-            }
         }
+        checkFirstRun()
         binding.btnAdd.setOnClickListener {
             if (binding.fragmentContainer == null) {
                 val intent = AddBookActivity.newIntentAddBook(this)
@@ -71,6 +68,16 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
 
     private fun initBookList() {
         viewModel.initializeFromDefaultPath()
+    }
+
+    private fun checkFirstRun(){
+        val pref = getSharedPreferences(packageName, MODE_PRIVATE)
+        if (pref.getBoolean("first_run", true)) {
+            if (RequestFileAccess.isStoragePermissionGranted(this)) {
+                initBookList()
+                pref.edit().putBoolean("first_run", false).commit()
+            }
+        }
     }
 
     private fun init() {
@@ -168,7 +175,7 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         grantResults: IntArray
     ) {
         if (grantResults[grantResults.size - 1] == PackageManager.PERMISSION_GRANTED && permissions[permissions.size - 1] == Manifest.permission.READ_EXTERNAL_STORAGE) {
-            initBookList()
+            checkFirstRun()
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }

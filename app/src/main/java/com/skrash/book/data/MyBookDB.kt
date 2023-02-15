@@ -11,8 +11,12 @@ import com.skrash.book.data.Bookmark.BookmarkDao
 import com.skrash.book.data.myBook.MyBookItemDbModel
 import com.skrash.book.data.myBook.MyBookListDao
 
-@Database(entities = [MyBookItemDbModel::class, BookMarkDbModel::class], version = 4, exportSchema = false)
-abstract class MyBookDB: RoomDatabase() {
+@Database(
+    entities = [MyBookItemDbModel::class, BookMarkDbModel::class],
+    version = 5,
+    exportSchema = false
+)
+abstract class MyBookDB : RoomDatabase() {
 
     abstract fun myBookListDao(): MyBookListDao
     abstract fun bookmarkDao(): BookmarkDao
@@ -36,16 +40,19 @@ abstract class MyBookDB: RoomDatabase() {
                     MyBookDB::class.java,
                     DB_NAME
                 )
-                    .addMigrations(MIGRATION_3_4)
+                    .addMigrations(MIGRATION_4_5)
                     .build()
                 INSTANCE = db
                 return db
             }
         }
 
-        private val MIGRATION_3_4 = object : Migration(3,4){
+
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
             override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE bookmark ADD COLUMN comment TEXT DEFAULT '' NOT NULL")
+                database.execSQL("CREATE TABLE `book_items2` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `author` TEXT NOT NULL, `description` TEXT NOT NULL, `rating` REAL NOT NULL, `popularity` REAL NOT NULL, `genres` TEXT NOT NULL, `tags` TEXT NOT NULL, `path` TEXT NOT NULL, `startOnPage` INTEGER NOT NULL, `fileExtension` TEXT NOT NULL)")
+                database.execSQL("DROP TABLE book_items")
+                database.execSQL("ALTER TABLE book_items2 RENAME TO book_items")
             }
         }
     }

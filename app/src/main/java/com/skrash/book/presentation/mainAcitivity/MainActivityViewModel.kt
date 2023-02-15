@@ -85,7 +85,6 @@ class MainActivityViewModel @Inject constructor(
                     popularity = 0.0f,
                     Genres.nan,
                     tags = "",
-                    cover = "",
                     path = path,
                     fileExtension = FormatBook.PDF.string_name,
                     startOnPage = 0
