@@ -30,11 +30,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
-class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedListener, OnRequestPermissionsResultCallback {
+class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedListener,
+    OnRequestPermissionsResultCallback {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var bookListAdapter: BookListAdapter
     private lateinit var viewModel: MainActivityViewModel
+
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
 
@@ -51,14 +53,14 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         init()
         setupRecyclerView()
         viewModel = ViewModelProvider(this, viewModelFactory)[MainActivityViewModel::class.java]
-        viewModel.bookList.observe(this){
+        viewModel.bookList.observe(this) {
             bookListAdapter.submitList(it)
-            if (RequestFileAccess.isStoragePermissionGranted(this)){
+            if (RequestFileAccess.isStoragePermissionGranted(this)) {
                 initBookList()
             }
         }
         binding.btnAdd.setOnClickListener {
-            if (binding.fragmentContainer == null){
+            if (binding.fragmentContainer == null) {
                 val intent = AddBookActivity.newIntentAddBook(this)
                 startActivity(intent)
             } else {
@@ -67,18 +69,24 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         }
     }
 
-    private fun initBookList(){
+    private fun initBookList() {
         viewModel.initializeFromDefaultPath()
     }
 
-    private fun init(){
-        val toggle = ActionBarDrawerToggle(this, binding.drawlerLayout, binding.included.toolbar, R.string.button_open, R.string.button_closed)
+    private fun init() {
+        val toggle = ActionBarDrawerToggle(
+            this,
+            binding.drawlerLayout,
+            binding.included.toolbar,
+            R.string.button_open,
+            R.string.button_closed
+        )
         binding.drawlerLayout.addDrawerListener(toggle)
         toggle.syncState()
     }
 
-    private fun setupRecyclerView(){
-        with(binding.mainRecycler){
+    private fun setupRecyclerView() {
+        with(binding.mainRecycler) {
             bookListAdapter = BookListAdapter()
             adapter = bookListAdapter
         }
@@ -109,9 +117,9 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         itemTouchHelper.attachToRecyclerView(rvShopList)
     }
 
-    private fun setupClickListener(){
+    private fun setupClickListener() {
         bookListAdapter.onEditBookClickListener = {
-            if (binding.fragmentContainer == null){
+            if (binding.fragmentContainer == null) {
                 val intent = AddBookActivity.newIntentEditBook(this, it.id)
                 startActivity(intent)
             } else {
@@ -123,22 +131,26 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
             {
                 val intent = BookInfoActivity.newIntentOpenItem(this, it.id)
                 startActivity(intent)
-            }else{
+            } else {
                 launchFragment(BookInfoFragment.newInstanceOpenItem(it.id))
             }
         }
-        bookListAdapter.loadCoverFunction = {
-            holder, itemBook ->
+        bookListAdapter.loadCoverFunction = { holder, itemBook ->
             val scope = CoroutineScope(Dispatchers.Main)
             scope.launch {
-                val bitmap = viewModel.getBookCover(FormatBook.valueOf(itemBook.fileExtension.uppercase()), itemBook.path, 150, 150)
+                val bitmap = viewModel.getBookCover(
+                    FormatBook.valueOf(itemBook.fileExtension.uppercase()),
+                    itemBook.path,
+                    150,
+                    150
+                )
                 val bindingCover = holder.binding as BookItemBinding
                 bindingCover.imCover.setImageBitmap(bitmap)
             }
         }
     }
 
-    private fun launchFragment(fragment: Fragment){
+    private fun launchFragment(fragment: Fragment) {
         supportFragmentManager.popBackStack()
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainer, fragment)
@@ -155,7 +167,7 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        if (requestCode == 1){
+        if (grantResults[grantResults.size - 1] == PackageManager.PERMISSION_GRANTED && permissions[permissions.size - 1] == Manifest.permission.READ_EXTERNAL_STORAGE) {
             initBookList()
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
