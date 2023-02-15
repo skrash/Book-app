@@ -177,10 +177,9 @@ class AddBookItemViewModel @Inject constructor(
         finishWork()
     }
 
-    fun getCover(path: String, width: Int, height: Int) {
+    fun getCover(bookItem: BookItem, width: Int, height: Int) {
         viewModelScope.launch {
-            val formatFile = path.substringAfterLast(".", "").uppercase()
-            _imageCover.value = getBookCoverUseCase.getBookCover(FormatBook.valueOf(formatFile), path, width, height)
+            _imageCover.value = getBookCoverUseCase.getBookCover(bookItem, width, height)
         }
     }
 

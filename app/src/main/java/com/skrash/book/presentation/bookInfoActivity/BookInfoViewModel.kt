@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.FormatBook
+import com.skrash.book.domain.entities.Genres
 import com.skrash.book.domain.usecases.GetBookCoverUseCase
 import com.skrash.book.domain.usecases.MyList.GetMyBookUseCase
 import kotlinx.coroutines.launch
@@ -37,8 +38,19 @@ class BookInfoViewModel @Inject constructor(
         viewModelScope.launch {
             if (_bookItem.value != null) {
                 _imgCover.value = getBookCoverUseCase.getBookCover(
-                    FormatBook.valueOf(_bookItem.value!!.fileExtension.uppercase()),
-                    _bookItem.value!!.path,
+                    BookItem(
+                        id = -1,
+                        title = "",
+                        author = "",
+                        description = "",
+                        rating = 0.0f,
+                        popularity = 0.0f,
+                        genres = Genres.nan,
+                        tags = "",
+                        path = _bookItem.value!!.path,
+                        startOnPage = 0,
+                        fileExtension = _bookItem.value!!.fileExtension.uppercase(),
+                    ),
                     300,
                     300
                 )

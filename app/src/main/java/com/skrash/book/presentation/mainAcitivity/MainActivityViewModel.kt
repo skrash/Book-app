@@ -110,11 +110,10 @@ class MainActivityViewModel @Inject constructor(
     }
 
     suspend fun getBookCover(
-        formatBook: FormatBook,
-        path: String,
+        bookItem: BookItem,
         width: Int,
         height: Int
     ): Bitmap {
-        return getBookCoverUseCase.getBookCover(formatBook, path, width, height)
+        return getBookCoverUseCase.getBookCover(bookItem, width, height)
     }
 }

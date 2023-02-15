@@ -15,7 +15,9 @@ import com.skrash.book.BuildConfig
 import com.skrash.book.R
 import com.skrash.book.databinding.ActivityMainBinding
 import com.skrash.book.databinding.BookItemBinding
+import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.FormatBook
+import com.skrash.book.domain.entities.Genres
 import com.skrash.book.presentation.BookApplication
 import com.skrash.book.presentation.RequestFileAccess
 import com.skrash.book.presentation.ViewModelFactory
@@ -146,8 +148,19 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
             val scope = CoroutineScope(Dispatchers.Main)
             scope.launch {
                 val bitmap = viewModel.getBookCover(
-                    FormatBook.valueOf(itemBook.fileExtension.uppercase()),
-                    itemBook.path,
+                    BookItem(
+                        id = -1,
+                        title = "",
+                        author = "",
+                        description = "",
+                        rating = 0.0f,
+                        popularity = 0.0f,
+                        genres = Genres.nan,
+                        tags = "",
+                        path = itemBook.path,
+                        startOnPage = 0,
+                        fileExtension = itemBook.path.substringAfterLast(".", "").uppercase(),
+                    ),
                     150,
                     150
                 )

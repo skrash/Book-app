@@ -190,16 +190,10 @@ class OpenBookActivity : AppCompatActivity() {
             }
         }
         pageAdapter.renderPageImage = { holder, position ->
-            if (viewModel.pdfRenderer != null) {
-                val page = viewModel.pdfRenderer!!.openPage(position)
-                val bitmap = Bitmap.createBitmap(
-                    width, height,
-                    Bitmap.Config.ARGB_4444
-                )
-                page!!.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+            if (viewModel.bookItem != null) {
+                val bitmap = viewModel.getPage(position, width, height)
                 val holderBinding = holder.binding as PageItemBinding
                 holderBinding.ivMain.setImageBitmap(bitmap)
-                page.close()
             }
         }
         setupAdapterListener()

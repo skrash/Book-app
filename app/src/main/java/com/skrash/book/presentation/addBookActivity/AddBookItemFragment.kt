@@ -227,7 +227,20 @@ class AddBookItemFragment : Fragment() {
                 }
             }
         }
-        viewModel.getCover(path, COVER_SIZE, COVER_SIZE)
+        viewModel.getCover(
+            BookItem(
+                id = -1,
+                title = "",
+                author = "",
+                description = "",
+                rating = 0.0f,
+                popularity = 0.0f,
+                genres = Genres.nan,
+                tags = "",
+                path = path,
+                startOnPage = 0,
+                fileExtension = path.substringAfterLast(".", "").uppercase(),
+            ), COVER_SIZE, COVER_SIZE)
         viewModel.imageCover.observe(viewLifecycleOwner){
             binding.ivCover.setImageBitmap(it)
         }

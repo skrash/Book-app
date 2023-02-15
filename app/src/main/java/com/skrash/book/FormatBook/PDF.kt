@@ -1,10 +1,8 @@
-package com.skrash.book.PDF
+package com.skrash.book.FormatBook
 
 import android.graphics.Bitmap
 import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
-import com.skrash.book.databinding.PageItemBinding
-import com.skrash.book.domain.entities.FormatBook
 import java.io.File
 
 class PDF(private val file: File) {

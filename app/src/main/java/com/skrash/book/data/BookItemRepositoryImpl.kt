@@ -1,10 +1,8 @@
 package com.skrash.book.data
 
 import android.graphics.Bitmap
-import android.graphics.pdf.PdfRenderer
-import android.os.ParcelFileDescriptor
-import android.util.Log
 import androidx.lifecycle.LiveData
+import com.skrash.book.FormatBook.PDF
 import com.skrash.book.data.myBook.MyBookItemMapper
 import com.skrash.book.data.myBook.MyBookListDao
 import com.skrash.book.domain.BookItemRepository
@@ -20,14 +18,13 @@ class BookItemRepositoryImpl @Inject constructor(
 
     private val bookList = mutableListOf<BookItem>()
     private var autoIncrement = 0
-    private var pdfRenderer: PdfRenderer? = null
+    private var curBook: BookItem? = null
 
     override suspend fun addBookItem(bookItem: BookItem) {
         if (bookItem.id == BookItem.UNDEFINED_ID) {
             bookItem.id = autoIncrement++
         }
         bookList.add(bookItem)
-        updateGeneralBookList()
     }
 
     override suspend fun editBookItem(bookItem: BookItem) {
@@ -43,40 +40,49 @@ class BookItemRepositoryImpl @Inject constructor(
         return BookListGeneral.bookListGeneral
     }
 
-    override suspend fun openBookItem(path: String, type: FormatBook): Any {
-        val file = File(path)
+    override suspend fun openBookItem(bookItem: BookItem) {
+        curBook = bookItem
+    }
 
-        when (type) {
+
+    override suspend fun getBookCover(bookItem: BookItem, width: Int, height: Int): Bitmap {
+        val formatBook = FormatBook.valueOf(bookItem.fileExtension.uppercase())
+        when (formatBook) {
             FormatBook.PDF -> {
-                return openPDF(file)
+                val file = File(bookItem.path)
+                val pdf = PDF(file)
+                return pdf.getCover(width, height)
             }
         }
     }
 
-    override suspend fun getBookCover(bookFormat: FormatBook, path: String, width: Int, height: Int): Bitmap {
-        when(bookFormat){
-            FormatBook.PDF -> {
-                val renderer =
-                    openBookItem(path, FormatBook.PDF) as PdfRenderer
-                val page = renderer.openPage(0)
-                val bitmap = Bitmap.createBitmap(
-                    width, height,
-                    Bitmap.Config.ARGB_4444
-                )
-                page!!.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-                return bitmap
+    override fun getPageBookItem(pageNum: Int, width: Int, height: Int): Bitmap {
+        if (curBook != null) {
+            val formatBook = FormatBook.valueOf(curBook!!.fileExtension.uppercase())
+            when (formatBook) {
+                FormatBook.PDF -> {
+                    val file = File(curBook!!.path)
+                    val pdf = PDF(file)
+                    return pdf.openPage(pageNum, width, height)
+                }
             }
+        } else {
+            return Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_4444)
         }
     }
 
-    private fun openPDF(file: File): Any {
-        Log.d("TEST", file.path)
-        val fileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
-        pdfRenderer = PdfRenderer(fileDescriptor)
-        return pdfRenderer!!
-    }
-
-    private fun updateGeneralBookList() {
-        BookListGeneral.bookListGeneral.postValue(bookList.toList())
+    override fun getPageCount(bookItem: BookItem): Int {
+        if (curBook != null) {
+            val formatBook = FormatBook.valueOf(curBook!!.fileExtension.uppercase())
+            when (formatBook) {
+                FormatBook.PDF -> {
+                    val file = File(curBook!!.path)
+                    val pdf = PDF(file)
+                    return pdf.getPageCount()
+                }
+            }
+        } else {
+            return 0
+        }
     }
 }

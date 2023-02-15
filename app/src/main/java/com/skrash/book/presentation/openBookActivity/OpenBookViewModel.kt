@@ -1,5 +1,6 @@
 package com.skrash.book.presentation.openBookActivity
 
+import android.graphics.Bitmap
 import android.graphics.pdf.PdfRenderer
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -10,14 +11,12 @@ import androidx.lifecycle.viewModelScope
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.Bookmark
 import com.skrash.book.domain.entities.FormatBook
-import com.skrash.book.domain.usecases.AddBookItemUseCase
+import com.skrash.book.domain.usecases.*
 import com.skrash.book.domain.usecases.Bookmark.AddBookmarkUseCase
 import com.skrash.book.domain.usecases.Bookmark.DeleteBookmarkUseCase
 import com.skrash.book.domain.usecases.Bookmark.GetBookmarkListUseCase
-import com.skrash.book.domain.usecases.GetBookItemUseCase
 import com.skrash.book.domain.usecases.MyList.AddToMyBookListUseCase
 import com.skrash.book.domain.usecases.MyList.UpdateStartOnPageUseCase
-import com.skrash.book.domain.usecases.OpenBookItemUseCase
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,16 +27,15 @@ class OpenBookViewModel @Inject constructor(
     private val addBookmarkUseCase: AddBookmarkUseCase,
     private val getBookmarkListUseCase: GetBookmarkListUseCase,
     private val updateStartOnPageUseCase: UpdateStartOnPageUseCase,
-    private val deleteBookmarkUseCase: DeleteBookmarkUseCase
+    private val deleteBookmarkUseCase: DeleteBookmarkUseCase,
+    private val getPageBookItemUseCase: GetPageBookItemUseCase,
+    private val getPageCountUseCase: GetPageCountUseCase
 ) : ViewModel() {
 
     private var _pageList = MutableLiveData<List<Int>>()
     val pageList: MutableLiveData<List<Int>>
         get() = _pageList
 
-    private var _pdfRenderer: PdfRenderer? = null
-    val pdfRenderer: PdfRenderer?
-        get() = _pdfRenderer
 
     private var _offsetResidual = 0
 
@@ -61,7 +59,9 @@ class OpenBookViewModel @Inject constructor(
         viewModelScope.launch {
             _bookItem.value = getBookItemUseCase.getBookItem(bookItemId)
             if (FormatBook.valueOf(_bookItem!!.value!!.fileExtension.uppercase()) == FormatBook.PDF) {
-                initPDF(_bookItem!!.value!!.path)
+                openBookItemUseCase.openBookItem(_bookItem!!.value!!)
+                val countPages = getPageCountUseCase.getPageCount(_bookItem!!.value!!)
+                _pageList.value = (0 until countPages).toList()
             }
             _height = height
             _offsetResidual = _height / 2
@@ -94,10 +94,6 @@ class OpenBookViewModel @Inject constructor(
         _offsetResidual = 0
     }
 
-    private suspend fun initPDF(path: String) {
-        _pdfRenderer = openBookItemUseCase.openBookItem(path, FormatBook.PDF) as PdfRenderer
-        _pageList.value = (0 until _pdfRenderer!!.pageCount).toList()
-    }
 
     fun finish(page: Int) {
         viewModelScope.launch {
@@ -122,6 +118,17 @@ class OpenBookViewModel @Inject constructor(
                 Log.d("TEST12", "delete bookId: ${_bookItem.value!!.id}, page: $page")
                 deleteBookmarkUseCase.deleteBookmark(_bookItem.value!!.id, page)
             }
+        }
+    }
+
+    fun getPage(pageNum: Int, width: Int, height: Int): Bitmap{
+        if (_bookItem.value != null){
+            return getPageBookItemUseCase.getPageBookItem(pageNum, width, height)
+        } else {
+            return Bitmap.createBitmap(
+                width, height,
+                Bitmap.Config.ARGB_4444
+            )
         }
     }
 }
