@@ -5,6 +5,7 @@ import android.content.Intent
 import android.graphics.pdf.PdfDocument
 import android.graphics.pdf.PdfRenderer
 import android.os.Bundle
+import android.os.Environment
 import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract
 import android.text.Editable
@@ -18,6 +19,7 @@ import android.view.ViewGroup
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.skrash.book.R
@@ -198,7 +200,7 @@ class AddBookItemFragment : Fragment() {
         }
         binding.tiPath.setOnFocusChangeListener { view, b ->
             if (b) {
-                getContent.launch(arrayOf("application/pdf"))
+                getContent.launch(arrayOf("*/*"))
             }
         }
     }
@@ -225,6 +227,9 @@ class AddBookItemFragment : Fragment() {
                 if (authorString != ""){
                     binding.tiAuthor.setText(authorString)
                 }
+            }
+            FormatBook.FB2 -> {
+
             }
         }
         viewModel.getCover(

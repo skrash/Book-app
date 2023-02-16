@@ -57,20 +57,20 @@ class OpenBookViewModel @Inject constructor(
 
     fun init(bookItemId: Int, height: Int) {
         viewModelScope.launch {
-            _bookItem.value = getBookItemUseCase.getBookItem(bookItemId)
-            if (FormatBook.valueOf(_bookItem!!.value!!.fileExtension.uppercase()) == FormatBook.PDF) {
+            if (_pageList.value == null){
+                _bookItem.value = getBookItemUseCase.getBookItem(bookItemId)
                 openBookItemUseCase.openBookItem(_bookItem!!.value!!)
-                val countPages = getPageCountUseCase.getPageCount(_bookItem!!.value!!)
+                val countPages = getPageCountUseCase.getPageCount(_bookItem.value!!)
                 _pageList.value = (0 until countPages).toList()
-            }
-            _height = height
-            _offsetResidual = _height / 2
-            if (_bookmarkList.value == null) {
-                _bookmarkList.addSource(getBookmarkListUseCase.getBookmarkList(_bookItem.value!!.id)) { bookmark ->
-                    _bookmarkList.value = bookmark
+                _height = height
+                _offsetResidual = _height / 2
+                if (_bookmarkList.value == null) {
+                    _bookmarkList.addSource(getBookmarkListUseCase.getBookmarkList(_bookItem.value!!.id)) { bookmark ->
+                        _bookmarkList.value = bookmark
+                    }
                 }
+                Log.d("TEST8", _bookmarkList?.value.toString())
             }
-            Log.d("TEST8", _bookmarkList?.value.toString())
         }
     }
 

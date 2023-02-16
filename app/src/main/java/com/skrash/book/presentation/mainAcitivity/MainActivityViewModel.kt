@@ -44,12 +44,12 @@ class MainActivityViewModel @Inject constructor(
         )
         for (i in booksPathsArray) {
             val book = i.listFiles { _, fileName ->
-                fileName.contains(".pdf") || fileName.contains(".PDF")
+                fileName.contains(".pdf") || fileName.contains(".PDF") || fileName.contains(".fb2") || fileName.contains(".FB2")
             }
             if (book != null){
                 for (filePath in book!!) {
                     if (checkBookNotInMyList(filePath.absolutePath)){
-                        val bookItem = compileDefaultBookItem(filePath.absolutePath, FormatBook.PDF)
+                        val bookItem = compileDefaultBookItem(filePath.absolutePath, FormatBook.valueOf(filePath.absolutePath.substringAfterLast(".", "").uppercase()))
                         viewModelScope.launch {
                             addToMyBookListUseCase.addToMyBookList(bookItem)
                         }
@@ -87,6 +87,20 @@ class MainActivityViewModel @Inject constructor(
                     tags = "",
                     path = path,
                     fileExtension = FormatBook.PDF.string_name,
+                    startOnPage = 0
+                )
+            }
+            FormatBook.FB2 -> {
+                return BookItem(
+                    title = "",
+                    author = "",
+                    description = "",
+                    rating = 0.0f,
+                    popularity = 0.0f,
+                    Genres.nan,
+                    tags = "",
+                    path = path,
+                    fileExtension = FormatBook.FB2.string_name,
                     startOnPage = 0
                 )
             }

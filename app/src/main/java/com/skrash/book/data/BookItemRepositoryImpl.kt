@@ -1,7 +1,9 @@
 package com.skrash.book.data
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.lifecycle.LiveData
+import com.skrash.book.FormatBook.FB2
 import com.skrash.book.FormatBook.PDF
 import com.skrash.book.data.myBook.MyBookItemMapper
 import com.skrash.book.data.myBook.MyBookListDao
@@ -53,6 +55,9 @@ class BookItemRepositoryImpl @Inject constructor(
                 val pdf = PDF(file)
                 return pdf.getCover(width, height)
             }
+            FormatBook.FB2 -> {
+                return Bitmap.createBitmap(1,1, Bitmap.Config.ARGB_4444)
+            }
         }
     }
 
@@ -65,6 +70,11 @@ class BookItemRepositoryImpl @Inject constructor(
                     val pdf = PDF(file)
                     return pdf.openPage(pageNum, width, height)
                 }
+                FormatBook.FB2 -> {
+                    val file = File(curBook!!.path)
+                    val fb2 = FB2(file)
+                    return Bitmap.createBitmap(1,1, Bitmap.Config.ARGB_4444)
+                }
             }
         } else {
             return Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_4444)
@@ -74,11 +84,18 @@ class BookItemRepositoryImpl @Inject constructor(
     override fun getPageCount(bookItem: BookItem): Int {
         if (curBook != null) {
             val formatBook = FormatBook.valueOf(curBook!!.fileExtension.uppercase())
-            when (formatBook) {
+            Log.d("FB2", "formatBook: ${formatBook.string_name}")
+            return when (formatBook) {
                 FormatBook.PDF -> {
                     val file = File(curBook!!.path)
                     val pdf = PDF(file)
-                    return pdf.getPageCount()
+                    pdf.getPageCount()
+                }
+                FormatBook.FB2 -> {
+                    val file = File(curBook!!.path)
+                    val fb2 = FB2(file)
+                    fb2.parseFormat()
+                    1
                 }
             }
         } else {
