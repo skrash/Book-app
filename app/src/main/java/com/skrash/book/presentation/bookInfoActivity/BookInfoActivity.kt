@@ -2,8 +2,8 @@ package com.skrash.book.presentation.bookInfoActivity
 
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.skrash.book.R
 import com.skrash.book.domain.entities.BookItem
 

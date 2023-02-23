@@ -1,9 +1,9 @@
 package com.skrash.book.di
 
 import android.app.Application
+import com.skrash.book.presentation.addBookActivity.AddBookItemFragment
 import com.skrash.book.presentation.bookInfoActivity.BookInfoFragment
 import com.skrash.book.presentation.mainAcitivity.MainActivity
-import com.skrash.book.presentation.addBookActivity.AddBookItemFragment
 import com.skrash.book.presentation.openBookActivity.OpenBookActivity
 import dagger.BindsInstance
 import dagger.Component

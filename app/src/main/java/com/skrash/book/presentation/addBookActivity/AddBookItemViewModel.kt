@@ -1,8 +1,6 @@
 package com.skrash.book.presentation.addBookActivity
 
 import android.graphics.Bitmap
-import android.graphics.pdf.PdfRenderer
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,7 +11,6 @@ import com.skrash.book.domain.entities.Genres
 import com.skrash.book.domain.usecases.GetBookCoverUseCase
 import com.skrash.book.domain.usecases.MyList.AddToMyBookListUseCase
 import com.skrash.book.domain.usecases.MyList.GetMyBookUseCase
-import com.skrash.book.domain.usecases.OpenBookItemUseCase
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
@@ -124,21 +121,17 @@ class AddBookItemViewModel @Inject constructor(
         }
         if (path == null) {
             _errorInputPath.value = true
-            Log.d("TEST", "path is null")
             return
         }
         try {
             File(path)
         } catch (e: Exception) {
             _errorInputPath.value = true
-            Log.d("TEST", "failed create file")
-            Log.d("TEST", e.stackTraceToString())
             return
         }
         val fileExtension = path.substringAfterLast('.', "").lowercase()
         if (!FormatBook.values().map { it.string_name }.contains(fileExtension)) {
             _errorInputPath.value = true
-            Log.d("TEST", "failed map file format")
             return
         }
         if (id == null) {

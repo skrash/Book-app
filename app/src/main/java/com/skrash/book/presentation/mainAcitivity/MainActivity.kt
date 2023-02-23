@@ -1,7 +1,5 @@
 package com.skrash.book.presentation.mainAcitivity
 
-import android.Manifest
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -11,12 +9,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.skrash.book.BuildConfig
 import com.skrash.book.R
 import com.skrash.book.databinding.ActivityMainBinding
 import com.skrash.book.databinding.BookItemBinding
 import com.skrash.book.domain.entities.BookItem
-import com.skrash.book.domain.entities.FormatBook
 import com.skrash.book.domain.entities.Genres
 import com.skrash.book.presentation.BookApplication
 import com.skrash.book.presentation.RequestFileAccess
@@ -75,10 +71,10 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
     private fun checkFirstRun(){
         val pref = getSharedPreferences(packageName, MODE_PRIVATE)
         if (pref.getBoolean("first_run", true)) {
-            if (RequestFileAccess.isStoragePermissionGranted(this)) {
+            RequestFileAccess.requestFileAccessPermission(this, {
                 initBookList()
                 pref.edit().putBoolean("first_run", false).commit()
-            }
+            }) {}
         }
     }
 
@@ -144,30 +140,32 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
                 launchFragment(BookInfoFragment.newInstanceOpenItem(it.id))
             }
         }
-        bookListAdapter.loadCoverFunction = { holder, itemBook ->
-            val scope = CoroutineScope(Dispatchers.Main)
-            scope.launch {
-                val bitmap = viewModel.getBookCover(
-                    BookItem(
-                        id = -1,
-                        title = "",
-                        author = "",
-                        description = "",
-                        rating = 0.0f,
-                        popularity = 0.0f,
-                        genres = Genres.nan,
-                        tags = "",
-                        path = itemBook.path,
-                        startOnPage = 0,
-                        fileExtension = itemBook.path.substringAfterLast(".", "").uppercase(),
-                    ),
-                    150,
-                    150
-                )
-                val bindingCover = holder.binding as BookItemBinding
-                bindingCover.imCover.setImageBitmap(bitmap)
+        RequestFileAccess.requestFileAccessPermission(this, {
+            bookListAdapter.loadCoverFunction = { holder, itemBook ->
+                val scope = CoroutineScope(Dispatchers.Main)
+                scope.launch {
+                    val bitmap = viewModel.getBookCover(
+                        BookItem(
+                            id = -1,
+                            title = "",
+                            author = "",
+                            description = "",
+                            rating = 0.0f,
+                            popularity = 0.0f,
+                            genres = Genres.Other,
+                            tags = "",
+                            path = itemBook.path,
+                            startOnPage = 0,
+                            fileExtension = itemBook.path.substringAfterLast(".", "").uppercase(),
+                        ),
+                        150,
+                        150
+                    )
+                    val bindingCover = holder.binding as BookItemBinding
+                    bindingCover.imCover.setImageBitmap(bitmap)
+                }
             }
-        }
+        }){}
     }
 
     private fun launchFragment(fragment: Fragment) {
@@ -180,16 +178,5 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
 
     override fun onEditingFinishedListener() {
         supportFragmentManager.popBackStack()
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        if (grantResults[grantResults.size - 1] == PackageManager.PERMISSION_GRANTED && permissions[permissions.size - 1] == Manifest.permission.READ_EXTERNAL_STORAGE) {
-            checkFirstRun()
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 }

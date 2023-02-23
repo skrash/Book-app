@@ -1,8 +1,5 @@
 package com.skrash.book.presentation.openBookActivity
 
-import android.graphics.Bitmap
-import android.graphics.pdf.PdfRenderer
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil

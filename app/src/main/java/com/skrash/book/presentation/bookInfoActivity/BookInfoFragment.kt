@@ -2,12 +2,10 @@ package com.skrash.book.presentation.bookInfoActivity
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.LifecycleOwner
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.skrash.book.databinding.FragmentBookInfoBinding
 import com.skrash.book.domain.entities.BookItem
@@ -40,7 +38,6 @@ class BookInfoFragment : Fragment() {
 
     private fun initCover(){
         viewModel.imgCover.observe(viewLifecycleOwner){
-            Log.d("TEST22", "load cover ")
             binding.imCover.setImageBitmap(it)
         }
     }

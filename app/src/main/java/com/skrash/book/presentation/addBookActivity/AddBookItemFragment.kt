@@ -1,25 +1,12 @@
 package com.skrash.book.presentation.addBookActivity
 
 import android.content.Context
-import android.content.Intent
-import android.graphics.pdf.PdfDocument
-import android.graphics.pdf.PdfRenderer
 import android.os.Bundle
-import android.os.Environment
-import android.os.ParcelFileDescriptor
-import android.provider.DocumentsContract
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
-import android.widget.PopupMenu
+import android.view.*
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.skrash.book.R
@@ -156,7 +143,7 @@ class AddBookItemFragment : Fragment() {
             for (i in Genres.values()) {
                 popupMenu.menu.add(Menu.NONE, i.ordinal, Menu.NONE, i.name)
             }
-            popupMenu.setOnMenuItemClickListener{ item: MenuItem? ->
+            popupMenu.setOnMenuItemClickListener { item: MenuItem? ->
                 binding.tiGenres.setText(item?.title.toString())
                 true
             }
@@ -186,16 +173,22 @@ class AddBookItemFragment : Fragment() {
             }
         })
         val getContent = registerForActivityResult(ActivityResultContracts.OpenDocument()) {
-            if(RequestFileAccess.isStoragePermissionGranted(requireActivity() as AddBookActivity)){
+            RequestFileAccess.requestFileAccessPermission(requireActivity() as AddBookActivity, {
                 if (it != null) {
                     val file = File(it.path)
                     val fileExt = file.absoluteFile.path.substringAfterLast('.', "")
-                    Log.d("TEST20", "fileExt: $fileExt")
-                    autoPaste(file.absolutePath.replace("/document/raw:", ""), FormatBook.valueOf(fileExt.uppercase()))
+                    autoPaste(
+                        file.absolutePath.replace("/document/raw:", ""),
+                        FormatBook.valueOf(fileExt.uppercase())
+                    )
                     binding.tiPath.setText(file.absolutePath.replace("/document/raw:", ""))
                 }
-            } else {
-                Toast.makeText(requireContext(), requireContext().getString(R.string.permission_file_access_denied), Toast.LENGTH_LONG).show()
+            }) {
+                Toast.makeText(
+                    requireContext(),
+                    requireContext().getString(R.string.permission_file_access_denied),
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
         binding.tiPath.setOnFocusChangeListener { view, b ->
@@ -205,18 +198,17 @@ class AddBookItemFragment : Fragment() {
         }
     }
 
-    private fun autoPaste(path: String, formatBook: FormatBook){
-        when(formatBook){
+    private fun autoPaste(path: String, formatBook: FormatBook) {
+        when (formatBook) {
             FormatBook.PDF -> {
                 val fileName = path.substringAfterLast("/")
-                Log.d("TEST20", "fileName: $fileName")
                 val regexAuthor = "[A-ZА-ЯЁa-zа-яё]+ ([A-ZА-ЯЁ]{1}[.]){1,2}".toRegex()
                 val tryAuthor = regexAuthor.findAll(fileName)
                 var authorString = ""
                 var title = fileName
-                for (i in tryAuthor){
+                for (i in tryAuthor) {
                     title = title.replace(i.value, "")
-                    if (i.value != ""){
+                    if (i.value != "") {
                         authorString += "${i.value},"
                     }
                 }
@@ -224,7 +216,7 @@ class AddBookItemFragment : Fragment() {
                 title = title.replace("[,.-]+".toRegex(), "")
                 title = title.trim()
                 binding.tiTitle.setText(title)
-                if (authorString != ""){
+                if (authorString != "") {
                     binding.tiAuthor.setText(authorString)
                 }
             }
@@ -240,13 +232,14 @@ class AddBookItemFragment : Fragment() {
                 description = "",
                 rating = 0.0f,
                 popularity = 0.0f,
-                genres = Genres.nan,
+                genres = Genres.Other,
                 tags = "",
                 path = path,
                 startOnPage = 0,
                 fileExtension = path.substringAfterLast(".", "").uppercase(),
-            ), COVER_SIZE, COVER_SIZE)
-        viewModel.imageCover.observe(viewLifecycleOwner){
+            ), COVER_SIZE, COVER_SIZE
+        )
+        viewModel.imageCover.observe(viewLifecycleOwner) {
             binding.ivCover.setImageBitmap(it)
         }
     }

@@ -1,13 +1,11 @@
 package com.skrash.book.presentation.bookInfoActivity
 
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skrash.book.domain.entities.BookItem
-import com.skrash.book.domain.entities.FormatBook
 import com.skrash.book.domain.entities.Genres
 import com.skrash.book.domain.usecases.GetBookCoverUseCase
 import com.skrash.book.domain.usecases.MyList.GetMyBookUseCase
@@ -45,14 +43,14 @@ class BookInfoViewModel @Inject constructor(
                         description = "",
                         rating = 0.0f,
                         popularity = 0.0f,
-                        genres = Genres.nan,
+                        genres = Genres.Other,
                         tags = "",
                         path = _bookItem.value!!.path,
                         startOnPage = 0,
                         fileExtension = _bookItem.value!!.fileExtension.uppercase(),
                     ),
                     300,
-                    300
+                    500
                 )
             }
         }

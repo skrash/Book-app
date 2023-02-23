@@ -13,7 +13,7 @@ import com.skrash.book.data.myBook.MyBookListDao
 
 @Database(
     entities = [MyBookItemDbModel::class, BookMarkDbModel::class],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 abstract class MyBookDB : RoomDatabase() {
@@ -41,6 +41,7 @@ abstract class MyBookDB : RoomDatabase() {
                     DB_NAME
                 )
                     .addMigrations(MIGRATION_4_5)
+                    .addMigrations(MIRGRATION_5_6)
                     .build()
                 INSTANCE = db
                 return db
@@ -53,6 +54,12 @@ abstract class MyBookDB : RoomDatabase() {
                 database.execSQL("CREATE TABLE `book_items2` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `author` TEXT NOT NULL, `description` TEXT NOT NULL, `rating` REAL NOT NULL, `popularity` REAL NOT NULL, `genres` TEXT NOT NULL, `tags` TEXT NOT NULL, `path` TEXT NOT NULL, `startOnPage` INTEGER NOT NULL, `fileExtension` TEXT NOT NULL)")
                 database.execSQL("DROP TABLE book_items")
                 database.execSQL("ALTER TABLE book_items2 RENAME TO book_items")
+            }
+        }
+
+        private val MIRGRATION_5_6 = object : Migration(5,6){
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("UPDATE book_items SET genres = 'Other'")
             }
         }
     }

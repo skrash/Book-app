@@ -1,23 +1,17 @@
 package com.skrash.book.presentation.openBookActivity
 
 import android.graphics.Bitmap
-import android.graphics.pdf.PdfRenderer
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.Bookmark
-import com.skrash.book.domain.entities.FormatBook
-import com.skrash.book.domain.usecases.*
 import com.skrash.book.domain.usecases.Bookmark.AddBookmarkUseCase
 import com.skrash.book.domain.usecases.Bookmark.DeleteBookmarkUseCase
 import com.skrash.book.domain.usecases.Bookmark.GetBookmarkListUseCase
-import com.skrash.book.domain.usecases.MyList.AddToMyBookListUseCase
+import com.skrash.book.domain.usecases.GetBookItemUseCase
+import com.skrash.book.domain.usecases.GetPageBookItemUseCase
+import com.skrash.book.domain.usecases.GetPageCountUseCase
 import com.skrash.book.domain.usecases.MyList.UpdateStartOnPageUseCase
-import kotlinx.coroutines.Job
+import com.skrash.book.domain.usecases.OpenBookItemUseCase
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -69,24 +63,19 @@ class OpenBookViewModel @Inject constructor(
                         _bookmarkList.value = bookmark
                     }
                 }
-                Log.d("TEST8", _bookmarkList?.value.toString())
             }
         }
     }
 
     fun scrolling(offset: Int) {
         _page.value = (_page.value!!.toInt() + (offset / _height)).toString()
-        Log.d("TEST5", ((_offsetResidual + offset) / _height > 1).toString())
-        Log.d("TEST5", ((_offsetResidual + offset) / _height).toString())
         if ((_offsetResidual + offset) / _height >= 1 || (_offsetResidual + offset) / _height <= -1) {
             _page.value = (_page.value!!.toInt() + (_offsetResidual + offset) / _height).toString()
             _offsetResidual += offset % _height
             _offsetResidual = 0
-            Log.d("TEST5", "RESETED")
         } else {
             _offsetResidual += offset % _height
         }
-        Log.d("TEST5", "offset $offset, _offsetResidual $_offsetResidual")
     }
 
     fun jumpTo(page: Int) {
@@ -97,7 +86,6 @@ class OpenBookViewModel @Inject constructor(
 
     fun finish(page: Int) {
         viewModelScope.launch {
-            Log.d("TEST7", "bookitem starton: $page")
             if(bookItem.value != null){
                 updateStartOnPageUseCase.updateStartOnPage(page, bookItem.value!!.id)
             }
@@ -106,7 +94,6 @@ class OpenBookViewModel @Inject constructor(
 
     fun addBookmark(page: Int) {
         viewModelScope.launch {
-            Log.d("TEST10", "bookid = ${_bookItem.value!!.id}, page = $page")
             val bookmark = Bookmark(bookID = _bookItem.value!!.id, page = page, comment = "")
             addBookmarkUseCase.addBookmark(bookmark)
         }
@@ -115,7 +102,6 @@ class OpenBookViewModel @Inject constructor(
     fun deleteBookmark(page: Int) {
         viewModelScope.launch {
             if (_bookItem.value != null) {
-                Log.d("TEST12", "delete bookId: ${_bookItem.value!!.id}, page: $page")
                 deleteBookmarkUseCase.deleteBookmark(_bookItem.value!!.id, page)
             }
         }

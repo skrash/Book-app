@@ -3,24 +3,15 @@ package com.skrash.book.presentation.openBookActivity
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.Point
-import android.graphics.pdf.PdfRenderer
-import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import android.view.KeyEvent
-import android.view.Menu
-import android.view.MenuItem
-import android.view.SubMenu
-import android.view.View
+import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.view.menu.MenuView.ItemView
 import androidx.core.view.GravityCompat
-import androidx.core.view.iterator
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.skrash.book.R
@@ -31,8 +22,13 @@ import com.skrash.book.domain.entities.Bookmark
 import com.skrash.book.presentation.BookApplication
 import com.skrash.book.presentation.RequestFileAccess
 import com.skrash.book.presentation.ViewModelFactory
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.abs
+import kotlin.math.roundToInt
 
 
 class OpenBookActivity : AppCompatActivity() {
@@ -52,6 +48,12 @@ class OpenBookActivity : AppCompatActivity() {
     private lateinit var pageAdapter: PageAdapter
     private lateinit var bookmarkMenu: SubMenu
 
+    private lateinit var pageLayoutManager: PageGridLayoutManager
+
+    private val offsetXimg = MutableLiveData<Int>()
+    private val offsetYimg = MutableLiveData<Int>()
+    private val scale = MutableLiveData<Float>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         component.inject(this)
 
@@ -65,9 +67,9 @@ class OpenBookActivity : AppCompatActivity() {
         val height = size.y
         val width = size.x
         viewModel = ViewModelProvider(this, viewModelFactory)[OpenBookViewModel::class.java]
-        if (RequestFileAccess.isStoragePermissionGranted(this)) {
+        RequestFileAccess.requestFileAccessPermission(this, {
             viewModel.init(bookItemId, height)
-        } else {
+        }) {
             Toast.makeText(
                 this,
                 getString(R.string.permission_file_access_denied),
@@ -82,12 +84,10 @@ class OpenBookActivity : AppCompatActivity() {
         viewModel.bookmarkList.observe(this) {
             addBookmarkToNavMenu(it)
             for (i in it) {
-                Log.d("TEST8", "observed page: ${i.page.toString()}")
                 bookmarkSetImg(viewModel.page.value!!.toInt() == i.page)
             }
         }
         viewModel.page.observe(this) {
-            Log.d("TEST11", "curr page $it")
             bookmarkSetImg(isPageHaveBookmark(it.toInt()))
         }
     }
@@ -138,10 +138,6 @@ class OpenBookActivity : AppCompatActivity() {
                     binding.editText.visibility = View.GONE
                     val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
                     imm.hideSoftInputFromWindow(binding.editText.windowToken, 0)
-                    Log.d(
-                        "TEST6",
-                        (binding.editText.text.toString().toInt() * viewModel.height).toString()
-                    )
                     goToPage(binding.editText.text.toString().toInt())
                 }
                 false
@@ -152,13 +148,10 @@ class OpenBookActivity : AppCompatActivity() {
         }
         binding.imBookmark.setOnClickListener {
             if (viewModel.page.value != null) {
-                Log.d("TEST12", "imBook clicked, page: ${viewModel.page.value!!.toInt()}")
                 if (isPageHaveBookmark(viewModel.page.value!!.toInt())) {
                     bookmarkSetImg(false)
-                    Log.d("TEST12", "mode delete")
                     viewModel.deleteBookmark(viewModel.page.value!!.toInt())
                 } else {
-                    Log.d("TEST12", "mode add")
                     viewModel.addBookmark(viewModel.page.value!!.toInt())
                 }
             }
@@ -170,10 +163,12 @@ class OpenBookActivity : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint("SetTextI18n", "ClickableViewAccessibility")
     private fun adapterInit(width: Int, height: Int) {
+        pageLayoutManager = PageGridLayoutManager(this@OpenBookActivity)
         with(binding.rvMain) {
             pageAdapter = PageAdapter()
+            layoutManager = pageLayoutManager
             adapter = pageAdapter
         }
         viewModel.pageList.observe(this) {
@@ -184,16 +179,121 @@ class OpenBookActivity : AppCompatActivity() {
         }
         // if start not 0 page
         viewModel.bookItem.observe(this) {
-            Log.d("TEST7", "start page: ${it.startOnPage.toString()}")
             if (it.startOnPage != 0) {
                 goToPage(it.startOnPage)
             }
         }
+        val gestureMoveDetector =
+            GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+                override fun onScroll(
+                    e1: MotionEvent,
+                    e2: MotionEvent,
+                    distanceX: Float,
+                    distanceY: Float
+                ): Boolean {
+                    if (e1.x - e2.x > 120 && abs(distanceX) > 20) {
+                        offsetXimg.value = (((e1.x - e2.x) * -1).roundToInt())
+                        return false
+                    }
+                    if (e1.y - e2.y > 120 && abs(distanceY) > 20) {
+                        offsetYimg.value = (((e1.y - e2.y) * -1).roundToInt())
+                        return false
+                    }
+                    if (e2.y - e1.y > 120 && abs(distanceY) > 20) {
+                        offsetYimg.value = ((e2.y - e1.y).roundToInt())
+                        return false
+                    }
+                    if (e2.x - e1.x > 120 && Math.abs(distanceX) > 20) {
+                        offsetXimg.value = ((e2.x - e1.x).roundToInt())
+                        return false
+                    }
+                    return true
+                }
+            })
+        val gestureDoubleTouchDetector =
+            GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
+                override fun onDoubleTap(e: MotionEvent): Boolean {
+                    return true
+                }
+            })
+        val gesturePinch =
+            ScaleGestureDetector(
+                this,
+                object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                    override fun onScale(detector: ScaleGestureDetector): Boolean {
+                        scale.value = detector.scaleFactor
+                        return false
+                    }
+                })
         pageAdapter.renderPageImage = { holder, position ->
-            if (viewModel.bookItem != null) {
-                val bitmap = viewModel.getPage(position, width, height)
-                val holderBinding = holder.binding as PageItemBinding
-                holderBinding.ivMain.setImageBitmap(bitmap)
+            val bitmap = viewModel.getPage(position, width, height)
+            val holderBinding = holder.binding as PageItemBinding
+            holderBinding.ivMain.setImageBitmap(bitmap)
+            if (position == viewModel.page.value?.toInt()) {
+                scale.observe(this) {
+                    if (it < 1f) {
+                        if (holder.binding.ivMain.scaleY - it > 1f) {
+                            holder.binding.ivMain.scaleY -= 1f - it
+                            holder.binding.ivMain.scaleX -= 1f - it
+                            pageLayoutManager.setScrollEnabled(false)
+                        }
+                    } else {
+                        if (holder.binding.ivMain.scaleY + it < 5f) {
+                            holder.binding.ivMain.scaleY += it - 1f
+                            holder.binding.ivMain.scaleX += it - 1f
+                            pageLayoutManager.setScrollEnabled(false)
+                        }
+                    }
+                    if (it == 1f) {
+                        holder.binding.ivMain.scaleY = 1f
+                        holder.binding.ivMain.scaleX = 1f
+                        pageLayoutManager.setScrollEnabled(true)
+                    }
+                }
+                offsetXimg.observe(this) {
+                    if (!pageLayoutManager.getScrollEnabled() &&
+                        holder.binding.ivMain.x + it < ((holder.binding.ivMain.width * holder.binding.ivMain.scaleX) - holder.binding.ivMain.width) / 2 && // right limiter
+                        holder.binding.ivMain.x + it > -(((holder.binding.ivMain.width * holder.binding.ivMain.scaleX) - holder.binding.ivMain.width) / 2) // left limiter
+                    ) {
+                        holder.binding.ivMain.x += it
+                    }
+                }
+                offsetYimg.observe(this) {
+                    if (!pageLayoutManager.getScrollEnabled() &&
+                        holder.binding.ivMain.y + it < ((holder.binding.ivMain.height * holder.binding.ivMain.scaleY) - holder.binding.ivMain.height) / 2 && // right limiter
+                        holder.binding.ivMain.y + it > -(((holder.binding.ivMain.height * holder.binding.ivMain.scaleY) - holder.binding.ivMain.height) / 2) // left limiter
+                    ) {
+                        holder.binding.ivMain.y += it
+                    }
+                }
+                holderBinding.clRoot.setOnTouchListener { view, motionEvent ->
+                    var eventDoubleTouch = gestureDoubleTouchDetector.onTouchEvent(motionEvent)
+                    if (eventDoubleTouch) {
+                        if (holder.binding.ivMain.scaleX > 1f) {
+                            holder.binding.ivMain.x = 0f
+                            holder.binding.ivMain.y = 0f
+                            offsetXimg.value = 0
+                            offsetYimg.value = 0
+                            scale.value = 1f
+                            pageLayoutManager.setScrollEnabled(true)
+                        } else {
+                            pageLayoutManager.setScrollEnabled(false)
+                            goToPage(position)
+                            scale.value = 2f
+                        }
+                        return@setOnTouchListener true
+                    }
+                    if (motionEvent.pointerCount == 1) {
+                        val move = gestureMoveDetector.onTouchEvent(motionEvent)
+                        if (move) {
+                            return@setOnTouchListener true
+                        }
+                    }
+                    if (motionEvent.pointerCount == 2) {
+                        gesturePinch.onTouchEvent(motionEvent)
+                    }
+                    return@setOnTouchListener true
+                }
             }
         }
         setupAdapterListener()
@@ -212,7 +312,6 @@ class OpenBookActivity : AppCompatActivity() {
                     delay(1500)
                     binding.fabPageNum.visibility = View.GONE
                 }
-                Log.d("TEST5", viewModel.page.value!!)
             }
         })
     }
@@ -232,7 +331,6 @@ class OpenBookActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        Log.d("TEST7", "BACK PRESSED")
         saveCurrentPage(viewModel.page.value.toString().toInt())
         super.onBackPressed()
     }
