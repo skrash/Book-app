@@ -5,14 +5,15 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Point
 import android.os.Bundle
-import android.util.Log
-import android.view.*
+import android.view.KeyEvent
+import android.view.Menu
+import android.view.SubMenu
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.skrash.book.R
@@ -28,8 +29,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.abs
-import kotlin.math.roundToInt
 
 
 class OpenBookActivity : AppCompatActivity() {
@@ -50,10 +49,6 @@ class OpenBookActivity : AppCompatActivity() {
     private lateinit var bookmarkMenu: SubMenu
 
     private lateinit var pageLayoutManager: PageGridLayoutManager
-
-    private val offsetXimg = MutableLiveData<Int>()
-    private val offsetYimg = MutableLiveData<Int>()
-    private val scale = MutableLiveData<Float>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         component.inject(this)
@@ -135,7 +130,7 @@ class OpenBookActivity : AppCompatActivity() {
             binding.fabPageNum.visibility = View.GONE
             binding.editText.visibility = View.VISIBLE
             binding.editText.setOnEditorActionListener { textView, i, event ->
-                if (event != null && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER) || (i == EditorInfo.IME_ACTION_DONE)) {
+                if (event != null && (event.keyCode == KeyEvent.KEYCODE_ENTER) || (i == EditorInfo.IME_ACTION_DONE)) {
                     binding.editText.visibility = View.GONE
                     val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
                     imm.hideSoftInputFromWindow(binding.editText.windowToken, 0)
@@ -189,139 +184,13 @@ class OpenBookActivity : AppCompatActivity() {
             val holderBinding = holder.binding as PageItemBinding
             holderBinding.ivMain.setImageBitmap(bitmap)
         }
+        pageAdapter.disableScrollOnRecyclerCallbackAdapter = {
+            pageLayoutManager.setScrollEnabled(it)
+        }
         setupAdapterListener()
     }
 
-    @SuppressLint("ClickableViewAccessibility")
-    private fun adapterScrollCallback(holder: PageAdapter.PageAdapterHolder, currPage: Int) {
-        val gestureMoveDetector =
-            GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
-                override fun onScroll(
-                    e1: MotionEvent,
-                    e2: MotionEvent,
-                    distanceX: Float,
-                    distanceY: Float
-                ): Boolean {
-                    if (e1.x - e2.x > 120 && abs(distanceX) > 20) {
-                        offsetXimg.value = (((e1.x - e2.x) * -1).roundToInt())
-                        return false
-                    }
-                    if (e1.y - e2.y > 120 && abs(distanceY) > 20) {
-                        offsetYimg.value = (((e1.y - e2.y) * -1).roundToInt())
-                        return false
-                    }
-                    if (e2.y - e1.y > 120 && abs(distanceY) > 20) {
-                        offsetYimg.value = ((e2.y - e1.y).roundToInt())
-                        return false
-                    }
-                    if (e2.x - e1.x > 120 && Math.abs(distanceX) > 20) {
-                        offsetXimg.value = ((e2.x - e1.x).roundToInt())
-                        return false
-                    }
-                    return true
-                }
-            })
-        val gestureDoubleTouchDetector =
-            GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
-                override fun onDoubleTap(e: MotionEvent): Boolean {
-                    return true
-                }
-            })
-        val gesturePinch =
-            ScaleGestureDetector(
-                this,
-                object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-                    override fun onScale(detector: ScaleGestureDetector): Boolean {
-                        scale.value = detector.scaleFactor
-                        return false
-                    }
-                })
-        val holderBinding = holder.binding as PageItemBinding
-        Log.d("TEST_SCROLL", "tag: ${(holder.binding.ivMain.tag as Int)}, page: $currPage")
-        scale.observe(this) {
-            if (it < 1f) {
-                if (holderBinding.ivMain.scaleY - it > 1f) {
-                    holderBinding.ivMain.scaleY -= 1f - it
-                    holderBinding.ivMain.scaleX -= 1f - it
-                    pageLayoutManager.setScrollEnabled(false)
-                }
-            } else {
-                if (holderBinding.ivMain.scaleY + it < 5f) {
-                    holderBinding.ivMain.scaleY += it - 1f
-                    holderBinding.ivMain.scaleX += it - 1f
-                    pageLayoutManager.setScrollEnabled(false)
-                }
-            }
-            if (it == 1f) {
-                holderBinding.ivMain.scaleY = 1f
-                holderBinding.ivMain.scaleX = 1f
-                pageLayoutManager.setScrollEnabled(true)
-            }
-        }
-        offsetXimg.observe(this) {
-            if (!pageLayoutManager.getScrollEnabled() &&
-                holderBinding.ivMain.x + it < ((holderBinding.ivMain.width * holderBinding.ivMain.scaleX) - holderBinding.ivMain.width) / 2 && // right limiter
-                holderBinding.ivMain.x + it > -(((holderBinding.ivMain.width * holderBinding.ivMain.scaleX) - holderBinding.ivMain.width) / 2) // left limiter
-            ) {
-                holderBinding.ivMain.x += it
-            }
-        }
-        offsetYimg.observe(this) {
-            if (!pageLayoutManager.getScrollEnabled() &&
-                holderBinding.ivMain.y + it < ((holderBinding.ivMain.height * holderBinding.ivMain.scaleY) - holderBinding.ivMain.height) / 2 && // right limiter
-                holderBinding.ivMain.y + it > -(((holderBinding.ivMain.height * holderBinding.ivMain.scaleY) - holderBinding.ivMain.height) / 2) // left limiter
-            ) {
-                holderBinding.ivMain.y += it
-            }
-        }
-        holderBinding.ivMain.setOnTouchListener { view, motionEvent ->
-            var eventDoubleTouch = gestureDoubleTouchDetector.onTouchEvent(motionEvent)
-            if (eventDoubleTouch) {
-                if (holderBinding.ivMain.scaleX > 1f) {
-                    holderBinding.ivMain.x = 0f
-                    holderBinding.ivMain.y = 0f
-                    offsetXimg.value = 0
-                    offsetYimg.value = 0
-                    scale.value = 1f
-                    pageLayoutManager.setScrollEnabled(true)
-                } else {
-                    pageLayoutManager.setScrollEnabled(false)
-                    val pageValue: Int = (viewModel.page.value)?.toInt() ?: 0
-                    goToPage(pageValue)
-                    scale.value = 2f
-                }
-                return@setOnTouchListener true
-            }
-            if (motionEvent.pointerCount == 1) {
-                val move = gestureMoveDetector.onTouchEvent(motionEvent)
-                if (move) {
-                    return@setOnTouchListener true
-                }
-            }
-            if (motionEvent.pointerCount == 2) {
-                gesturePinch.onTouchEvent(motionEvent)
-            }
-            return@setOnTouchListener true
-        }
-    }
-
     private fun setupAdapterListener() {
-        viewModel.page.observe(this) {
-            for (i in 0 until binding.rvMain.childCount) {
-                val holder =
-                    binding.rvMain.getChildViewHolder(binding.rvMain.getChildAt(i)) as PageAdapter.PageAdapterHolder
-                val holderBinding = holder.binding as PageItemBinding
-                holderBinding.ivMain.setOnClickListener(null)
-                holderBinding.ivMain.setOnTouchListener(null)
-            }
-            if (it.toInt() != 0){
-                val holder = binding.rvMain.findViewHolderForAdapterPosition(it.toInt())
-                if (holder != null){
-                    Log.d("TEST_SCROLL", "not null")
-                    adapterScrollCallback(holder as PageAdapter.PageAdapterHolder, it.toInt())
-                }
-            }
-        }
         binding.rvMain.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
