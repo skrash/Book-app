@@ -5,8 +5,10 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.skrash.book.R
@@ -138,17 +140,13 @@ class AddBookItemFragment : Fragment() {
             override fun afterTextChanged(s: Editable?) {
             }
         })
+        binding.tiGenres.setOnFocusChangeListener { view, b ->
+            if (b){
+                popupMenuChangeGenre()
+            }
+        }
         binding.tiGenres.setOnClickListener {
-            val popupMenu = android.widget.PopupMenu(requireContext(), binding.tiGenres)
-            for (i in Genres.values()) {
-                popupMenu.menu.add(Menu.NONE, i.ordinal, Menu.NONE, i.name)
-            }
-            popupMenu.setOnMenuItemClickListener { item: MenuItem? ->
-                binding.tiGenres.setText(item?.title.toString())
-                true
-            }
-            popupMenu.inflate(R.menu.popup_menu_genres)
-            popupMenu.show()
+            popupMenuChangeGenre()
         }
         binding.tiTags.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
@@ -177,11 +175,15 @@ class AddBookItemFragment : Fragment() {
                 if (it != null) {
                     val file = File(it.path)
                     val fileExt = file.absoluteFile.path.substringAfterLast('.', "")
-                    autoPaste(
-                        file.absolutePath.replace("/document/raw:", ""),
-                        FormatBook.valueOf(fileExt.uppercase())
-                    )
-                    binding.tiPath.setText(file.absolutePath.replace("/document/raw:", ""))
+                    try {
+                        autoPaste(
+                            file.absolutePath.replace("/document/raw:", ""),
+                            FormatBook.valueOf(fileExt.uppercase())
+                        )
+                        binding.tiPath.setText(file.absolutePath.replace("/document/raw:", ""))
+                    } catch (e: IllegalArgumentException){
+                        // TODO: log this exception 
+                    }
                 }
             }) {
                 Toast.makeText(
@@ -196,6 +198,21 @@ class AddBookItemFragment : Fragment() {
                 getContent.launch(arrayOf("*/*"))
             }
         }
+    }
+
+    private fun popupMenuChangeGenre(){
+        val popupMenu = android.widget.PopupMenu(requireContext(), binding.tiGenres)
+        for (i in Genres.values()) {
+            popupMenu.menu.add(Menu.NONE, i.ordinal, Menu.NONE, i.name)
+        }
+        popupMenu.setOnMenuItemClickListener { item: MenuItem? ->
+            binding.tiGenres.setText(item?.title.toString())
+            val imm = requireActivity().getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(binding.tiGenres.windowToken, 0)
+            true
+        }
+        popupMenu.inflate(R.menu.popup_menu_genres)
+        popupMenu.show()
     }
 
     private fun autoPaste(path: String, formatBook: FormatBook) {

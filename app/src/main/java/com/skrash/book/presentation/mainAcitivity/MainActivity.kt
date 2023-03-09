@@ -73,8 +73,8 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         if (pref.getBoolean("first_run", true)) {
             RequestFileAccess.requestFileAccessPermission(this, {
                 initBookList()
-                pref.edit().putBoolean("first_run", false).commit()
             }) {}
+            pref.edit().putBoolean("first_run", false).commit()
         }
     }
 
@@ -178,5 +178,18 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
 
     override fun onEditingFinishedListener() {
         supportFragmentManager.popBackStack()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (grantResults.isNotEmpty()){
+            if (requestCode == RequestFileAccess.REQUEST_CODE && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                initBookList()
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 }

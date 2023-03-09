@@ -69,10 +69,14 @@ class OpenBookViewModel @Inject constructor(
 
     fun scrolling(offset: Int) {
         _page.value = (_page.value!!.toInt() + (offset / _height)).toString()
-        if ((_offsetResidual + offset) / _height >= 1 || (_offsetResidual + offset) / _height <= -1) {
-            _page.value = (_page.value!!.toInt() + (_offsetResidual + offset) / _height).toString()
-            _offsetResidual += offset % _height
-            _offsetResidual = 0
+        if ((_offsetResidual + offset) / _height >= 1 || (_offsetResidual + offset) < 0) {
+            if (_offsetResidual + offset > 0){
+                _page.value = (_page.value!!.toInt() + (_offsetResidual + offset) / _height).toString()
+                _offsetResidual = 0
+            } else {
+                _page.value = (_page.value!!.toInt() - 1).toString()
+                _offsetResidual = _height
+            }
         } else {
             _offsetResidual += offset % _height
         }
@@ -80,7 +84,7 @@ class OpenBookViewModel @Inject constructor(
 
     fun jumpTo(page: Int) {
         _page.value = page.toString()
-        _offsetResidual = 0
+        _offsetResidual = _height / 2
     }
 
 
@@ -108,10 +112,10 @@ class OpenBookViewModel @Inject constructor(
     }
 
     fun getPage(pageNum: Int, width: Int, height: Int): Bitmap{
-        if (_bookItem.value != null){
-            return getPageBookItemUseCase.getPageBookItem(pageNum, width, height)
+        return if (_bookItem.value != null){
+            getPageBookItemUseCase.getPageBookItem(pageNum, width, height)
         } else {
-            return Bitmap.createBitmap(
+            Bitmap.createBitmap(
                 width, height,
                 Bitmap.Config.ARGB_4444
             )

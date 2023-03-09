@@ -37,6 +37,8 @@
                     android:id="@+id/tiPath"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:inputType="text"
                     android:layout_margin="5dp"
                     android:hint="@string/hintPath"
                     android:text="@{viewModel.bookItem.path}" />
@@ -54,6 +56,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
+                    android:maxLines="1"
+                    android:inputType="text"
                     android:hint="@string/hintTitle"
                     android:text="@{viewModel.bookItem.title}" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -70,6 +74,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
+                    android:maxLines="1"
+                    android:inputType="text"
                     android:hint="@string/hintAuthor"
                     android:text="@{viewModel.bookItem.author}" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -85,6 +91,7 @@
                     android:id="@+id/tiDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:inputType="text"
                     android:layout_margin="5dp"
                     android:hint="@string/hintDescription"
                     android:text="@{viewModel.bookItem.description}" />
@@ -118,6 +125,8 @@
                     android:id="@+id/tiTags"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:inputType="text"
                     android:layout_margin="5dp"
                     android:hint="@string/hintTags"
                     android:text="@{viewModel.bookItem.tags}" />

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Point
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
@@ -183,6 +184,16 @@ class OpenBookActivity : AppCompatActivity() {
                 goToPage(it.startOnPage)
             }
         }
+        pageAdapter.renderPageImage = { holder, position ->
+            val bitmap = viewModel.getPage(position, width, height)
+            val holderBinding = holder.binding as PageItemBinding
+            holderBinding.ivMain.setImageBitmap(bitmap)
+        }
+        setupAdapterListener()
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun adapterScrollCallback(holder: PageAdapter.PageAdapterHolder, currPage: Int) {
         val gestureMoveDetector =
             GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
                 override fun onScroll(
@@ -225,81 +236,92 @@ class OpenBookActivity : AppCompatActivity() {
                         return false
                     }
                 })
-        pageAdapter.renderPageImage = { holder, position ->
-            val bitmap = viewModel.getPage(position, width, height)
-            val holderBinding = holder.binding as PageItemBinding
-            holderBinding.ivMain.setImageBitmap(bitmap)
-            if (position == viewModel.page.value?.toInt()) {
-                scale.observe(this) {
-                    if (it < 1f) {
-                        if (holder.binding.ivMain.scaleY - it > 1f) {
-                            holder.binding.ivMain.scaleY -= 1f - it
-                            holder.binding.ivMain.scaleX -= 1f - it
-                            pageLayoutManager.setScrollEnabled(false)
-                        }
-                    } else {
-                        if (holder.binding.ivMain.scaleY + it < 5f) {
-                            holder.binding.ivMain.scaleY += it - 1f
-                            holder.binding.ivMain.scaleX += it - 1f
-                            pageLayoutManager.setScrollEnabled(false)
-                        }
-                    }
-                    if (it == 1f) {
-                        holder.binding.ivMain.scaleY = 1f
-                        holder.binding.ivMain.scaleX = 1f
-                        pageLayoutManager.setScrollEnabled(true)
-                    }
+        val holderBinding = holder.binding as PageItemBinding
+        Log.d("TEST_SCROLL", "tag: ${(holder.binding.ivMain.tag as Int)}, page: $currPage")
+        scale.observe(this) {
+            if (it < 1f) {
+                if (holderBinding.ivMain.scaleY - it > 1f) {
+                    holderBinding.ivMain.scaleY -= 1f - it
+                    holderBinding.ivMain.scaleX -= 1f - it
+                    pageLayoutManager.setScrollEnabled(false)
                 }
-                offsetXimg.observe(this) {
-                    if (!pageLayoutManager.getScrollEnabled() &&
-                        holder.binding.ivMain.x + it < ((holder.binding.ivMain.width * holder.binding.ivMain.scaleX) - holder.binding.ivMain.width) / 2 && // right limiter
-                        holder.binding.ivMain.x + it > -(((holder.binding.ivMain.width * holder.binding.ivMain.scaleX) - holder.binding.ivMain.width) / 2) // left limiter
-                    ) {
-                        holder.binding.ivMain.x += it
-                    }
+            } else {
+                if (holderBinding.ivMain.scaleY + it < 5f) {
+                    holderBinding.ivMain.scaleY += it - 1f
+                    holderBinding.ivMain.scaleX += it - 1f
+                    pageLayoutManager.setScrollEnabled(false)
                 }
-                offsetYimg.observe(this) {
-                    if (!pageLayoutManager.getScrollEnabled() &&
-                        holder.binding.ivMain.y + it < ((holder.binding.ivMain.height * holder.binding.ivMain.scaleY) - holder.binding.ivMain.height) / 2 && // right limiter
-                        holder.binding.ivMain.y + it > -(((holder.binding.ivMain.height * holder.binding.ivMain.scaleY) - holder.binding.ivMain.height) / 2) // left limiter
-                    ) {
-                        holder.binding.ivMain.y += it
-                    }
+            }
+            if (it == 1f) {
+                holderBinding.ivMain.scaleY = 1f
+                holderBinding.ivMain.scaleX = 1f
+                pageLayoutManager.setScrollEnabled(true)
+            }
+        }
+        offsetXimg.observe(this) {
+            if (!pageLayoutManager.getScrollEnabled() &&
+                holderBinding.ivMain.x + it < ((holderBinding.ivMain.width * holderBinding.ivMain.scaleX) - holderBinding.ivMain.width) / 2 && // right limiter
+                holderBinding.ivMain.x + it > -(((holderBinding.ivMain.width * holderBinding.ivMain.scaleX) - holderBinding.ivMain.width) / 2) // left limiter
+            ) {
+                holderBinding.ivMain.x += it
+            }
+        }
+        offsetYimg.observe(this) {
+            if (!pageLayoutManager.getScrollEnabled() &&
+                holderBinding.ivMain.y + it < ((holderBinding.ivMain.height * holderBinding.ivMain.scaleY) - holderBinding.ivMain.height) / 2 && // right limiter
+                holderBinding.ivMain.y + it > -(((holderBinding.ivMain.height * holderBinding.ivMain.scaleY) - holderBinding.ivMain.height) / 2) // left limiter
+            ) {
+                holderBinding.ivMain.y += it
+            }
+        }
+        holderBinding.ivMain.setOnTouchListener { view, motionEvent ->
+            var eventDoubleTouch = gestureDoubleTouchDetector.onTouchEvent(motionEvent)
+            if (eventDoubleTouch) {
+                if (holderBinding.ivMain.scaleX > 1f) {
+                    holderBinding.ivMain.x = 0f
+                    holderBinding.ivMain.y = 0f
+                    offsetXimg.value = 0
+                    offsetYimg.value = 0
+                    scale.value = 1f
+                    pageLayoutManager.setScrollEnabled(true)
+                } else {
+                    pageLayoutManager.setScrollEnabled(false)
+                    val pageValue: Int = (viewModel.page.value)?.toInt() ?: 0
+                    goToPage(pageValue)
+                    scale.value = 2f
                 }
-                holderBinding.clRoot.setOnTouchListener { view, motionEvent ->
-                    var eventDoubleTouch = gestureDoubleTouchDetector.onTouchEvent(motionEvent)
-                    if (eventDoubleTouch) {
-                        if (holder.binding.ivMain.scaleX > 1f) {
-                            holder.binding.ivMain.x = 0f
-                            holder.binding.ivMain.y = 0f
-                            offsetXimg.value = 0
-                            offsetYimg.value = 0
-                            scale.value = 1f
-                            pageLayoutManager.setScrollEnabled(true)
-                        } else {
-                            pageLayoutManager.setScrollEnabled(false)
-                            goToPage(position)
-                            scale.value = 2f
-                        }
-                        return@setOnTouchListener true
-                    }
-                    if (motionEvent.pointerCount == 1) {
-                        val move = gestureMoveDetector.onTouchEvent(motionEvent)
-                        if (move) {
-                            return@setOnTouchListener true
-                        }
-                    }
-                    if (motionEvent.pointerCount == 2) {
-                        gesturePinch.onTouchEvent(motionEvent)
-                    }
+                return@setOnTouchListener true
+            }
+            if (motionEvent.pointerCount == 1) {
+                val move = gestureMoveDetector.onTouchEvent(motionEvent)
+                if (move) {
                     return@setOnTouchListener true
                 }
             }
+            if (motionEvent.pointerCount == 2) {
+                gesturePinch.onTouchEvent(motionEvent)
+            }
+            return@setOnTouchListener true
         }
-        setupAdapterListener()
     }
 
     private fun setupAdapterListener() {
+        viewModel.page.observe(this) {
+            for (i in 0 until binding.rvMain.childCount) {
+                val holder =
+                    binding.rvMain.getChildViewHolder(binding.rvMain.getChildAt(i)) as PageAdapter.PageAdapterHolder
+                val holderBinding = holder.binding as PageItemBinding
+                holderBinding.ivMain.setOnClickListener(null)
+                holderBinding.ivMain.setOnTouchListener(null)
+            }
+            if (it.toInt() != 0){
+                val holder = binding.rvMain.findViewHolderForAdapterPosition(it.toInt())
+                if (holder != null){
+                    Log.d("TEST_SCROLL", "not null")
+                    adapterScrollCallback(holder as PageAdapter.PageAdapterHolder, it.toInt())
+                }
+            }
+        }
         binding.rvMain.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)

@@ -16,6 +16,7 @@ class PageAdapter :
     ) {
 
     var renderPageImage: ((holder: PageAdapter.PageAdapterHolder, position: Int) -> Unit)? = null
+    var onClickCallback: ((holder: PageAdapterHolder) -> Unit)? = null
 
     inner class PageAdapterHolder(
         val binding: ViewDataBinding
@@ -35,10 +36,18 @@ class PageAdapter :
     }
 
     override fun onBindViewHolder(holder: PageAdapter.PageAdapterHolder, position: Int) {
-        when (val binding = holder.binding) {
+        when (holder.binding) {
             is PageItemBinding -> {
+                holder.binding.ivMain.tag = position - 1
                 renderPageImage?.invoke(holder, position)
+                onClickCallback?.invoke(holder)
             }
         }
     }
+
+    override fun onViewAttachedToWindow(holder: PageAdapterHolder) {
+        onClickCallback?.invoke(holder)
+        super.onViewAttachedToWindow(holder)
+    }
+
 }
