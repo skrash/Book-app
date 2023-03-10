@@ -287,7 +287,8 @@ class AddBookItemFragment : Fragment() {
                 binding.tiDescription.text?.toString(),
                 binding.tiGenres.text?.toString(),
                 binding.tiTags.text?.toString(),
-                binding.tiPath.text?.toString()
+                binding.tiPath.text?.toString(),
+                binding.cbShareAccess.isChecked
             )
         }
     }
@@ -303,7 +304,8 @@ class AddBookItemFragment : Fragment() {
                 description = binding.tiDescription.text?.toString(),
                 genres = binding.tiGenres.text?.toString(),
                 tags = binding.tiTags.text?.toString(),
-                path = binding.tiPath.text?.toString()
+                path = binding.tiPath.text?.toString(),
+                shareAccess = binding.cbShareAccess.isChecked
             )
         }
     }

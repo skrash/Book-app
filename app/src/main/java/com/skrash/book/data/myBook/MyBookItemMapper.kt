@@ -16,6 +16,7 @@ class MyBookItemMapper @Inject constructor() {
         tags = bookItem.tags,
         path = bookItem.path,
         startOnPage = bookItem.startOnPage,
+        shareAccess = bookItem.shareAccess,
         fileExtension = bookItem.fileExtension
     )
 
@@ -30,6 +31,7 @@ class MyBookItemMapper @Inject constructor() {
         tags = myBookItemDbModel.tags,
         path = myBookItemDbModel.path,
         startOnPage = myBookItemDbModel.startOnPage,
+        shareAccess = myBookItemDbModel.shareAccess,
         fileExtension = myBookItemDbModel.fileExtension
     )
 

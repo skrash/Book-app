@@ -26,111 +26,127 @@
                 android:layout_margin="5dp"
                 android:src="@mipmap/ic_launcher" />
 
-            <com.google.android.material.textfield.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/tilPath"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                app:errorInputPath="@{viewModel.errorInputPath}"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                app:errorInputPath="@{viewModel.errorInputPath}">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/tiPath"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:maxLines="1"
-                    android:inputType="text"
                     android:layout_margin="5dp"
                     android:hint="@string/hintPath"
+                    android:inputType="text"
+                    android:maxLines="1"
                     android:text="@{viewModel.bookItem.path}" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/tilTitle"
                 android:layout_width="match_parent"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                app:errorInputTitle="@{viewModel.errorInputTitle}"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                app:errorInputTitle="@{viewModel.errorInputTitle}">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/tiTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
-                    android:maxLines="1"
-                    android:inputType="text"
                     android:hint="@string/hintTitle"
+                    android:inputType="text"
+                    android:maxLines="1"
                     android:text="@{viewModel.bookItem.title}" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/tilAuthor"
                 android:layout_width="match_parent"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                app:errorInputAuthor="@{viewModel.errorInputAuthor}"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                app:errorInputAuthor="@{viewModel.errorInputAuthor}">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/tiAuthor"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
-                    android:maxLines="1"
-                    android:inputType="text"
                     android:hint="@string/hintAuthor"
+                    android:inputType="text"
+                    android:maxLines="1"
                     android:text="@{viewModel.bookItem.author}" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/tilDescription"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                app:errorInputDescription="@{viewModel.errorInputDescription}"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                app:errorInputDescription="@{viewModel.errorInputDescription}">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/tiDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="text"
                     android:layout_margin="5dp"
                     android:hint="@string/hintDescription"
+                    android:inputType="text"
                     android:text="@{viewModel.bookItem.description}" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/tilGenres"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                app:errorInputGenres="@{viewModel.errorInputGenres}"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                app:errorInputGenres="@{viewModel.errorInputGenres}">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/tiGenres"
-                    android:editable="false"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="5dp"
+                    android:editable="false"
                     android:hint="@string/hintGenres"
                     android:text="@{viewModel.bookItem.genres.toString()}" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/tilTags"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                app:errorInputTags="@{viewModel.errorInputTags}"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                app:errorInputTags="@{viewModel.errorInputTags}">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/tiTags"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:maxLines="1"
-                    android:inputType="text"
                     android:layout_margin="5dp"
                     android:hint="@string/hintTags"
+                    android:inputType="text"
+                    android:maxLines="1"
                     android:text="@{viewModel.bookItem.tags}" />
             </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+
+                <CheckBox
+                    android:id="@+id/cbShareAccess"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="false"
+                    />
+
+                <TextView
+                    android:id="@+id/tvShareAccess"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/checkbox_share_access"
+                    />
+
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"

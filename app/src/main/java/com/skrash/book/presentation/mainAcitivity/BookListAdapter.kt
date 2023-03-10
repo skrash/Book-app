@@ -42,6 +42,12 @@ class BookListAdapter : ListAdapter<BookItem, BookListAdapter.BookItemViewHolder
         loadCoverFunction?.invoke(holder, bookItem)
         when(binding){
             is BookItemBinding -> {
+                if (bookItem.shareAccess){
+                    binding.ivShareAccess.setImageResource(R.drawable.ic_baseline_cloud_upload_24_green)
+                } else {
+                    binding.ivShareAccess.setImageResource(R.drawable.ic_baseline_cloud_upload_24)
+                }
+                binding.ivShareAccess.visibility = View.VISIBLE
                 binding.btnTags.setOnClickListener {
                     binding.tvTags.text = bookItem.tags
                     binding.btnCloseTags.visibility = View.VISIBLE

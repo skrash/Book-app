@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.skrash.book.R
 import com.skrash.book.databinding.FragmentBookInfoBinding
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.presentation.BookApplication
@@ -42,7 +43,7 @@ class BookInfoFragment : Fragment() {
         }
     }
 
-    fun parseParams() {
+    private fun parseParams() {
         val args = requireArguments()
         if (!args.containsKey(BOOK_ITEM_ID)) {
             throw RuntimeException("Param book item id is absent")
@@ -60,7 +61,7 @@ class BookInfoFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentBookInfoBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -77,6 +78,16 @@ class BookInfoFragment : Fragment() {
             }
         }
         initCover()
+        viewModel.bookItem.observe(viewLifecycleOwner){
+            if (it != null){
+                if (it.shareAccess){
+                    binding.ivShareAccess.setImageResource(R.drawable.ic_baseline_cloud_upload_24_green)
+                } else {
+                    binding.ivShareAccess.setImageResource(R.drawable.ic_baseline_cloud_upload_24)
+                }
+                binding.ivShareAccess.visibility = View.VISIBLE
+            }
+        }
     }
 
     companion object {

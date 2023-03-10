@@ -32,7 +32,7 @@ class BookInfoViewModel @Inject constructor(
         }
     }
 
-    fun loadCover() {
+    private fun loadCover() {
         viewModelScope.launch {
             if (_bookItem.value != null) {
                 _imgCover.value = getBookCoverUseCase.getBookCover(

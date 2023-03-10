@@ -39,5 +39,6 @@
 
     <!-- other -->
     <string name="page">страница</string>
+    <string name="checkbox_share_access">Разрешить другим пользователям скачивать данную книгу</string>
 
 </resources>

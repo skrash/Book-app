@@ -18,5 +18,6 @@ data class MyBookItemDbModel
     val tags: String,
     val path: String,
     val startOnPage: Int,
+    val shareAccess: Boolean = false,
     val fileExtension: String
 )

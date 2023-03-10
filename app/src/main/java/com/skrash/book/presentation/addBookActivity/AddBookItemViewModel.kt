@@ -74,7 +74,8 @@ class AddBookItemViewModel @Inject constructor(
         description: String?,
         genres: String?,
         tags: String?,
-        path: String?
+        path: String?,
+        shareAccess: Boolean
     ) {
         if (title == null) {
             _errorInputTitle.value = true
@@ -146,6 +147,7 @@ class AddBookItemViewModel @Inject constructor(
                     tags = tags.trim(),
                     path = path,
                     startOnPage = 0,
+                    shareAccess = shareAccess,
                     fileExtension = fileExtension,
                 )
             )
@@ -162,6 +164,7 @@ class AddBookItemViewModel @Inject constructor(
                     tags = tags.trim(),
                     path = path,
                     startOnPage = 0,
+                    shareAccess = shareAccess,
                     fileExtension = fileExtension,
                 )
             )
