@@ -2,6 +2,7 @@ package com.skrash.book.presentation.openBookActivity
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
@@ -48,7 +49,6 @@ class PageView(context: Context, attributeSet: AttributeSet): AppCompatImageView
                     return false
                 }
                 if (e1.y - e2.y > 120 && abs(distanceY) > 20) {
-                    instance.y = ((e1.y - e2.y) * -1)
                     if (instance.y + ((e1.y - e2.y) * -1) < ((instance.height * instance.scaleY) - instance.height) / 2 && // right limiter
                         instance.y + ((e1.y - e2.y) * -1) > -(((instance.height * instance.scaleY) - instance.height) / 2) // left limiter
                     ) {
@@ -57,7 +57,6 @@ class PageView(context: Context, attributeSet: AttributeSet): AppCompatImageView
                     return false
                 }
                 if (e2.y - e1.y > 120 && abs(distanceY) > 20) {
-                    instance.y = (e2.y - e1.y)
                     if (instance.y + (e2.y - e1.y) < ((instance.height * instance.scaleY) - instance.height) / 2 && // right limiter
                         instance.y + (e2.y - e1.y) > -(((instance.height * instance.scaleY) - instance.height) / 2) // left limiter
                     ) {
