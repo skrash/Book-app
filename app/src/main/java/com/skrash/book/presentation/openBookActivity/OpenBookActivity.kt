@@ -21,7 +21,7 @@ import com.skrash.book.databinding.ActivityOpenBookBinding
 import com.skrash.book.databinding.PageItemBinding
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.Bookmark
-import com.skrash.book.presentation.BookApplication
+import com.skrash.book.BookApplication
 import com.skrash.book.presentation.RequestFileAccess
 import com.skrash.book.presentation.ViewModelFactory
 import kotlinx.coroutines.CoroutineScope

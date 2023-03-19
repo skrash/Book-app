@@ -7,7 +7,7 @@ class AddToMyBookListUseCase @Inject constructor(
     private val myBookItemRepository: MyBookItemRepository
 ) {
 
-    suspend fun addToMyBookList(bookItem: BookItem){
-        myBookItemRepository.addToMyBookList(bookItem)
+    suspend fun addToMyBookList(bookItem: BookItem): Long{
+        return myBookItemRepository.addToMyBookList(bookItem)
     }
 }

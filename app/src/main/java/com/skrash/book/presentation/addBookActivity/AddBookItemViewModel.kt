@@ -1,6 +1,7 @@
 package com.skrash.book.presentation.addBookActivity
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,6 +12,7 @@ import com.skrash.book.domain.entities.Genres
 import com.skrash.book.domain.usecases.GetBookCoverUseCase
 import com.skrash.book.domain.usecases.MyList.AddToMyBookListUseCase
 import com.skrash.book.domain.usecases.MyList.GetMyBookUseCase
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
@@ -23,7 +25,7 @@ class AddBookItemViewModel @Inject constructor(
 
     private val _imageCover = MutableLiveData<Bitmap>()
     val imageCover
-    get() = _imageCover
+        get() = _imageCover
 
     private val _bookItem = MutableLiveData<BookItem>()
     val bookItem: LiveData<BookItem>
@@ -32,6 +34,10 @@ class AddBookItemViewModel @Inject constructor(
     private val _shouldCloseScreen = MutableLiveData<Unit>()
     val shouldCloseScreen: LiveData<Unit>
         get() = _shouldCloseScreen
+
+    private val _itemIdManipulated = MutableLiveData<Int>()
+    val itemIdManipulated: LiveData<Int>
+        get() = _itemIdManipulated
 
     // VALIDATORS
 
@@ -60,11 +66,12 @@ class AddBookItemViewModel @Inject constructor(
         get() = _errorInputPath
     // ======================================
 
-    private fun addBookItem(bookItem: BookItem) {
-        viewModelScope.launch {
-            addToMyBookListUseCase.addToMyBookList(bookItem)
+    private suspend fun addBookItem(bookItem: BookItem): Long {
+        val deferred = viewModelScope.async {
+            val id = addToMyBookListUseCase.addToMyBookList(bookItem)
+            id
         }
-
+        return deferred.await()
     }
 
     fun finishEditing(
@@ -135,40 +142,47 @@ class AddBookItemViewModel @Inject constructor(
             _errorInputPath.value = true
             return
         }
-        if (id == null) {
-            addBookItem(
-                BookItem(
-                    title = title.trim(),
-                    author = author.trim(),
-                    description = description.trim(),
-                    rating = 0.0f,
-                    popularity = 0.0f,
-                    genres = genresParsed,
-                    tags = tags.trim(),
-                    path = path,
-                    startOnPage = 0,
-                    shareAccess = shareAccess,
-                    fileExtension = fileExtension,
+        viewModelScope.launch {
+            if (id == null) {
+                val id = addBookItem(
+                    BookItem(
+                        title = title.trim(),
+                        author = author.trim(),
+                        description = description.trim(),
+                        rating = 0.0f,
+                        popularity = 0.0f,
+                        genres = genresParsed,
+                        tags = tags.trim(),
+                        path = path,
+                        startOnPage = 0,
+                        shareAccess = shareAccess,
+                        fileExtension = fileExtension,
+                    )
                 )
-            )
-        } else {
-            addBookItem(
-                BookItem(
-                    id = id,
-                    title = title.trim(),
-                    author = author.trim(),
-                    description = description.trim(),
-                    rating = 0.0f,
-                    popularity = 0.0f,
-                    genres = genresParsed,
-                    tags = tags.trim(),
-                    path = path,
-                    startOnPage = 0,
-                    shareAccess = shareAccess,
-                    fileExtension = fileExtension,
+                Log.d("TEST_WORKER", "added id ${id.toInt()}")
+                _itemIdManipulated.value = id.toInt()
+            } else {
+                addBookItem(
+                    BookItem(
+                        id = id,
+                        title = title.trim(),
+                        author = author.trim(),
+                        description = description.trim(),
+                        rating = 0.0f,
+                        popularity = 0.0f,
+                        genres = genresParsed,
+                        tags = tags.trim(),
+                        path = path,
+                        startOnPage = 0,
+                        shareAccess = shareAccess,
+                        fileExtension = fileExtension,
+                    )
                 )
-            )
+                Log.d("TEST_WORKER", "added id ${id.toInt()}")
+                _itemIdManipulated.value = id.toInt()
+            }
         }
+
 
         finishWork()
     }

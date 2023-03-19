@@ -36,6 +36,7 @@
     <string name="error_input_path">Некорректный путь к файлу</string>
 
     <string name="permission_file_access_denied">Не получилось разрешить доступ к файлам! Разрешите доступ к файлам в настройках приложения.</string>
+    <string name="permission_internet_access_denied">Не получилось разрешить доступ к интернету! Разрешите доступ к интернету в настройках приложения.</string>
 
     <!-- other -->
     <string name="page">страница</string>

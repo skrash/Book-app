@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.skrash.book.R
 import com.skrash.book.databinding.FragmentBookInfoBinding
 import com.skrash.book.domain.entities.BookItem
-import com.skrash.book.presentation.BookApplication
+import com.skrash.book.BookApplication
 import com.skrash.book.presentation.ViewModelFactory
 import com.skrash.book.presentation.openBookActivity.OpenBookActivity
 import javax.inject.Inject

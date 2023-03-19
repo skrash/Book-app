@@ -11,8 +11,8 @@ class MyBookItemRepositoryImpl @Inject constructor(
     private val mapper: MyBookItemMapper
 ): MyBookItemRepository {
 
-    override suspend fun addToMyBookList(bookItem: BookItem) {
-        myBookListDao.addMyBookItem(mapper.mapDomainToDbModel(bookItem))
+    override suspend fun addToMyBookList(bookItem: BookItem): Long {
+        return myBookListDao.addMyBookItem(mapper.mapDomainToDbModel(bookItem))
     }
 
     override fun getMyBookList(): LiveData<List<BookItem>> = Transformations.map(

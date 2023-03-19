@@ -1,6 +1,7 @@
 package com.skrash.book.di
 
 import android.app.Application
+import com.skrash.book.data.BookProvider
 import com.skrash.book.presentation.addBookActivity.AddBookItemFragment
 import com.skrash.book.presentation.bookInfoActivity.BookInfoFragment
 import com.skrash.book.presentation.mainAcitivity.MainActivity
@@ -24,6 +25,8 @@ interface ApplicationComponent {
     fun inject(fragment: AddBookItemFragment)
 
     fun inject(activity: OpenBookActivity)
+
+    fun inject(contentProvider: BookProvider)
 
     @Component.Factory
     interface Factory {

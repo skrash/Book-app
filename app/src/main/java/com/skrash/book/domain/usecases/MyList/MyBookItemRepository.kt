@@ -5,7 +5,7 @@ import com.skrash.book.domain.entities.BookItem
 
 interface MyBookItemRepository {
 
-    suspend fun addToMyBookList(bookItem: BookItem)
+    suspend fun addToMyBookList(bookItem: BookItem): Long
 
     fun getMyBookList(): LiveData<List<BookItem>>
 

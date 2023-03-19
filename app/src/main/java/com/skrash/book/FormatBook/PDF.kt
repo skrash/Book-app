@@ -3,6 +3,7 @@ package com.skrash.book.FormatBook
 import android.graphics.Bitmap
 import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
+import android.util.Log
 import java.io.File
 
 class PDF(private val file: File) {
@@ -10,6 +11,7 @@ class PDF(private val file: File) {
     private var pdfRenderer: PdfRenderer? = null
 
     init {
+        Log.d("TEST_WORKER", "file is exists? ${file.exists()}")
         val fileDescriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
         pdfRenderer = PdfRenderer(fileDescriptor)
     }

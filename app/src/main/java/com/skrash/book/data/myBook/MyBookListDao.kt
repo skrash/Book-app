@@ -1,5 +1,6 @@
 package com.skrash.book.data.myBook
 
+import android.database.Cursor
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
@@ -13,7 +14,7 @@ interface MyBookListDao {
     fun getMyBookList(): LiveData<List<MyBookItemDbModel>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addMyBookItem(myBookItemDbModel: MyBookItemDbModel)
+    suspend fun addMyBookItem(myBookItemDbModel: MyBookItemDbModel): Long
 
     @Query("DELETE FROM book_items WHERE id=:bookItemId")
     suspend fun deleteMyBookItem(bookItemId: Int)
@@ -23,4 +24,7 @@ interface MyBookListDao {
 
     @Query("UPDATE book_items SET startOnPage=:pageNum WHERE id=:bookID")
     suspend fun updatePage(pageNum: Int, bookID: Int)
+
+    @Query("SELECT * FROM book_items WHERE id=:bookItemID LIMIT 1")
+    fun getBookItemCursor(bookItemID: Int): Cursor
 }

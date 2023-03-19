@@ -1,4 +1,4 @@
-package com.skrash.book.presentation
+package com.skrash.book
 
 import android.app.Application
 import com.skrash.book.di.DaggerApplicationComponent

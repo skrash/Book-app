@@ -1,6 +1,7 @@
 package com.skrash.book.data
 
 import android.graphics.Bitmap
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import com.skrash.book.FormatBook.FB2
 import com.skrash.book.FormatBook.PDF
@@ -49,7 +50,7 @@ class BookItemRepositoryImpl @Inject constructor(
     override suspend fun getBookCover(bookItem: BookItem, width: Int, height: Int): Bitmap {
         return when (FormatBook.valueOf(bookItem.fileExtension.uppercase())) {
             FormatBook.PDF -> {
-                val file = File(bookItem.path)
+                val file = File(Uri.parse(bookItem.path).path)
                 val pdf = PDF(file)
                 pdf.getCover(width, height)
             }
@@ -63,7 +64,7 @@ class BookItemRepositoryImpl @Inject constructor(
         if (curBook != null) {
             return when (FormatBook.valueOf(curBook!!.fileExtension.uppercase())) {
                 FormatBook.PDF -> {
-                    val file = File(curBook!!.path)
+                    val file = File(Uri.parse(curBook!!.path).path)
                     val pdf = PDF(file)
                     pdf.openPage(pageNum, width, height)
                 }
@@ -83,7 +84,7 @@ class BookItemRepositoryImpl @Inject constructor(
             val formatBook = FormatBook.valueOf(curBook!!.fileExtension.uppercase())
             return when (formatBook) {
                 FormatBook.PDF -> {
-                    val file = File(curBook!!.path)
+                    val file = File(Uri.parse(curBook!!.path).path)
                     val pdf = PDF(file)
                     pdf.getPageCount()
                 }

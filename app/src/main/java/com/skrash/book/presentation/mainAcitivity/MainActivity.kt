@@ -9,12 +9,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.skrash.book.BookApplication
 import com.skrash.book.R
 import com.skrash.book.databinding.ActivityMainBinding
 import com.skrash.book.databinding.BookItemBinding
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.Genres
-import com.skrash.book.presentation.BookApplication
 import com.skrash.book.presentation.RequestFileAccess
 import com.skrash.book.presentation.ViewModelFactory
 import com.skrash.book.presentation.addBookActivity.AddBookActivity

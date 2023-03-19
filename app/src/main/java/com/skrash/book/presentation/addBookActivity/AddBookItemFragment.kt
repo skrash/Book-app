@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -11,15 +12,17 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.work.ExistingWorkPolicy
+import androidx.work.WorkManager
+import com.skrash.book.BookApplication
 import com.skrash.book.R
 import com.skrash.book.databinding.FragmentAddBookItemBinding
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.FormatBook
 import com.skrash.book.domain.entities.Genres
-import com.skrash.book.presentation.BookApplication
 import com.skrash.book.presentation.RequestFileAccess
 import com.skrash.book.presentation.ViewModelFactory
-import java.io.File
+import com.skrash.book.service.SendTrackerWorker
 import javax.inject.Inject
 
 
@@ -44,7 +47,6 @@ class AddBookItemFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         component.inject(this)
-
         super.onAttach(context)
 
         if (context is OnEditingFinishedListener) {
@@ -141,7 +143,7 @@ class AddBookItemFragment : Fragment() {
             }
         })
         binding.tiGenres.setOnFocusChangeListener { view, b ->
-            if (b){
+            if (b) {
                 popupMenuChangeGenre()
             }
         }
@@ -173,15 +175,14 @@ class AddBookItemFragment : Fragment() {
         val getContent = registerForActivityResult(ActivityResultContracts.OpenDocument()) {
             RequestFileAccess.requestFileAccessPermission(requireActivity() as AddBookActivity, {
                 if (it != null) {
-                    val file = File(it.path)
-                    val fileExt = file.absoluteFile.path.substringAfterLast('.', "")
                     try {
                         autoPaste(
-                            file.absolutePath.replace("/document/raw:", ""),
-                            FormatBook.valueOf(fileExt.uppercase())
+                            it.path!!,
+                            FormatBook.valueOf(it.path!!.substringAfterLast('.', "").uppercase())
                         )
-                        binding.tiPath.setText(file.absolutePath.replace("/document/raw:", ""))
-                    } catch (e: IllegalArgumentException){
+                        binding.tiPath.setText(it.path)
+                     } catch (e: IllegalArgumentException) {
+                         Log.d("TEST_WORKER", e.localizedMessage)
                         // TODO: log this exception 
                     }
                 }
@@ -200,14 +201,15 @@ class AddBookItemFragment : Fragment() {
         }
     }
 
-    private fun popupMenuChangeGenre(){
+    private fun popupMenuChangeGenre() {
         val popupMenu = android.widget.PopupMenu(requireContext(), binding.tiGenres)
         for (i in Genres.values()) {
             popupMenu.menu.add(Menu.NONE, i.ordinal, Menu.NONE, i.name)
         }
         popupMenu.setOnMenuItemClickListener { item: MenuItem? ->
             binding.tiGenres.setText(item?.title.toString())
-            val imm = requireActivity().getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
+            val imm =
+                requireActivity().getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(binding.tiGenres.windowToken, 0)
             true
         }
@@ -264,6 +266,17 @@ class AddBookItemFragment : Fragment() {
     private fun observeViewModel() {
         viewModel.shouldCloseScreen.observe(viewLifecycleOwner) {
             onEditingFinishedListener.onEditingFinishedListener()
+        }
+        viewModel.itemIdManipulated.observe(viewLifecycleOwner) {
+            if (it != -1 && it != 0) {
+                Log.d("TEST_WORKER", "observe $it")
+                val workSendToTracker = WorkManager.getInstance(requireContext().applicationContext)
+                workSendToTracker.enqueueUniqueWork(
+                    SendTrackerWorker.WORK_NAME,
+                    ExistingWorkPolicy.APPEND_OR_REPLACE,
+                    SendTrackerWorker.makeRequest(it)
+                )
+            }
         }
     }
 
