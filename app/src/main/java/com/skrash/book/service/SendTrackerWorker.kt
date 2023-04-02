@@ -3,10 +3,24 @@ package com.skrash.book.service
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
+import android.os.Environment
 import android.util.Log
 import androidx.work.*
+import com.skrash.book.data.TorrentSettings
+import com.skrash.book.data.network.ApiFactory
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.Genres
+import com.turn.ttorrent.common.Torrent
+import com.turn.ttorrent.tracker.Tracker
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import retrofit2.awaitResponse
+import java.io.File
+import java.io.FileOutputStream
+import java.lang.RuntimeException
+import java.net.InetAddress
+import java.net.InetSocketAddress
 
 
 class SendTrackerWorker(
@@ -28,7 +42,8 @@ class SendTrackerWorker(
             while (bookCursor?.moveToNext() == true) {
                 val title = bookCursor.getString(bookCursor.getColumnIndexOrThrow("title"))
                 val author = bookCursor.getString(bookCursor.getColumnIndexOrThrow("author"))
-                val description = bookCursor.getString(bookCursor.getColumnIndexOrThrow("description"))
+                val description =
+                    bookCursor.getString(bookCursor.getColumnIndexOrThrow("description"))
                 val rating = bookCursor.getFloat(bookCursor.getColumnIndexOrThrow("rating"))
                 val popularity = bookCursor.getFloat(bookCursor.getColumnIndexOrThrow("popularity"))
                 val genres = bookCursor.getString(bookCursor.getColumnIndexOrThrow("genres"))
@@ -37,7 +52,8 @@ class SendTrackerWorker(
                 val fileException =
                     bookCursor.getString(bookCursor.getColumnIndexOrThrow("fileExtension"))
                 val startOnPage = bookCursor.getInt(bookCursor.getColumnIndexOrThrow("startOnPage"))
-                val shareAccess = bookCursor.getInt(bookCursor.getColumnIndexOrThrow("shareAccess")) > 0
+                val shareAccess =
+                    bookCursor.getInt(bookCursor.getColumnIndexOrThrow("shareAccess")) > 0
                 val id = bookCursor.getInt(bookCursor.getColumnIndexOrThrow("id"))
                 val book = BookItem(
                     title,
@@ -54,7 +70,7 @@ class SendTrackerWorker(
                     id
                 )
                 bookCursor.close()
-            sendNewTracker(book)
+                publish(book)
             }
         } catch (e: Exception) {
             Log.d("TEST_WORKER", e.localizedMessage)
@@ -64,7 +80,27 @@ class SendTrackerWorker(
         return Result.success()
     }
 
-    private fun sendNewTracker(book: BookItem) {
+    private fun publish(book: BookItem) {
+        val socketAddress =
+            InetSocketAddress(TorrentSettings.DEST_ADDRESS, TorrentSettings.DEST_PORT)
+        val tracker = Tracker(socketAddress)
+        tracker.start()
+        val file = File(
+            Uri.parse(book.path).path
+                ?: throw RuntimeException("unable to generate uri path. perhaps the path is wrong")
+        )
+        val torrentFile = Torrent.create(file, tracker.announceUrl.toURI(), "")
+        val dataPath = context.getExternalFilesDir(Environment.getDataDirectory().absolutePath)
+            ?.absolutePath
+        val pathStr = dataPath + "/" + book.title + ".torrent"
+        val fos = FileOutputStream(pathStr)
+        torrentFile.save(fos)
+        fos.close()
+        var result =
+            ApiFactory.apiService.publishTorrent(torrentFile.hexInfoHash, 1, 5000, 100, 1, 1)
+        CoroutineScope(Dispatchers.IO).launch {
+            result.awaitResponse().body()?.let { Log.d("TEST_WORKER", it.string()) }
+        }
     }
 
     companion object {
