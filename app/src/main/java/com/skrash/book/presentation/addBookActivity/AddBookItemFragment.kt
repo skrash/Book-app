@@ -2,9 +2,9 @@ package com.skrash.book.presentation.addBookActivity
 
 import android.content.Context
 import android.os.Bundle
+import android.os.Environment
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
@@ -23,6 +23,13 @@ import com.skrash.book.domain.entities.Genres
 import com.skrash.book.presentation.RequestFileAccess
 import com.skrash.book.presentation.ViewModelFactory
 import com.skrash.book.service.SendTrackerWorker
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 import javax.inject.Inject
 
 
@@ -172,18 +179,41 @@ class AddBookItemFragment : Fragment() {
             override fun afterTextChanged(s: Editable?) {
             }
         })
-        val getContent = registerForActivityResult(ActivityResultContracts.OpenDocument()) {
+        val getContent = registerForActivityResult(ActivityResultContracts.GetContent()) {
             RequestFileAccess.requestFileAccessPermission(requireActivity() as AddBookActivity, {
                 if (it != null) {
-                    try {
-                        autoPaste(
-                            it.path!!,
-                            FormatBook.valueOf(it.path!!.substringAfterLast('.', "").uppercase())
-                        )
-                        binding.tiPath.setText(it.path)
-                     } catch (e: IllegalArgumentException) {
-                         Log.d("TEST_WORKER", e.localizedMessage)
-                        // TODO: log this exception 
+                    val dataPath =
+                        requireContext().getExternalFilesDir(Environment.getDataDirectory().absolutePath)?.absolutePath
+                            ?: throw RuntimeException("failed to create path to data directory")
+                    val fileExtension = it.path?.split(".")?.last() ?: throw RuntimeException("failed get file extension from uri")
+                    val cur = requireContext().contentResolver.query(it, null, null, null)
+                    var fileName = ""
+                    if (cur != null) {
+                        cur.use { cur ->
+                            if (cur.moveToFirst()) {
+                                fileName = cur.getString(0)
+                            }
+                        }
+                        fileName = fileName.split("/").last()
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val openStream: InputStream = requireContext().contentResolver.openInputStream(it)
+                                ?: throw RuntimeException("failed get output stream from file")
+                            val dataFile = File("$dataPath/$fileName")
+                            if (!dataFile.exists()){
+                                dataFile.createNewFile()
+                            }
+                            val fileOutputStream = FileOutputStream(dataFile)
+                            fileOutputStream.write(openStream.readBytes())
+                            openStream.close()
+                            fileOutputStream.close()
+                            withContext(Dispatchers.Main){
+                                autoPaste(
+                                    dataFile.path,
+                                    FormatBook.valueOf(fileExtension.uppercase())
+                                )
+                                binding.tiPath.setText(dataFile.path)
+                            }
+                        }
                     }
                 }
             }) {
@@ -196,7 +226,7 @@ class AddBookItemFragment : Fragment() {
         }
         binding.tiPath.setOnFocusChangeListener { view, b ->
             if (b) {
-                getContent.launch(arrayOf("*/*"))
+                getContent.launch("*/*")
             }
         }
     }
@@ -269,7 +299,6 @@ class AddBookItemFragment : Fragment() {
         }
         viewModel.itemIdManipulated.observe(viewLifecycleOwner) {
             if (it != -1 && it != 0) {
-                Log.d("TEST_WORKER", "observe $it")
                 val workSendToTracker = WorkManager.getInstance(requireContext().applicationContext)
                 workSendToTracker.enqueueUniqueWork(
                     SendTrackerWorker.WORK_NAME,

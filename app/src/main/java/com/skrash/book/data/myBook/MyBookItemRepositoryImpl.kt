@@ -1,9 +1,12 @@
 package com.skrash.book.data.myBook
 
+import android.os.Environment
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.usecases.MyList.MyBookItemRepository
+import java.io.File
 import javax.inject.Inject
 
 class MyBookItemRepositoryImpl @Inject constructor(
@@ -26,6 +29,10 @@ class MyBookItemRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteBookItemFromMyList(bookItem: BookItem) {
+        val file = File(bookItem.path)
+        if (!file.delete()){
+            throw RuntimeException("could not delete file")
+        }
         myBookListDao.deleteMyBookItem(bookItem.id)
     }
 

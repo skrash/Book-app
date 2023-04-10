@@ -2,9 +2,14 @@ package com.skrash.book.presentation.mainAcitivity
 
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Environment
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -14,6 +19,7 @@ import com.skrash.book.R
 import com.skrash.book.databinding.ActivityMainBinding
 import com.skrash.book.databinding.BookItemBinding
 import com.skrash.book.domain.entities.BookItem
+import com.skrash.book.domain.entities.FormatBook
 import com.skrash.book.domain.entities.Genres
 import com.skrash.book.presentation.RequestFileAccess
 import com.skrash.book.presentation.ViewModelFactory
@@ -21,9 +27,13 @@ import com.skrash.book.presentation.addBookActivity.AddBookActivity
 import com.skrash.book.presentation.addBookActivity.AddBookItemFragment
 import com.skrash.book.presentation.bookInfoActivity.BookInfoActivity
 import com.skrash.book.presentation.bookInfoActivity.BookInfoFragment
+import com.skrash.book.service.TorrentService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 import javax.inject.Inject
 
 
@@ -40,6 +50,7 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
     private val component by lazy {
         (application as BookApplication).component
     }
+    lateinit var intent: ActivityResultLauncher<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         component.inject(this)
@@ -47,13 +58,44 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        intent = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) {
+            val dataPath =
+                getExternalFilesDir(Environment.getDataDirectory().absolutePath)?.absolutePath
+                    ?: throw RuntimeException("failed to create path to data directory")
+            for (uri in it) {
+                val fileExtension = uri.path?.split(".")?.last() ?: throw RuntimeException("failed get file extension from uri")
+                val cur = contentResolver.query(uri, null, null, null)
+                var fileName = ""
+                if (cur != null) {
+                    cur.use { cur ->
+                        if (cur.moveToFirst()) {
+                            fileName = cur.getString(0)
+                        }
+                    }
+                    fileName = fileName.split("/").last()
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val openStream: InputStream = contentResolver.openInputStream(uri)
+                            ?: throw RuntimeException("failed get output stream from file")
+                        val dataFile = File("$dataPath/$fileName")
+                        if (!dataFile.exists()){
+                            dataFile.createNewFile()
+                        }
+                        val fileOutputStream = FileOutputStream(dataFile)
+                        fileOutputStream.write(openStream.readBytes())
+                        openStream.close()
+                        fileOutputStream.close()
+                        viewModel.compileDefaultBookItem(dataFile.absolutePath, FormatBook.valueOf(fileExtension.uppercase()))
+                    }
+                }
+            }
+        }
         init()
+        checkFirstRun()
         setupRecyclerView()
         viewModel = ViewModelProvider(this, viewModelFactory)[MainActivityViewModel::class.java]
         viewModel.bookList.observe(this) {
             bookListAdapter.submitList(it)
         }
-        checkFirstRun()
         binding.btnAdd.setOnClickListener {
             if (binding.fragmentContainer == null) {
                 val intent = AddBookActivity.newIntentAddBook(this)
@@ -62,19 +104,33 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
                 launchFragment(AddBookItemFragment.newInstanceAddItem())
             }
         }
+        ContextCompat.startForegroundService(
+            this,
+            TorrentService.newIntent(this)
+        )
+    }
+
+    private fun requestDialogChangeFilesFirstRun() {
+        intent.launch("*/*")
     }
 
     private fun initBookList() {
-        viewModel.initializeFromDefaultPath()
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.first_run_change_books_alert_title))
+            .setMessage(getString(R.string.first_run_change_books_alert_body))
+            .setPositiveButton(
+                android.R.string.ok
+            ) { _, _ ->
+                requestDialogChangeFilesFirstRun()
+            }
+            .show()
     }
 
-    private fun checkFirstRun(){
+    private fun checkFirstRun() {
         val pref = getSharedPreferences(packageName, MODE_PRIVATE)
         if (pref.getBoolean("first_run", true)) {
-            RequestFileAccess.requestFileAccessPermission(this, {
-                initBookList()
-            }) {}
-            pref.edit().putBoolean("first_run", false).commit()
+            initBookList()
+            pref.edit().putBoolean("first_run", false).apply()
         }
     }
 
@@ -165,7 +221,7 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
                     bindingCover.imCover.setImageBitmap(bitmap)
                 }
             }
-        }){}
+        }) {}
     }
 
     private fun launchFragment(fragment: Fragment) {
@@ -185,9 +241,9 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        if (grantResults.isNotEmpty()){
-            if (requestCode == RequestFileAccess.REQUEST_CODE && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                initBookList()
+        if (grantResults.isNotEmpty()) {
+            if (requestCode == RequestFileAccess.REQUEST_CODE && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                checkFirstRun()
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)

@@ -24,6 +24,7 @@
     <string name="hintGenres">Жанры</string>
     <string name="hintTags">Теги, через запятую</string>
     <string name="hintPath">Выберите файл</string>
+    <string name="ok">ОК</string>
 
     <string name="page_hint">0</string>
 
@@ -37,6 +38,10 @@
 
     <string name="permission_file_access_denied">Не получилось разрешить доступ к файлам! Разрешите доступ к файлам в настройках приложения.</string>
     <string name="permission_internet_access_denied">Не получилось разрешить доступ к интернету! Разрешите доступ к интернету в настройках приложения.</string>
+
+    <!-- alert -->
+    <string name="first_run_change_books_alert_title">Выбор книг</string>
+    <string name="first_run_change_books_alert_body">В следующем окне будет доступен выбор файлов для добавления в ваш каталог.</string>
 
     <!-- other -->
     <string name="page">страница</string>

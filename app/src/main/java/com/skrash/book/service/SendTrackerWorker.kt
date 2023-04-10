@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Environment
 import android.util.Log
 import androidx.work.*
+import com.google.gson.Gson
 import com.skrash.book.data.TorrentSettings
 import com.skrash.book.data.network.ApiFactory
 import com.skrash.book.domain.entities.BookItem
@@ -15,11 +16,11 @@ import com.turn.ttorrent.tracker.Tracker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import retrofit2.awaitResponse
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import java.io.File
 import java.io.FileOutputStream
-import java.lang.RuntimeException
-import java.net.InetAddress
 import java.net.InetSocketAddress
 
 
@@ -81,26 +82,40 @@ class SendTrackerWorker(
     }
 
     private fun publish(book: BookItem) {
+        val tfile = createTorrentFile(book)
+        val torrentFile = File(tfile)
+        val requestFile = RequestBody.create(MediaType.parse("application/x-bittorrent"), torrentFile)
+        val gson = Gson()
+        val bookJson = gson.toJson(book)
+        val bookInfoPart = RequestBody.create(MediaType.parse("text/plain"), bookJson)
+        val filePart = MultipartBody.Part.createFormData("file", book.title, requestFile)
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                ApiFactory.apiService.publishTorrent(filePart, bookInfoPart)
+            } catch (e: Exception){
+                Log.d("TEST_WORKER", e.localizedMessage)
+            }
+        }
+    }
+
+    private fun createTorrentFile(book: BookItem): String{
         val socketAddress =
             InetSocketAddress(TorrentSettings.DEST_ADDRESS, TorrentSettings.DEST_PORT)
         val tracker = Tracker(socketAddress)
         tracker.start()
-        val file = File(
+        val bookFile = File(
             Uri.parse(book.path).path
                 ?: throw RuntimeException("unable to generate uri path. perhaps the path is wrong")
         )
-        val torrentFile = Torrent.create(file, tracker.announceUrl.toURI(), "")
+        val torrent = Torrent.create(bookFile, tracker.announceUrl.toURI(), "")
         val dataPath = context.getExternalFilesDir(Environment.getDataDirectory().absolutePath)
             ?.absolutePath
-        val pathStr = dataPath + "/" + book.title + ".torrent"
-        val fos = FileOutputStream(pathStr)
-        torrentFile.save(fos)
+        val torrentFilePath = dataPath + "/" + book.title + ".torrent"
+        val fos = FileOutputStream(torrentFilePath)
+        torrent.save(fos)
         fos.close()
-        var result =
-            ApiFactory.apiService.publishTorrent(torrentFile.hexInfoHash, 1, 5000, 100, 1, 1)
-        CoroutineScope(Dispatchers.IO).launch {
-            result.awaitResponse().body()?.let { Log.d("TEST_WORKER", it.string()) }
-        }
+        tracker.stop()
+        return torrentFilePath
     }
 
     companion object {

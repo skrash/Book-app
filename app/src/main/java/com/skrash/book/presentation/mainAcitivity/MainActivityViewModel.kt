@@ -2,6 +2,7 @@ package com.skrash.book.presentation.mainAcitivity
 
 import android.graphics.Bitmap
 import android.os.Environment
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skrash.book.domain.entities.BookItem
@@ -12,7 +13,6 @@ import com.skrash.book.domain.usecases.MyList.AddToMyBookListUseCase
 import com.skrash.book.domain.usecases.MyList.DeleteBookItemFromMyListUseCase
 import com.skrash.book.domain.usecases.MyList.GetMyBookListUseCase
 import kotlinx.coroutines.launch
-import java.io.File
 import javax.inject.Inject
 
 class MainActivityViewModel @Inject constructor(
@@ -30,29 +30,7 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    fun initializeFromDefaultPath() {
-        val booksPathsArray = listOf<File>(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
-        )
-        for (i in booksPathsArray) {
-            val book = i.listFiles { _, fileName ->
-                fileName.contains(".pdf") || fileName.contains(".PDF") || fileName.contains(".fb2") || fileName.contains(".FB2")
-            }
-            if (book != null){
-                for (filePath in book) {
-                    if (checkBookNotInMyList(filePath.absolutePath)){
-                        val bookItem = compileDefaultBookItem(filePath.absolutePath, FormatBook.valueOf(filePath.absolutePath.substringAfterLast(".", "").uppercase()))
-                        viewModelScope.launch {
-                            addToMyBookListUseCase.addToMyBookList(bookItem)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun compileDefaultBookItem(path: String, formatBook: FormatBook): BookItem {
+    fun compileDefaultBookItem(path: String, formatBook: FormatBook) {
         when (formatBook) {
             FormatBook.PDF -> {
                 val fileName = path.substringAfterLast("/")
@@ -69,7 +47,7 @@ class MainActivityViewModel @Inject constructor(
                 title = title.replace("." + title.substringAfterLast(".", ""), "")
                 title = title.replace("[,.-]+".toRegex(), "")
                 title = title.trim()
-                return BookItem(
+                val book = BookItem(
                     title = title,
                     author = authorString,
                     description = "",
@@ -81,9 +59,12 @@ class MainActivityViewModel @Inject constructor(
                     fileExtension = FormatBook.PDF.string_name,
                     startOnPage = 0
                 )
+                viewModelScope.launch {
+                    addToMyBookListUseCase.addToMyBookList(book)
+                }
             }
             FormatBook.FB2 -> {
-                return BookItem(
+                val book = BookItem(
                     title = "",
                     author = "",
                     description = "",
@@ -95,20 +76,10 @@ class MainActivityViewModel @Inject constructor(
                     fileExtension = FormatBook.FB2.string_name,
                     startOnPage = 0
                 )
-            }
-        }
-    }
-
-    private fun checkBookNotInMyList(path: String): Boolean{
-        if (bookList.value != null){
-            for(i in bookList.value!!){
-                if(i.path == path){
-                    return false
+                viewModelScope.launch {
+                    addToMyBookListUseCase.addToMyBookList(book)
                 }
             }
-            return true
-        } else {
-            return true
         }
     }
 

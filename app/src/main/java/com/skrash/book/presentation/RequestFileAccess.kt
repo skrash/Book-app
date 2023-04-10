@@ -13,19 +13,15 @@ class RequestFileAccess {
         const val REQUEST_CODE = 100
 
         fun requestFileAccessPermission(activity: AppCompatActivity, permissionGranted: ()->Unit, permissionNotGranted: ()-> Unit) {
-            if (Build.VERSION.SDK_INT >= 23) {
-                if (activity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED
-                ) {
-                    ActivityCompat.requestPermissions(
-                        activity,
-                        arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                        REQUEST_CODE
-                    )
-                    permissionNotGranted()
-                } else {
-                    permissionGranted()
-                }
+            if (activity.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    activity,
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                    REQUEST_CODE
+                )
+                permissionNotGranted()
             } else {
                 permissionGranted()
             }

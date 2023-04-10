@@ -1,20 +1,15 @@
 package com.skrash.book.data.network
 
+import com.skrash.book.domain.entities.BookItem
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Query
+import retrofit2.http.*
 
 interface ApiService {
 
-    @GET("announce")
-    fun publishTorrent(
-        @Query("info_hash") info_hash: String,
-        @Query("peer_id") peer_id: Int,
-        @Query("port") port: Int,
-        @Query("uploaded") uploaded: Int,
-        @Query("downloaded") downloaded: Int,
-        @Query("left") left: Int
-    ): Call<ResponseBody>
+    @POST("create")
+    @Multipart
+    suspend fun publishTorrent(@Part tfile: MultipartBody.Part, @Part("data") bookItem: RequestBody)
 }
