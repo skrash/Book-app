@@ -22,6 +22,7 @@ class BookProvider : ContentProvider() {
 
     private val uriMatcher = UriMatcher(UriMatcher.NO_MATCH).apply {
         addURI(AUTHORITY, "book/#", GET_BOOK_BY_ID  )
+        addURI(AUTHORITY, "shared", GET_SHARED_BOOKS  )
     }
 
     override fun onCreate(): Boolean {
@@ -39,6 +40,15 @@ class BookProvider : ContentProvider() {
                 try {
                     val contentUri = ContentUris.parseId(uri)
                     cursor = bookListDao.getBookItemCursor(contentUri.toInt())
+                } catch (e: Exception){
+                    Log.d("TEST_WORKER", e.localizedMessage)
+                }
+                return cursor
+            }
+            GET_SHARED_BOOKS -> {
+                var cursor:Cursor? = null
+                try {
+                    cursor = bookListDao.getSharedBooks()
                 } catch (e: Exception){
                     Log.d("TEST_WORKER", e.localizedMessage)
                 }
@@ -69,5 +79,6 @@ class BookProvider : ContentProvider() {
     companion object {
         private const val AUTHORITY = "com.skrash.book"
         private const val GET_BOOK_BY_ID = 101
+        private const val GET_SHARED_BOOKS = 102
     }
 }

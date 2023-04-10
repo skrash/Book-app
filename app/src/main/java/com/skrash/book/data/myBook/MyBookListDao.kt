@@ -27,4 +27,7 @@ interface MyBookListDao {
 
     @Query("SELECT * FROM book_items WHERE id=:bookItemID LIMIT 1")
     fun getBookItemCursor(bookItemID: Int): Cursor
+
+    @Query("SELECT * FROM book_items WHERE shareAccess=1")
+    fun getSharedBooks(): Cursor
 }
