@@ -1,4 +1,4 @@
-package com.skrash.book.presentation.browseNetworkBookActivity
+package com.skrash.book.presentation.mainAcitivity
 
 import androidx.recyclerview.widget.DiffUtil
 import com.skrash.book.data.network.model.BookItemDto

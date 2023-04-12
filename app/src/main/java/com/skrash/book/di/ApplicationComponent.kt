@@ -4,7 +4,6 @@ import android.app.Application
 import com.skrash.book.data.BookProvider
 import com.skrash.book.presentation.addBookActivity.AddBookItemFragment
 import com.skrash.book.presentation.bookInfoActivity.BookInfoFragment
-import com.skrash.book.presentation.browseNetworkBookActivity.BrowseNetworkBook
 import com.skrash.book.presentation.mainAcitivity.MainActivity
 import com.skrash.book.presentation.openBookActivity.OpenBookActivity
 import dagger.BindsInstance
@@ -28,8 +27,6 @@ interface ApplicationComponent {
     fun inject(activity: OpenBookActivity)
 
     fun inject(contentProvider: BookProvider)
-
-    fun inject(activity: BrowseNetworkBook)
 
     @Component.Factory
     interface Factory {

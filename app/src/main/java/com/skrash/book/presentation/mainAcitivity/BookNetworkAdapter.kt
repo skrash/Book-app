@@ -1,4 +1,4 @@
-package com.skrash.book.presentation.browseNetworkBookActivity
+package com.skrash.book.presentation.mainAcitivity
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

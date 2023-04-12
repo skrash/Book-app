@@ -1,15 +1,21 @@
 package com.skrash.book.presentation.mainAcitivity
 
 import android.graphics.Bitmap
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.skrash.book.data.network.model.BookItemDto
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.FormatBook
 import com.skrash.book.domain.entities.Genres
+import com.skrash.book.domain.usecases.GetBookItemListUseCase
 import com.skrash.book.domain.usecases.MyList.GetBookCoverUseCase
 import com.skrash.book.domain.usecases.MyList.AddToMyBookListUseCase
 import com.skrash.book.domain.usecases.MyList.DeleteBookItemFromMyListUseCase
 import com.skrash.book.domain.usecases.MyList.GetMyBookListUseCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,10 +23,15 @@ class MainActivityViewModel @Inject constructor(
     private val getMyBookListUseCase: GetMyBookListUseCase,
     private val deleteBookItemFromMyListUseCase: DeleteBookItemFromMyListUseCase,
     private val getBookCoverUseCase: GetBookCoverUseCase,
-    private val addToMyBookListUseCase: AddToMyBookListUseCase
+    private val addToMyBookListUseCase: AddToMyBookListUseCase,
+    private val getBookItemListUseCase: GetBookItemListUseCase
 ) : ViewModel() {
 
     val bookList = getMyBookListUseCase.getMyBookList()
+
+    private val _bookListNet = MutableLiveData<List<BookItemDto>>()
+    val bookListNet: LiveData<List<BookItemDto>>
+        get() = _bookListNet
 
     fun deleteShopItem(bookItem: BookItem) {
         viewModelScope.launch {
@@ -77,6 +88,15 @@ class MainActivityViewModel @Inject constructor(
                 viewModelScope.launch {
                     addToMyBookListUseCase.addToMyBookList(book)
                 }
+            }
+        }
+    }
+
+    fun getListBooks() {
+        CoroutineScope(Dispatchers.IO).launch{
+            if (_bookListNet.value == null) {
+                val bookItem = getBookItemListUseCase.getBookItemList()
+                _bookListNet.postValue(bookItem.execute().body())
             }
         }
     }

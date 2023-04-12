@@ -3,7 +3,6 @@ package com.skrash.book.di
 import androidx.lifecycle.ViewModel
 import com.skrash.book.presentation.addBookActivity.AddBookItemViewModel
 import com.skrash.book.presentation.bookInfoActivity.BookInfoViewModel
-import com.skrash.book.presentation.browseNetworkBookActivity.BrowseNetworkBookViewModel
 import com.skrash.book.presentation.mainAcitivity.MainActivityViewModel
 import com.skrash.book.presentation.openBookActivity.OpenBookViewModel
 import dagger.Binds
@@ -32,9 +31,4 @@ interface ViewModelModule {
     @IntoMap
     @ViewModelKey(OpenBookViewModel::class)
     fun bindOpenBookViewModel(viewModel: OpenBookViewModel): ViewModel
-
-    @Binds
-    @IntoMap
-    @ViewModelKey(BrowseNetworkBookViewModel::class)
-    fun bindBrowseNetworkBookViewModel(viewModel: BrowseNetworkBookViewModel): ViewModel
 }

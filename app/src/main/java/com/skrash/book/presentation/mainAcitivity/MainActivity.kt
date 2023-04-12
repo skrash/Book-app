@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Environment
+import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -12,6 +13,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
 import androidx.core.content.ContextCompat
+import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -29,7 +31,6 @@ import com.skrash.book.presentation.addBookActivity.AddBookActivity
 import com.skrash.book.presentation.addBookActivity.AddBookItemFragment
 import com.skrash.book.presentation.bookInfoActivity.BookInfoActivity
 import com.skrash.book.presentation.bookInfoActivity.BookInfoFragment
-import com.skrash.book.presentation.browseNetworkBookActivity.BrowseNetworkBook
 import com.skrash.book.service.TorrentService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -38,6 +39,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import javax.inject.Inject
+import com.skrash.book.presentation.mainAcitivity.BookNetworkAdapter
 
 
 class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedListener,
@@ -46,6 +48,7 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
     private lateinit var binding: ActivityMainBinding
     private lateinit var bookListAdapter: BookListAdapter
     private lateinit var viewModel: MainActivityViewModel
+    private var bookListAdapterNet: BookNetworkAdapter? = null
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
@@ -118,11 +121,41 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         binding.navView.setNavigationItemSelectedListener {
             when (it.title){
                 getString(R.string.general_book) -> {
-                    val intent = BrowseNetworkBook.newIntent(this)
-                    startActivity(intent)
+                    viewNetBook()
+                }
+                getString(R.string.my_book) -> {
+                    viewMyBook()
                 }
             }
             true
+        }
+    }
+
+    private fun viewMyBook(){
+        binding.drawlerLayout.closeDrawers()
+        binding.navView.menu[0].icon = getDrawable(R.drawable.baseline_chevron_right_24)
+        binding.navView.menu[1].icon = null
+        binding.btnAdd.visibility = View.VISIBLE
+        with(binding.mainRecycler) {
+            adapter = bookListAdapter
+        }
+    }
+
+    private fun viewNetBook(){
+        binding.drawlerLayout.closeDrawers()
+        binding.navView.menu[0].icon = null
+        binding.navView.menu[1].icon = getDrawable(R.drawable.baseline_chevron_right_24)
+        binding.btnAdd.visibility = View.GONE
+        if (bookListAdapterNet == null){
+            bookListAdapterNet = BookNetworkAdapter()
+        }
+        with(binding.mainRecycler) {
+            bookListAdapterNet = BookNetworkAdapter()
+            adapter = bookListAdapterNet
+        }
+        viewModel.getListBooks()
+        viewModel.bookListNet.observe(this) {bookItem ->
+            bookListAdapterNet!!.submitList(bookItem)
         }
     }
 
