@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.Genres
-import com.skrash.book.domain.usecases.GetBookCoverUseCase
+import com.skrash.book.domain.usecases.MyList.GetBookCoverUseCase
 import com.skrash.book.domain.usecases.MyList.GetMyBookUseCase
 import kotlinx.coroutines.launch
 import javax.inject.Inject

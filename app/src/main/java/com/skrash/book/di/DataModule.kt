@@ -7,7 +7,7 @@ import com.skrash.book.data.Bookmark.BookmarkRepositoryImpl
 import com.skrash.book.data.MyBookDB
 import com.skrash.book.data.myBook.MyBookItemRepositoryImpl
 import com.skrash.book.data.myBook.MyBookListDao
-import com.skrash.book.domain.BookItemRepository
+import com.skrash.book.domain.usecases.BookItemRepository
 import com.skrash.book.domain.usecases.Bookmark.BookmarkRepository
 import com.skrash.book.domain.usecases.MyList.MyBookItemRepository
 import dagger.Binds

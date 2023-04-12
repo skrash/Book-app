@@ -1,14 +1,12 @@
 package com.skrash.book.presentation.mainAcitivity
 
 import android.graphics.Bitmap
-import android.os.Environment
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.FormatBook
 import com.skrash.book.domain.entities.Genres
-import com.skrash.book.domain.usecases.GetBookCoverUseCase
+import com.skrash.book.domain.usecases.MyList.GetBookCoverUseCase
 import com.skrash.book.domain.usecases.MyList.AddToMyBookListUseCase
 import com.skrash.book.domain.usecases.MyList.DeleteBookItemFromMyListUseCase
 import com.skrash.book.domain.usecases.MyList.GetMyBookListUseCase

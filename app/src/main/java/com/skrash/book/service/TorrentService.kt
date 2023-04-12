@@ -84,6 +84,12 @@ class TorrentService : Service() {
                     val sharedTorrent = SharedTorrent(torrent, sharedFile)
                     val client = Client(address, sharedTorrent)
                     client.share()
+                    Thread{
+                        Thread.sleep(3000)
+                        Log.d("TEST_WORKER", "client state: ${client.state}")
+                        Log.d("TEST_WORKER", "client port: ${client.peerSpec.port}")
+
+                    }.start()
                     ApiFactory.apiService.announce(torrent.hexInfoHash, client.peerSpec.hexPeerId, 1, 0, 1, client.peerSpec.port)
                 }
             } catch (e: Exception) {

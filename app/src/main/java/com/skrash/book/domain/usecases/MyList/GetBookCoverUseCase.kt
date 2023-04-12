@@ -1,15 +1,14 @@
-package com.skrash.book.domain.usecases
+package com.skrash.book.domain.usecases.MyList
 
 import android.graphics.Bitmap
-import com.skrash.book.domain.BookItemRepository
 import com.skrash.book.domain.entities.BookItem
 import javax.inject.Inject
 
 class GetBookCoverUseCase @Inject constructor(
-    private val bookItemRepository: BookItemRepository
+    private val myBookItemRepository: MyBookItemRepository
 ) {
 
     suspend fun getBookCover(bookItem: BookItem, width: Int, height: Int): Bitmap {
-        return bookItemRepository.getBookCover(bookItem, width, height)
+        return myBookItemRepository.getBookCover(bookItem, width, height)
     }
 }

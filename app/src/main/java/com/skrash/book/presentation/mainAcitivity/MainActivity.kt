@@ -1,5 +1,7 @@
 package com.skrash.book.presentation.mainAcitivity
 
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Environment
@@ -27,6 +29,7 @@ import com.skrash.book.presentation.addBookActivity.AddBookActivity
 import com.skrash.book.presentation.addBookActivity.AddBookItemFragment
 import com.skrash.book.presentation.bookInfoActivity.BookInfoActivity
 import com.skrash.book.presentation.bookInfoActivity.BookInfoFragment
+import com.skrash.book.presentation.browseNetworkBookActivity.BrowseNetworkBook
 import com.skrash.book.service.TorrentService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -96,6 +99,14 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         viewModel.bookList.observe(this) {
             bookListAdapter.submitList(it)
         }
+        setupOnClickListeners()
+        ContextCompat.startForegroundService(
+            this,
+            TorrentService.newIntent(this)
+        )
+    }
+
+    private fun setupOnClickListeners(){
         binding.btnAdd.setOnClickListener {
             if (binding.fragmentContainer == null) {
                 val intent = AddBookActivity.newIntentAddBook(this)
@@ -104,10 +115,15 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
                 launchFragment(AddBookItemFragment.newInstanceAddItem())
             }
         }
-        ContextCompat.startForegroundService(
-            this,
-            TorrentService.newIntent(this)
-        )
+        binding.navView.setNavigationItemSelectedListener {
+            when (it.title){
+                getString(R.string.general_book) -> {
+                    val intent = BrowseNetworkBook.newIntent(this)
+                    startActivity(intent)
+                }
+            }
+            true
+        }
     }
 
     private fun requestDialogChangeFilesFirstRun() {
@@ -247,5 +263,11 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    companion object {
+        fun newIntent(context: Context): Intent {
+            return Intent(context, MainActivity::class.java)
+        }
     }
 }

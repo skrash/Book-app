@@ -7,16 +7,12 @@ import com.skrash.book.domain.entities.Bookmark
 import com.skrash.book.domain.usecases.Bookmark.AddBookmarkUseCase
 import com.skrash.book.domain.usecases.Bookmark.DeleteBookmarkUseCase
 import com.skrash.book.domain.usecases.Bookmark.GetBookmarkListUseCase
-import com.skrash.book.domain.usecases.GetBookItemUseCase
-import com.skrash.book.domain.usecases.GetPageBookItemUseCase
-import com.skrash.book.domain.usecases.GetPageCountUseCase
-import com.skrash.book.domain.usecases.MyList.UpdateStartOnPageUseCase
-import com.skrash.book.domain.usecases.OpenBookItemUseCase
+import com.skrash.book.domain.usecases.MyList.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class OpenBookViewModel @Inject constructor(
-    private val getBookItemUseCase: GetBookItemUseCase,
+    private val getMyBookUseCase: GetMyBookUseCase,
     private val openBookItemUseCase: OpenBookItemUseCase,
     private val addBookmarkUseCase: AddBookmarkUseCase,
     private val getBookmarkListUseCase: GetBookmarkListUseCase,
@@ -52,8 +48,8 @@ class OpenBookViewModel @Inject constructor(
     fun init(bookItemId: Int, height: Int) {
         viewModelScope.launch {
             if (_pageList.value == null){
-                _bookItem.value = getBookItemUseCase.getBookItem(bookItemId)
-                openBookItemUseCase.openBookItem(_bookItem!!.value!!)
+                _bookItem.value = getMyBookUseCase.getMyBook(bookItemId)
+                openBookItemUseCase.openBookItem(_bookItem.value!!)
                 val countPages = getPageCountUseCase.getPageCount(_bookItem.value!!)
                 _pageList.value = (0 until countPages).toList()
                 _height = height

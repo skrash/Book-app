@@ -1,5 +1,6 @@
 package com.skrash.book.domain.usecases.MyList
 
+import android.graphics.Bitmap
 import androidx.lifecycle.LiveData
 import com.skrash.book.domain.entities.BookItem
 
@@ -16,5 +17,13 @@ interface MyBookItemRepository {
     suspend fun editMyBookItem(bookItem: BookItem)
 
     suspend fun updateStartOnPage(pageNum: Int, bookID: Int)
+
+    suspend fun openBookItem(bookItem: BookItem)
+
+    suspend fun getBookCover(bookItem: BookItem, width: Int, height: Int): Bitmap
+
+    fun getPageBookItem(pageNum: Int, width: Int, height: Int): Bitmap
+
+    fun getPageCount(bookItem: BookItem): Int
 
 }
