@@ -15,6 +15,7 @@
     <string name="button_open">Открыть</string>
     <string name="button_closed">Закрыть</string>
     <string name="button_add_book">Добавить книгу</string>
+    <string name="download">Скачать</string>
 
     <!-- input hints -->
 

@@ -11,6 +11,7 @@ import com.skrash.book.R
 import com.skrash.book.databinding.FragmentBookInfoBinding
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.BookApplication
+import com.skrash.book.data.network.model.BookItemDto
 import com.skrash.book.presentation.ViewModelFactory
 import com.skrash.book.presentation.openBookActivity.OpenBookActivity
 import javax.inject.Inject
@@ -27,6 +28,7 @@ class BookInfoFragment : Fragment() {
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
+    private var modeIsMyBook = true
 
     private val component by lazy {
         (requireActivity().application as BookApplication).component
@@ -48,7 +50,14 @@ class BookInfoFragment : Fragment() {
         if (!args.containsKey(BOOK_ITEM_ID)) {
             throw RuntimeException("Param book item id is absent")
         }
-        bookItemId = args.getInt(BOOK_ITEM_ID, BookItem.UNDEFINED_ID)
+        if (!args.containsKey(MODE)) {
+            throw RuntimeException("Param mode is absent")
+        }
+        if (args.getString(MODE) == MODE_MY_BOOK){
+            bookItemId = args.getInt(BOOK_ITEM_ID, BookItem.UNDEFINED_ID)
+        } else {
+            modeIsMyBook = false
+        }
     }
 
     override fun onAttach(context: Context) {
@@ -68,13 +77,22 @@ class BookInfoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if(!modeIsMyBook){
+            binding.btnOpen.text = getString(R.string.download)
+        }
         viewModel = ViewModelProvider(this, viewModelFactory)[BookInfoViewModel::class.java]
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
-        viewModel.getBookItem(bookItemId)
+        if (modeIsMyBook) {
+            viewModel.getBookItem(bookItemId)
+        }
         binding.btnOpen.setOnClickListener {
-            if(viewModel.bookItem.value != null){
-                startActivity(OpenBookActivity.newIntent(requireContext(), viewModel.bookItem.value!!.id))
+            if (modeIsMyBook){
+                if(viewModel.bookItem.value != null){
+                    startActivity(OpenBookActivity.newIntent(requireContext(), viewModel.bookItem.value!!.id))
+                }
+            } else {
+                // TODO: download book 
             }
         }
         initCover()
@@ -93,11 +111,21 @@ class BookInfoFragment : Fragment() {
     companion object {
 
         private const val BOOK_ITEM_ID = "book_item_id"
+        private const val MODE = "mode"
+        private const val BookItemDto = "bookItemDto"
+        private const val MODE_MY_BOOK = "my_book"
+        private const val MODE_NET_BOOK = "net_book"
 
-        fun newInstanceOpenItem(bookItemId: Int): BookInfoFragment {
+        fun newInstanceOpenItem(bookItemId: Int, mode: String, bookItemDto: BookItemDto? = null): BookInfoFragment {
             return BookInfoFragment().apply {
                 arguments = Bundle().apply {
                     putInt(BOOK_ITEM_ID, bookItemId)
+                    if (mode == MODE_MY_BOOK){
+                        putString(MODE, MODE_MY_BOOK)
+                    } else {
+                        Bundle().putParcelable(BookItemDto, bookItemDto)
+                        putString(MODE, MODE_NET_BOOK)
+                    }
                 }
             }
         }

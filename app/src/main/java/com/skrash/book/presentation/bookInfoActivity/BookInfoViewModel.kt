@@ -55,4 +55,8 @@ class BookInfoViewModel @Inject constructor(
             }
         }
     }
+
+    fun downloadBook(){
+
+    }
 }

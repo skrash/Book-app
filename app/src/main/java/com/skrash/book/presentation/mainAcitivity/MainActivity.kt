@@ -49,6 +49,7 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
     private lateinit var bookListAdapter: BookListAdapter
     private lateinit var viewModel: MainActivityViewModel
     private var bookListAdapterNet: BookNetworkAdapter? = null
+    private var itemTouchHelper: ItemTouchHelper? = null
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
@@ -139,12 +140,15 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         with(binding.mainRecycler) {
             adapter = bookListAdapter
         }
+        setupClickListener(MODE_MY_BOOK)
+        setupSwipeListener(binding.mainRecycler)
     }
 
     private fun viewNetBook(){
         binding.drawlerLayout.closeDrawers()
         binding.navView.menu[0].icon = null
         binding.navView.menu[1].icon = getDrawable(R.drawable.baseline_chevron_right_24)
+        itemTouchHelper!!.attachToRecyclerView(null)
         binding.btnAdd.visibility = View.GONE
         if (bookListAdapterNet == null){
             bookListAdapterNet = BookNetworkAdapter()
@@ -157,6 +161,7 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         viewModel.bookListNet.observe(this) {bookItem ->
             bookListAdapterNet!!.submitList(bookItem)
         }
+        setupClickListener(MODE_NET_BOOK)
     }
 
     private fun requestDialogChangeFilesFirstRun() {
@@ -200,7 +205,7 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
             bookListAdapter = BookListAdapter()
             adapter = bookListAdapter
         }
-        setupClickListener()
+        setupClickListener(MODE_MY_BOOK)
         setupSwipeListener(binding.mainRecycler)
     }
 
@@ -223,54 +228,67 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
                 viewModel.deleteShopItem(item)
             }
         }
-        val itemTouchHelper = ItemTouchHelper(callback)
-        itemTouchHelper.attachToRecyclerView(rvShopList)
+        itemTouchHelper = ItemTouchHelper(callback)
+        itemTouchHelper!!.attachToRecyclerView(rvShopList)
     }
 
-    private fun setupClickListener() {
-        bookListAdapter.onEditBookClickListener = {
-            if (binding.fragmentContainer == null) {
-                val intent = AddBookActivity.newIntentEditBook(this, it.id)
-                startActivity(intent)
-            } else {
-                launchFragment(AddBookItemFragment.newInstanceEditItem(it.id))
-            }
-        }
-        bookListAdapter.onBookItemClickListener = {
-            if (binding.fragmentContainer == null) // check landscape orientation
-            {
-                val intent = BookInfoActivity.newIntentOpenItem(this, it.id)
-                startActivity(intent)
-            } else {
-                launchFragment(BookInfoFragment.newInstanceOpenItem(it.id))
-            }
-        }
-        RequestFileAccess.requestFileAccessPermission(this, {
-            bookListAdapter.loadCoverFunction = { holder, itemBook ->
-                val scope = CoroutineScope(Dispatchers.Main)
-                scope.launch {
-                    val bitmap = viewModel.getBookCover(
-                        BookItem(
-                            id = -1,
-                            title = "",
-                            author = "",
-                            description = "",
-                            rating = 0.0f,
-                            popularity = 0.0f,
-                            genres = Genres.Other,
-                            tags = "",
-                            path = itemBook.path,
-                            startOnPage = 0,
-                            fileExtension = itemBook.path.substringAfterLast(".", "").uppercase(),
-                        ),
-                        150,
-                        150
-                    )
-                    val bindingCover = holder.binding as BookItemBinding
-                    bindingCover.imCover.setImageBitmap(bitmap)
+    private fun setupClickListener(mode: String) {
+        if (mode == MODE_MY_BOOK){
+            bookListAdapter.onEditBookClickListener = {
+                if (binding.fragmentContainer == null) {
+                    val intent = AddBookActivity.newIntentEditBook(this, it.id)
+                    startActivity(intent)
+                } else {
+                    launchFragment(AddBookItemFragment.newInstanceEditItem(it.id))
                 }
             }
-        }) {}
+            bookListAdapter.onBookItemClickListener = {
+                if (binding.fragmentContainer == null) // check landscape orientation
+                {
+                    val intent = BookInfoActivity.newIntentOpenItem(this, it.id, BookInfoActivity.MODE_MY_BOOK)
+                    startActivity(intent)
+                } else {
+                    launchFragment(BookInfoFragment.newInstanceOpenItem(it.id, BookInfoActivity.MODE_MY_BOOK))
+                }
+            }
+            RequestFileAccess.requestFileAccessPermission(this, {
+                bookListAdapter.loadCoverFunction = { holder, itemBook ->
+                    val scope = CoroutineScope(Dispatchers.Main)
+                    scope.launch {
+                        val bitmap = viewModel.getBookCover(
+                            BookItem(
+                                id = -1,
+                                title = "",
+                                author = "",
+                                description = "",
+                                rating = 0.0f,
+                                popularity = 0.0f,
+                                genres = Genres.Other,
+                                tags = "",
+                                path = itemBook.path,
+                                startOnPage = 0,
+                                fileExtension = itemBook.path.substringAfterLast(".", "").uppercase(),
+                            ),
+                            150,
+                            150
+                        )
+                        val bindingCover = holder.binding as BookItemBinding
+                        bindingCover.imCover.setImageBitmap(bitmap)
+                    }
+                }
+            }) {}
+        }
+        if (mode == MODE_NET_BOOK){
+            bookListAdapterNet?.onBookItemClickListener = {
+                if (binding.fragmentContainer == null) // check landscape orientation
+                {
+                    val intent = BookInfoActivity.newIntentOpenItem(this, BookItem.UNDEFINED_ID, BookInfoActivity.MODE_NET_BOOK)
+                    startActivity(intent)
+                } else {
+                    launchFragment(BookInfoFragment.newInstanceOpenItem(BookItem.UNDEFINED_ID, BookInfoActivity.MODE_NET_BOOK))
+                }
+            }
+        }
     }
 
     private fun launchFragment(fragment: Fragment) {
@@ -299,8 +317,7 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
     }
 
     companion object {
-        fun newIntent(context: Context): Intent {
-            return Intent(context, MainActivity::class.java)
-        }
+        private const val MODE_MY_BOOK = "my_book"
+        private const val MODE_NET_BOOK = "net_book"
     }
 }
