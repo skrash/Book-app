@@ -2,11 +2,15 @@ package com.skrash.book.presentation.bookInfoActivity
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.work.ExistingWorkPolicy
+import androidx.work.WorkManager
+import com.google.gson.Gson
 import com.skrash.book.R
 import com.skrash.book.databinding.FragmentBookInfoBinding
 import com.skrash.book.domain.entities.BookItem
@@ -14,6 +18,8 @@ import com.skrash.book.BookApplication
 import com.skrash.book.data.network.model.BookItemDto
 import com.skrash.book.presentation.ViewModelFactory
 import com.skrash.book.presentation.openBookActivity.OpenBookActivity
+import com.skrash.book.service.DownloadBookWorker
+import com.skrash.book.service.SendTrackerWorker
 import javax.inject.Inject
 
 class BookInfoFragment : Fragment() {
@@ -25,6 +31,7 @@ class BookInfoFragment : Fragment() {
         get() = _binding ?: throw RuntimeException("FragmentBookInfoBinding is null")
 
     private var bookItemId: Int = BookItem.UNDEFINED_ID
+    private var bookItemDto: BookItemDto? = null
 
     @Inject
     lateinit var viewModelFactory: ViewModelFactory
@@ -56,6 +63,8 @@ class BookInfoFragment : Fragment() {
         if (args.getString(MODE) == MODE_MY_BOOK){
             bookItemId = args.getInt(BOOK_ITEM_ID, BookItem.UNDEFINED_ID)
         } else {
+            bookItemDto = args.getParcelable(BookItemDto)
+            Log.d("TEST_WORKER", "FRAGMENT ${bookItemDto == null}")
             modeIsMyBook = false
         }
     }
@@ -92,7 +101,14 @@ class BookInfoFragment : Fragment() {
                     startActivity(OpenBookActivity.newIntent(requireContext(), viewModel.bookItem.value!!.id))
                 }
             } else {
-                // TODO: download book 
+                val gson = Gson()
+                val bookJson = gson.toJson(bookItemDto)
+                val downloadWorker = WorkManager.getInstance(requireContext().applicationContext)
+                downloadWorker.enqueueUniqueWork(
+                    DownloadBookWorker.WORK_NAME,
+                    ExistingWorkPolicy.APPEND_OR_REPLACE,
+                    DownloadBookWorker.makeRequest(bookJson, bookItemDto!!.title!!)
+                )
             }
         }
         initCover()
@@ -123,7 +139,7 @@ class BookInfoFragment : Fragment() {
                     if (mode == MODE_MY_BOOK){
                         putString(MODE, MODE_MY_BOOK)
                     } else {
-                        Bundle().putParcelable(BookItemDto, bookItemDto)
+                        putParcelable(BookItemDto, bookItemDto)
                         putString(MODE, MODE_NET_BOOK)
                     }
                 }

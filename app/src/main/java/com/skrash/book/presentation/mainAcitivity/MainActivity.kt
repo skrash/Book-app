@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Environment
+import android.util.Log
 import android.view.View
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -280,12 +281,14 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         }
         if (mode == MODE_NET_BOOK){
             bookListAdapterNet?.onBookItemClickListener = {
+                Log.d("TEST_WORKER", "on MA book item dto: ${it == null}")
+                Log.d("TEST_WORKER", "on MA book item dto: ${it.title}")
                 if (binding.fragmentContainer == null) // check landscape orientation
                 {
-                    val intent = BookInfoActivity.newIntentOpenItem(this, BookItem.UNDEFINED_ID, BookInfoActivity.MODE_NET_BOOK)
+                    val intent = BookInfoActivity.newIntentOpenItem(this, BookItem.UNDEFINED_ID, BookInfoActivity.MODE_NET_BOOK, it)
                     startActivity(intent)
                 } else {
-                    launchFragment(BookInfoFragment.newInstanceOpenItem(BookItem.UNDEFINED_ID, BookInfoActivity.MODE_NET_BOOK))
+                    launchFragment(BookInfoFragment.newInstanceOpenItem(BookItem.UNDEFINED_ID, BookInfoActivity.MODE_NET_BOOK, it))
                 }
             }
         }
