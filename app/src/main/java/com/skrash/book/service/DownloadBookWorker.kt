@@ -5,62 +5,70 @@ import android.os.Environment
 import android.util.Log
 import androidx.work.*
 import com.skrash.book.data.network.ApiFactory
+import com.turn.ttorrent.client.Client
+import com.turn.ttorrent.client.SharedTorrent
+import com.turn.ttorrent.common.Torrent
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.InputStream
-import java.math.BigInteger
-import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
+import java.net.InetAddress
+import java.nio.channels.FileChannel
 
 class DownloadBookWorker(
     private val context: Context,
     private val workerParameters: WorkerParameters
 ) : CoroutineWorker(context, workerParameters)  {
 
+    private val dataPath = context.getExternalFilesDir(Environment.getDataDirectory().absolutePath)?.absolutePath
+
     override suspend fun doWork(): Result {
         val bookItemDto = workerParameters.inputData.getString(BookItemDto)
         val title = workerParameters.inputData.getString(TITLE)
         val bookInfoPart = RequestBody.create(MediaType.parse("text/plain"), bookItemDto)
         val response = ApiFactory.apiService.download(bookInfoPart).body()
-        Log.d("TEST_WORKER", response.toString())
-        response.toString()
-        val dataPath = context.getExternalFilesDir(Environment.getDataDirectory().absolutePath)?.absolutePath
-        val path = saveFile(response, "$dataPath$title.torrent")
-        // test
-        val file = File(dataPath)
-        for(i in file.listFiles()){
-            Log.d("TEST_WORKER", i.name)
+        if (response != null && title != null) {
+            val torrentFile = saveTorrentFile(title, response)
+            downloadBook(torrentFile)
         }
         return Result.success()
     }
 
-    fun saveFile(body: ResponseBody?, saveTorrentFilePath: String):String{
-        if (body==null)
-            return ""
-        var input: InputStream? = null
-        try {
-            input = body.byteStream()
-            val fos = FileOutputStream(saveTorrentFilePath)
-            fos.use { output ->
-                val buffer = ByteArray(4 * 1024) // or other buffer size
-                var read: Int
-                while (input.read(buffer).also { read = it } != -1) {
-                    output.write(buffer, 0, read)
-                }
-                output.flush()
-            }
-            return saveTorrentFilePath
-        }catch (e:Exception){
-            Log.e("saveFile",e.toString())
+    private fun downloadBook(torrentFile: File){
+        val address = InetAddress.getByName("0.0.0.0")
+        val torrent = Torrent.load(torrentFile)
+        val sharedFile = File(dataPath)
+        val sharedTorrent = SharedTorrent(torrent, sharedFile)
+        val client = Client(address, sharedTorrent)
+        client.download()
+        // test
+        val fileDataPath = File(dataPath)
+        for (i in fileDataPath.listFiles()){
+            Log.d("TEST_WORKER", "data files: ${i.name}}")
         }
-        finally {
-            input?.close()
-        }
-        return ""
     }
+
+    private fun saveTorrentFile(title: String, response: ResponseBody): File{
+        val file = File("$dataPath$title.torrent")
+        file.writeBytes(response.bytes())
+        return file
+//        // test
+//        val destFile = File("/sdcard/Download/$title.torrent")
+//        copy(file, destFile)
+    }
+//
+//    fun copy(src: File?, dst: File?) {
+//        val inStream = FileInputStream(src)
+//        val outStream = FileOutputStream(dst)
+//        val inChannel: FileChannel = inStream.channel
+//        val outChannel: FileChannel = outStream.channel
+//        inChannel.transferTo(0, inChannel.size(), outChannel)
+//        inStream.close()
+//        outStream.close()
+//    }
 
     companion object {
 
