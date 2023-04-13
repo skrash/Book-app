@@ -92,6 +92,16 @@ class BookInfoFragment : Fragment() {
         viewModel = ViewModelProvider(this, viewModelFactory)[BookInfoViewModel::class.java]
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
+        if (requireArguments().getString(MODE) == MODE_NET_BOOK){
+            viewModel.setNetBook(title = bookItemDto?.title ?: "",
+                author = bookItemDto?.author ?: "",
+                description = bookItemDto?.description ?: "",
+                tags = bookItemDto?.tags ?: "",
+                genres = bookItemDto?.genres ?: throw java.lang.RuntimeException("incorrect value tags"),
+                popularity = bookItemDto?.popularity?.toFloat() ?: 0f,
+                rating = bookItemDto?.rating?.toFloat() ?: 0f
+            )
+        }
         if (modeIsMyBook) {
             viewModel.getBookItem(bookItemId)
         }
@@ -114,12 +124,14 @@ class BookInfoFragment : Fragment() {
         initCover()
         viewModel.bookItem.observe(viewLifecycleOwner){
             if (it != null){
-                if (it.shareAccess){
-                    binding.ivShareAccess.setImageResource(R.drawable.ic_baseline_cloud_upload_24_green)
-                } else {
-                    binding.ivShareAccess.setImageResource(R.drawable.ic_baseline_cloud_upload_24)
+                if (requireArguments().getString(MODE) == MODE_MY_BOOK){
+                    if (it.shareAccess){
+                        binding.ivShareAccess.setImageResource(R.drawable.ic_baseline_cloud_upload_24_green)
+                    } else {
+                        binding.ivShareAccess.setImageResource(R.drawable.ic_baseline_cloud_upload_24)
+                    }
+                    binding.ivShareAccess.visibility = View.VISIBLE
                 }
-                binding.ivShareAccess.visibility = View.VISIBLE
             }
         }
     }

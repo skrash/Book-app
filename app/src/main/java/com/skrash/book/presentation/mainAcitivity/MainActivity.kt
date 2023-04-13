@@ -105,10 +105,10 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
             bookListAdapter.submitList(it)
         }
         setupOnClickListeners()
-        ContextCompat.startForegroundService(
-            this,
-            TorrentService.newIntent(this)
-        )
+//        ContextCompat.startForegroundService(
+//            this,
+//            TorrentService.newIntent(this)
+//        )
     }
 
     private fun setupOnClickListeners(){

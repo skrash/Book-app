@@ -22,7 +22,7 @@ class BookInfoViewModel @Inject constructor(
 
     private val _imgCover = MutableLiveData<Bitmap>()
     val imgCover
-    get() = _imgCover
+        get() = _imgCover
 
     fun getBookItem(bookItemId: Int) {
         viewModelScope.launch {
@@ -30,6 +30,29 @@ class BookInfoViewModel @Inject constructor(
             _bookItem.value = item
             loadCover()
         }
+    }
+
+    fun setNetBook(
+        title: String,
+        description: String,
+        author: String,
+        genres: String,
+        tags: String,
+        popularity: Float,
+        rating: Float
+    ) {
+        _bookItem.value = BookItem(
+            title = title,
+            author = author,
+            description = description,
+            genres = Genres.valueOf(genres),
+            tags = tags,
+            popularity = popularity,
+            rating = rating,
+            fileExtension = "",
+            path = "network",
+            startOnPage = -1
+        )
     }
 
     private fun loadCover() {
@@ -56,7 +79,7 @@ class BookInfoViewModel @Inject constructor(
         }
     }
 
-    fun downloadBook(){
+    fun downloadBook() {
 
     }
 }
