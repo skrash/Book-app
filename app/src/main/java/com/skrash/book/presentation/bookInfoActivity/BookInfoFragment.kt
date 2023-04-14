@@ -117,7 +117,7 @@ class BookInfoFragment : Fragment() {
                 downloadWorker.enqueueUniqueWork(
                     DownloadBookWorker.WORK_NAME,
                     ExistingWorkPolicy.APPEND_OR_REPLACE,
-                    DownloadBookWorker.makeRequest(bookJson, bookItemDto!!.title!!)
+                    DownloadBookWorker.makeRequest(bookJson)
                 )
             }
         }

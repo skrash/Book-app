@@ -1,7 +1,5 @@
 package com.skrash.book.presentation.mainAcitivity
 
-import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Environment
@@ -13,11 +11,11 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
-import androidx.core.content.ContextCompat
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.ItemTouchHelper.*
 import androidx.recyclerview.widget.RecyclerView
 import com.skrash.book.BookApplication
 import com.skrash.book.R
@@ -32,7 +30,6 @@ import com.skrash.book.presentation.addBookActivity.AddBookActivity
 import com.skrash.book.presentation.addBookActivity.AddBookItemFragment
 import com.skrash.book.presentation.bookInfoActivity.BookInfoActivity
 import com.skrash.book.presentation.bookInfoActivity.BookInfoFragment
-import com.skrash.book.service.TorrentService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -40,7 +37,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import javax.inject.Inject
-import com.skrash.book.presentation.mainAcitivity.BookNetworkAdapter
 
 
 class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedListener,
@@ -104,7 +100,6 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         }
         init()
         checkFirstRun()
-        setupRecyclerView()
         Log.d("TEST_WORKER", "mode main activity: ${viewModel.mode}")
         if (viewModel.mode == "" || viewModel.mode == MODE_MY_BOOK) {
             viewMyBook()
@@ -243,6 +238,14 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
                 0,
                 ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
             ) {
+
+                override fun getMovementFlags(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder
+                ): Int {
+                    val dragFlags = if (viewModel.mode == MODE_MY_BOOK) START else 0
+                    return makeMovementFlags(dragFlags,dragFlags)
+                }
 
                 override fun onMove(
                     recyclerView: RecyclerView,
