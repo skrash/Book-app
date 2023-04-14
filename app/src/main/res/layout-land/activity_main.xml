@@ -9,45 +9,38 @@
         android:layout_height="match_parent"
         tools:context=".presentation.mainAcitivity.MainActivity">
 
-        
+
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <include
                 android:id="@+id/included"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
                 layout="@layout/toolbar"
-                />
-
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/mainRecycler"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/included"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-
-
-            <androidx.constraintlayout.widget.Guideline
-                android:id="@+id/middleGuideline"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.5"
-                />
-
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/fragmentContainer"
                 android:layout_width="0dp"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:orientation="horizontal"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@id/middleGuideline"
-                />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="parent">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/mainRecycler"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+                <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/fragmentContainer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent" />
+
+            </LinearLayout>
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btnAdd"
