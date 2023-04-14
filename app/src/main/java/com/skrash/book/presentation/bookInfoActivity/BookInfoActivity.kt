@@ -67,6 +67,7 @@ class BookInfoActivity : AppCompatActivity() {
                     putExtra(BOOK_ITEM_DTO, bookItemDto)
                 }
             } else {
+                intent.putExtra(MODE, MODE_MY_BOOK)
                 intent.putExtra(BOOK_ITEM_ID, bookItemId)
             }
             return intent
