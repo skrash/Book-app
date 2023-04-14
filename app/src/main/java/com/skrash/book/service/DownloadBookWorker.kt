@@ -55,42 +55,21 @@ class DownloadBookWorker(
         val sharedFile = File(dataPath)
         val sharedTorrent = SharedTorrent(torrent, sharedFile)
         val client = Client(address, sharedTorrent)
-        client.download()
-        Thread{
-            while (client.state != Client.ClientState.DONE){
-                Thread.sleep(15000)
-                Log.d("TEST_WORKER", "client state: ${client.state}")
-                Log.d("TEST_WORKER", "client complete: ${client.torrent.completion}")
-            }
-            // test
-            val fileDataPath = File(dataPath)
-            val srcFile = File("$dataPath/d_107171776.pdf")
-            val destFile = File("/sdcard/Download/d_107171776.pdf")
-            destFile.createNewFile()
-            copy(srcFile, destFile)
-            for (i in fileDataPath.listFiles()){
-                Log.d("TEST_WORKER", "data files: ${i.name}}")
-            }
-        }.start()
+        try {
+            client.run()
+        } catch (e: java.lang.Exception){
+            e.printStackTrace()
+        }
+        while (client.state != Client.ClientState.DONE){
+            Log.d("TEST_WORKER", client.torrent.completion.toString())
+        }
+        client.stop()
     }
 
     private fun saveTorrentFile(title: String, response: ResponseBody): File{
         val file = File("$dataPath$title.torrent")
         file.writeBytes(response.bytes())
         return file
-//        // test
-//        val destFile = File("/sdcard/Download/$title.torrent")
-//        copy(file, destFile)
-    }
-//
-    fun copy(src: File?, dst: File?) {
-        val inStream = FileInputStream(src)
-        val outStream = FileOutputStream(dst)
-        val inChannel: FileChannel = inStream.channel
-        val outChannel: FileChannel = outStream.channel
-        inChannel.transferTo(0, inChannel.size(), outChannel)
-        inStream.close()
-        outStream.close()
     }
 
     companion object {
