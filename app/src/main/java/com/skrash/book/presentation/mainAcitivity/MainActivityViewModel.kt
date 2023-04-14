@@ -33,6 +33,8 @@ class MainActivityViewModel @Inject constructor(
     val bookListNet: LiveData<List<BookItemDto>>
         get() = _bookListNet
 
+    var mode = MainActivity.MODE_MY_BOOK
+
     fun deleteShopItem(bookItem: BookItem) {
         viewModelScope.launch {
             deleteBookItemFromMyListUseCase.deleteBookItemFromMyList(bookItem)

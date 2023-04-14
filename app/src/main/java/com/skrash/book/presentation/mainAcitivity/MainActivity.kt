@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
     OnRequestPermissionsResultCallback {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var bookListAdapter: BookListAdapter
+    private var bookListAdapter: BookListAdapter? = null
     private lateinit var viewModel: MainActivityViewModel
     private var bookListAdapterNet: BookNetworkAdapter? = null
     private var itemTouchHelper: ItemTouchHelper? = null
@@ -65,13 +65,15 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
 
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        viewModel = ViewModelProvider(this, viewModelFactory)[MainActivityViewModel::class.java]
         setContentView(binding.root)
         intent = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) {
             val dataPath =
                 getExternalFilesDir(Environment.getDataDirectory().absolutePath)?.absolutePath
                     ?: throw RuntimeException("failed to create path to data directory")
             for (uri in it) {
-                val fileExtension = uri.path?.split(".")?.last() ?: throw RuntimeException("failed get file extension from uri")
+                val fileExtension = uri.path?.split(".")?.last()
+                    ?: throw RuntimeException("failed get file extension from uri")
                 val cur = contentResolver.query(uri, null, null, null)
                 var fileName = ""
                 if (cur != null) {
@@ -85,14 +87,17 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
                         val openStream: InputStream = contentResolver.openInputStream(uri)
                             ?: throw RuntimeException("failed get output stream from file")
                         val dataFile = File("$dataPath/$fileName")
-                        if (!dataFile.exists()){
+                        if (!dataFile.exists()) {
                             dataFile.createNewFile()
                         }
                         val fileOutputStream = FileOutputStream(dataFile)
                         fileOutputStream.write(openStream.readBytes())
                         openStream.close()
                         fileOutputStream.close()
-                        viewModel.compileDefaultBookItem(dataFile.absolutePath, FormatBook.valueOf(fileExtension.uppercase()))
+                        viewModel.compileDefaultBookItem(
+                            dataFile.absolutePath,
+                            FormatBook.valueOf(fileExtension.uppercase())
+                        )
                     }
                 }
             }
@@ -100,9 +105,11 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         init()
         checkFirstRun()
         setupRecyclerView()
-        viewModel = ViewModelProvider(this, viewModelFactory)[MainActivityViewModel::class.java]
-        viewModel.bookList.observe(this) {
-            bookListAdapter.submitList(it)
+        Log.d("TEST_WORKER", "mode main activity: ${viewModel.mode}")
+        if (viewModel.mode == "" || viewModel.mode == MODE_MY_BOOK) {
+            viewMyBook()
+        } else {
+            viewNetBook()
         }
         setupOnClickListeners()
 //        ContextCompat.startForegroundService(
@@ -111,21 +118,25 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
 //        )
     }
 
-    private fun setupOnClickListeners(){
-        binding.btnAdd.setOnClickListener {
-            if (binding.fragmentContainer == null) {
-                val intent = AddBookActivity.newIntentAddBook(this)
-                startActivity(intent)
-            } else {
-                launchFragment(AddBookItemFragment.newInstanceAddItem())
+    private fun setupOnClickListeners() {
+        if (viewModel.mode == "" || viewModel.mode == MODE_MY_BOOK) {
+            binding.btnAdd.setOnClickListener {
+                if (binding.fragmentContainer == null) {
+                    val intent = AddBookActivity.newIntentAddBook(this)
+                    startActivity(intent)
+                } else {
+                    launchFragment(AddBookItemFragment.newInstanceAddItem())
+                }
             }
         }
         binding.navView.setNavigationItemSelectedListener {
-            when (it.title){
+            when (it.title) {
                 getString(R.string.general_book) -> {
+                    viewModel.mode = MODE_NET_BOOK
                     viewNetBook()
                 }
                 getString(R.string.my_book) -> {
+                    viewModel.mode = MODE_MY_BOOK
                     viewMyBook()
                 }
             }
@@ -133,25 +144,33 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         }
     }
 
-    private fun viewMyBook(){
+    private fun viewMyBook() {
+        bookListAdapterNet = null
         binding.drawlerLayout.closeDrawers()
         binding.navView.menu[0].icon = getDrawable(R.drawable.baseline_chevron_right_24)
         binding.navView.menu[1].icon = null
         binding.btnAdd.visibility = View.VISIBLE
+        if (bookListAdapter == null){
+            setupRecyclerView()
+        }
         with(binding.mainRecycler) {
             adapter = bookListAdapter
         }
-        setupClickListener(MODE_MY_BOOK)
+        viewModel.bookList.observe(this) {
+            bookListAdapter?.submitList(it)
+        }
+        setupClickListener()
         setupSwipeListener(binding.mainRecycler)
     }
 
-    private fun viewNetBook(){
+    private fun viewNetBook() {
+        bookListAdapter = null
         binding.drawlerLayout.closeDrawers()
         binding.navView.menu[0].icon = null
         binding.navView.menu[1].icon = getDrawable(R.drawable.baseline_chevron_right_24)
-        itemTouchHelper!!.attachToRecyclerView(null)
+        itemTouchHelper?.attachToRecyclerView(null)
         binding.btnAdd.visibility = View.GONE
-        if (bookListAdapterNet == null){
+        if (bookListAdapterNet == null) {
             bookListAdapterNet = BookNetworkAdapter()
         }
         with(binding.mainRecycler) {
@@ -159,10 +178,10 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
             adapter = bookListAdapterNet
         }
         viewModel.getListBooks()
-        viewModel.bookListNet.observe(this) {bookItem ->
+        viewModel.bookListNet.observe(this) { bookItem ->
             bookListAdapterNet!!.submitList(bookItem)
         }
-        setupClickListener(MODE_NET_BOOK)
+        setupClickListener()
     }
 
     private fun requestDialogChangeFilesFirstRun() {
@@ -202,40 +221,52 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
     }
 
     private fun setupRecyclerView() {
-        with(binding.mainRecycler) {
-            bookListAdapter = BookListAdapter()
-            adapter = bookListAdapter
+        if (viewModel.mode == "" || viewModel.mode == MODE_MY_BOOK) {
+            with(binding.mainRecycler) {
+                bookListAdapter = BookListAdapter()
+                adapter = bookListAdapter
+            }
         }
-        setupClickListener(MODE_MY_BOOK)
+        if (viewModel.mode == MODE_NET_BOOK) {
+            with(binding.mainRecycler) {
+                bookListAdapterNet = BookNetworkAdapter()
+                adapter = adapter
+            }
+        }
+        setupClickListener()
         setupSwipeListener(binding.mainRecycler)
     }
 
     private fun setupSwipeListener(rvShopList: RecyclerView) {
-        val callback = object : ItemTouchHelper.SimpleCallback(
-            0,
-            ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
-        ) {
+        if (viewModel.mode == MODE_MY_BOOK) {
+            val callback = object : ItemTouchHelper.SimpleCallback(
+                0,
+                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+            ) {
 
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder
-            ): Boolean {
-                return false
-            }
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
+                ): Boolean {
+                    return false
+                }
 
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val item = bookListAdapter.currentList[viewHolder.adapterPosition]
-                viewModel.deleteShopItem(item)
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    val item = bookListAdapter?.currentList?.get(viewHolder.adapterPosition)
+                    if (item != null) {
+                        viewModel.deleteShopItem(item)
+                    }
+                }
             }
+            itemTouchHelper = ItemTouchHelper(callback)
+            itemTouchHelper!!.attachToRecyclerView(rvShopList)
         }
-        itemTouchHelper = ItemTouchHelper(callback)
-        itemTouchHelper!!.attachToRecyclerView(rvShopList)
     }
 
-    private fun setupClickListener(mode: String) {
-        if (mode == MODE_MY_BOOK){
-            bookListAdapter.onEditBookClickListener = {
+    private fun setupClickListener() {
+        if (viewModel.mode == MODE_MY_BOOK) {
+            bookListAdapter?.onEditBookClickListener = {
                 if (binding.fragmentContainer == null) {
                     val intent = AddBookActivity.newIntentEditBook(this, it.id)
                     startActivity(intent)
@@ -243,17 +274,26 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
                     launchFragment(AddBookItemFragment.newInstanceEditItem(it.id))
                 }
             }
-            bookListAdapter.onBookItemClickListener = {
+            bookListAdapter?.onBookItemClickListener = {
                 if (binding.fragmentContainer == null) // check landscape orientation
                 {
-                    val intent = BookInfoActivity.newIntentOpenItem(this, it.id, BookInfoActivity.MODE_MY_BOOK)
+                    val intent = BookInfoActivity.newIntentOpenItem(
+                        this,
+                        it.id,
+                        BookInfoActivity.MODE_MY_BOOK
+                    )
                     startActivity(intent)
                 } else {
-                    launchFragment(BookInfoFragment.newInstanceOpenItem(it.id, BookInfoActivity.MODE_MY_BOOK))
+                    launchFragment(
+                        BookInfoFragment.newInstanceOpenItem(
+                            it.id,
+                            BookInfoActivity.MODE_MY_BOOK
+                        )
+                    )
                 }
             }
             RequestFileAccess.requestFileAccessPermission(this, {
-                bookListAdapter.loadCoverFunction = { holder, itemBook ->
+                bookListAdapter?.loadCoverFunction = { holder, itemBook ->
                     val scope = CoroutineScope(Dispatchers.Main)
                     scope.launch {
                         val bitmap = viewModel.getBookCover(
@@ -268,7 +308,8 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
                                 tags = "",
                                 path = itemBook.path,
                                 startOnPage = 0,
-                                fileExtension = itemBook.path.substringAfterLast(".", "").uppercase(),
+                                fileExtension = itemBook.path.substringAfterLast(".", "")
+                                    .uppercase(),
                             ),
                             150,
                             150
@@ -279,16 +320,27 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
                 }
             }) {}
         }
-        if (mode == MODE_NET_BOOK){
+        if (viewModel.mode == MODE_NET_BOOK) {
             bookListAdapterNet?.onBookItemClickListener = {
                 Log.d("TEST_WORKER", "on MA book item dto: ${it == null}")
                 Log.d("TEST_WORKER", "on MA book item dto: ${it.title}")
                 if (binding.fragmentContainer == null) // check landscape orientation
                 {
-                    val intent = BookInfoActivity.newIntentOpenItem(this, BookItem.UNDEFINED_ID, BookInfoActivity.MODE_NET_BOOK, it)
+                    val intent = BookInfoActivity.newIntentOpenItem(
+                        this,
+                        BookItem.UNDEFINED_ID,
+                        BookInfoActivity.MODE_NET_BOOK,
+                        it
+                    )
                     startActivity(intent)
                 } else {
-                    launchFragment(BookInfoFragment.newInstanceOpenItem(BookItem.UNDEFINED_ID, BookInfoActivity.MODE_NET_BOOK, it))
+                    launchFragment(
+                        BookInfoFragment.newInstanceOpenItem(
+                            BookItem.UNDEFINED_ID,
+                            BookInfoActivity.MODE_NET_BOOK,
+                            it
+                        )
+                    )
                 }
             }
         }
@@ -320,7 +372,7 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
     }
 
     companion object {
-        private const val MODE_MY_BOOK = "my_book"
+        const val MODE_MY_BOOK = "my_book"
         private const val MODE_NET_BOOK = "net_book"
     }
 }
