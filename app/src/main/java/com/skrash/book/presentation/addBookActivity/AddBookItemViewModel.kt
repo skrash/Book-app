@@ -161,7 +161,7 @@ class AddBookItemViewModel @Inject constructor(
                     )
                 )
                 Log.d("TEST_WORKER", "added id ${id.toInt()}")
-                _itemIdManipulated.value = id.toInt()
+                _itemIdManipulated.postValue(id.toInt())
             } else {
                 addBookItem(
                     BookItem(
@@ -190,13 +190,15 @@ class AddBookItemViewModel @Inject constructor(
 
     fun getCover(bookItem: BookItem, width: Int, height: Int) {
         CoroutineScope(Dispatchers.IO).launch {
-            _imageCover.value = getBookCoverUseCase.getBookCover(bookItem, width, height)
+            val item = getBookCoverUseCase.getBookCover(bookItem, width, height)
+            _imageCover.postValue(item)
         }
     }
 
     fun getBookItem(bookItemId: Int) {
         CoroutineScope(Dispatchers.IO).launch {
-            _bookItem.value = getMyBookUseCase.getMyBook(bookItemId)
+            val item = getMyBookUseCase.getMyBook(bookItemId)
+            _bookItem.postValue(item)
         }
     }
 

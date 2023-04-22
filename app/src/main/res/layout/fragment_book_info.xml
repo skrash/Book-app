@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <data>
 
@@ -8,80 +9,104 @@
             type="com.skrash.book.presentation.bookInfoActivity.BookInfoViewModel" />
     </data>
 
-    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            xmlns:tools="http://schemas.android.com/tools"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="8dp"
-            tools:context=".presentation.bookInfoActivity.BookInfoFragment">
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            tools:context=".presentation.bookInfoActivity.BookInfoFragment"
+            android:orientation="vertical">
 
             <ImageView
                 android:id="@+id/imCover"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
-                android:src="@mipmap/ic_launcher"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:src="@mipmap/ic_launcher" />
 
             <TextView
                 android:id="@+id/tvTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:textAlignment="center"
+                android:textSize="21sp"
                 android:text="@{viewModel.bookItem.title}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/imCover"
-                app:layout_constraintTop_toBottomOf="@id/imCover" />
+                tools:text="Название книги" />
+
+            <TextView
+                android:id="@+id/dummyAuthors"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:textSize="18sp"
+                android:text="@string/hintAuthor"/>
 
             <TextView
                 android:id="@+id/tvAuthor"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@{viewModel.bookItem.author}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/tvTitle"
-                app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+                android:layout_margin="10dp"
+                android:background="@drawable/text_border"
+                android:padding="8dp"
+                tools:text="Иван Васильевич, Александр Сергеевич"
+                android:text="@{viewModel.bookItem.author}"/>
+
+            <TextView
+                android:id="@+id/dummyDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+
+                android:textSize="18sp"
+                android:text="@string/hintDescription"/>
 
             <TextView
                 android:id="@+id/tvDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@{viewModel.bookItem.description}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/tvAuthor"
-                app:layout_constraintTop_toBottomOf="@id/tvAuthor" />
+                android:background="@drawable/text_border"
+                android:padding="8dp"
+                tools:text="@tools:sample/lorem"
+                android:layout_margin="8dp"
+                android:text="@{viewModel.bookItem.description}" />
 
-            <androidx.constraintlayout.widget.Barrier
-                android:id="@+id/preview_bottom_barrier"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:orientation="vertical"
-                app:barrierDirection="bottom"
-                app:constraint_referenced_ids="imCover, tvTitle, tvAuthor, tvDescription" />
+            <TextView
+                android:id="@+id/dummyRating"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:textSize="18sp"
+                android:text="@string/hintRating"/>
 
             <RatingBar
                 android:id="@+id/ratingBar"
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
+                android:background="@drawable/text_border"
                 android:isIndicator="true"
-                android:rating="@{viewModel.bookItem.rating}"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/preview_bottom_barrier" />
+                android:layout_margin="10dp"
+                android:rating="@{viewModel.bookItem.rating}" />
+
+            <TextView
+                android:id="@+id/dummyPopularity"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:textSize="18sp"
+                android:text="@string/hintPopularity"/>
 
             <RatingBar
                 android:id="@+id/popularityBar"
                 android:layout_width="wrap_content"
                 android:layout_height="50dp"
+                android:layout_margin="10dp"
+                android:background="@drawable/text_border"
                 android:isIndicator="true"
-                android:rating="@{viewModel.bookItem.popularity}"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/ratingBar" />
+                android:rating="@{viewModel.bookItem.popularity}"/>
 
             <ImageView
                 android:id="@+id/ivShareAccess"
@@ -89,48 +114,59 @@
                 android:layout_height="50dp"
                 android:layout_margin="8dp"
                 android:visibility="gone"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/popularityBar"
                 />
+
+            <TextView
+                android:id="@+id/dummyGenres"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:textSize="18sp"
+                android:text="@string/hintGenres"/>
 
             <TextView
                 android:id="@+id/tvGenres"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@{viewModel.bookItem.genres.toString()}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/ivShareAccess"
-                app:layout_constraintTop_toBottomOf="@id/ivShareAccess" />
+                android:background="@drawable/text_border"
+                android:padding="8dp"
+                tools:text="Other, Fantastic, Horror"
+                android:layout_margin="8dp"
+                android:text="@{viewModel.bookItem.genres.toString()}" />
+
+            <TextView
+                android:id="@+id/dummyTags"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:textSize="18sp"
+                android:text="@string/hintTags"/>
 
             <TextView
                 android:id="@+id/tvTags"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@{viewModel.bookItem.tags}"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/tvGenres"
-                app:layout_constraintTop_toBottomOf="@id/tvGenres" />
+                android:background="@drawable/text_border"
+                android:padding="8dp"
+                tools:text="Чай, кофе, мы, андроид, всё, плохо-хорошо"
+                android:layout_margin="8dp"
+                android:text="@{viewModel.bookItem.tags}"/>
 
             <Button
                 android:id="@+id/btnOpen"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/button_open"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvTags" />
+                style="@style/Widget.Material3.Button"
+                android:textSize="17sp"
+                android:layout_margin="8dp" />
 
 
             <com.yandex.mobile.ads.banner.BannerAdView
                 android:id="@+id/yaBanner"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/btnOpen"/>
+                android:layout_height="wrap_content"/>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
     </ScrollView>
 </layout>

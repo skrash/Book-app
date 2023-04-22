@@ -20,9 +20,11 @@
     <!-- input hints -->
 
     <string name="hintTitle">Название</string>
-    <string name="hintAuthor">Автор</string>
+    <string name="hintAuthor">Авторы</string>
     <string name="hintDescription">Описание</string>
     <string name="hintGenres">Жанры</string>
+    <string name="hintRating">Рейтинг</string>
+    <string name="hintPopularity">Популярность</string>
     <string name="hintTags">Теги, через запятую</string>
     <string name="hintPath">Выберите файл</string>
     <string name="ok">ОК</string>

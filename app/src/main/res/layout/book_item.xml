@@ -8,146 +8,145 @@
             type="com.skrash.book.domain.entities.BookItem" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-        <ImageView
-            android:id="@+id/imCover"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:layout_marginTop="8dp"
-            android:adjustViewBounds="true"
-            android:maxWidth="100dp"
-            android:maxHeight="140dp"
-            android:src="@mipmap/ic_launcher_round"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvTitle"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:text="@{bookItem.title}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toEndOf="@id/imCover"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/tvAuthor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:text="@{bookItem.author}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toEndOf="@id/imCover"
-            app:layout_constraintTop_toBottomOf="@id/tvTitle" />
-
-        <androidx.constraintlayout.widget.Barrier
-            android:id="@+id/preview_bottom_barrier"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:orientation="vertical"
-            app:barrierDirection="bottom"
-            app:constraint_referenced_ids="imCover, tvTitle, tvAuthor" />
-
-        <RatingBar
-            android:id="@+id/ratingBar"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:isIndicator="true"
-            android:rating="@{bookItem.rating}"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/preview_bottom_barrier" />
-
-        <RatingBar
-            android:id="@+id/popularityBar"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:isIndicator="true"
-            android:rating="@{bookItem.popularity}"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ratingBar" />
-
-        <ImageButton
-            android:id="@+id/btnEdit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_baseline_edit_24"
-            app:layout_constraintStart_toEndOf="@id/ratingBar"
-            app:layout_constraintTop_toBottomOf="@id/preview_bottom_barrier" />
-
-        <Button
-            android:id="@+id/btnGenres"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:text="@string/genres"
-            app:layout_constraintEnd_toStartOf="@id/btnTags"
-            app:layout_constraintHorizontal_chainStyle="packed"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/popularityBar" />
-
-        <Button
-            android:id="@+id/btnTags"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:text="@string/tags"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_chainStyle="packed"
-            app:layout_constraintStart_toStartOf="@id/btnGenres"
-            app:layout_constraintTop_toBottomOf="@id/popularityBar" />
-
-        <ImageView
-            android:id="@+id/ivShareAccess"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_margin="8dp"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_chainStyle="packed"
-            app:layout_constraintStart_toEndOf="@id/btnTags"
-            app:layout_constraintTop_toBottomOf="@id/popularityBar"
-            />
+        android:id="@+id/cardMain"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:clickable="true"
+        app:cardBackgroundColor="?colorPrimaryVariant"
+        app:cardCornerRadius="17dp"
+        app:strokeColor="?colorPrimary"
+        app:strokeWidth="1dp">
 
         <LinearLayout
-            android:id="@+id/tagsContainer"
-            android:layout_width="wrap_content"
+            android:id="@+id/llRootCard"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minWidth="100dp"
-            android:minHeight="50dp"
-            android:orientation="horizontal"
-            android:visibility="gone"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btnGenres">
+            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tvTags"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/llRightTextCard"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:layout_weight="7" />
+                android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/btnCloseTags"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_weight="2"
-                android:minWidth="100dp"
-                android:minHeight="50dp"
-                android:text="@string/button_closed"
-                android:textAlignment="center"
-                android:visibility="gone" />
+                <ImageView
+                    android:id="@+id/imCover"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:layout_marginTop="8dp"
+                    android:adjustViewBounds="true"
+                    android:maxWidth="100dp"
+                    android:maxHeight="140dp"
+                    android:src="@mipmap/ic_launcher_round" />
 
+                <LinearLayout
+                    android:id="@+id/llTextCard"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp"
+                        android:text="@{bookItem.title}" />
+
+                    <TextView
+                        android:id="@+id/tvAuthor"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp"
+                        android:text="@{bookItem.author}" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RatingBar
+                        android:id="@+id/ratingBar"
+                        style="@style/Widget.AppCompat.RatingBar.Indicator"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:isIndicator="true"
+                        android:rating="@{bookItem.rating}" />
+
+                    <RatingBar
+                        android:id="@+id/popularityBar"
+                        style="@style/Widget.AppCompat.RatingBar.Indicator"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:isIndicator="true"
+                        android:rating="@{bookItem.popularity}" />
+
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/ivShareAccess"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/btnEdit"
+                    style="?attr/materialIconButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    app:fabCustomSize="70dp"
+                    app:backgroundTint="?colorPrimary"
+                    app:tint="?colorOnPrimary"
+                    android:src="@drawable/ic_baseline_edit_24" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:text="@string/tags" />
+
+                <TextView
+                    android:id="@+id/tvTags"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:text="@{bookItem.tags}" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:text="@string/hintGenres" />
+
+                <TextView
+                    android:id="@+id/tvGenres"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:text="@{bookItem.genres.toString()}" />
+            </LinearLayout>
         </LinearLayout>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
 </layout>
