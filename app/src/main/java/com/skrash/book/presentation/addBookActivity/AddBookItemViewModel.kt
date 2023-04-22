@@ -5,13 +5,14 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.FormatBook
 import com.skrash.book.domain.entities.Genres
-import com.skrash.book.domain.usecases.MyList.GetBookCoverUseCase
 import com.skrash.book.domain.usecases.MyList.AddToMyBookListUseCase
+import com.skrash.book.domain.usecases.MyList.GetBookCoverUseCase
 import com.skrash.book.domain.usecases.MyList.GetMyBookUseCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.io.File
@@ -67,7 +68,7 @@ class AddBookItemViewModel @Inject constructor(
     // ======================================
 
     private suspend fun addBookItem(bookItem: BookItem): Long {
-        val deferred = viewModelScope.async {
+        val deferred = CoroutineScope(Dispatchers.IO).async {
             val id = addToMyBookListUseCase.addToMyBookList(bookItem)
             id
         }
@@ -142,7 +143,7 @@ class AddBookItemViewModel @Inject constructor(
             _errorInputPath.value = true
             return
         }
-        viewModelScope.launch {
+        CoroutineScope(Dispatchers.IO).launch {
             if (id == null) {
                 val id = addBookItem(
                     BookItem(
@@ -188,13 +189,13 @@ class AddBookItemViewModel @Inject constructor(
     }
 
     fun getCover(bookItem: BookItem, width: Int, height: Int) {
-        viewModelScope.launch {
+        CoroutineScope(Dispatchers.IO).launch {
             _imageCover.value = getBookCoverUseCase.getBookCover(bookItem, width, height)
         }
     }
 
     fun getBookItem(bookItemId: Int) {
-        viewModelScope.launch {
+        CoroutineScope(Dispatchers.IO).launch {
             _bookItem.value = getMyBookUseCase.getMyBook(bookItemId)
         }
     }

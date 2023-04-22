@@ -4,11 +4,12 @@ import android.graphics.Bitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.Genres
 import com.skrash.book.domain.usecases.MyList.GetBookCoverUseCase
 import com.skrash.book.domain.usecases.MyList.GetMyBookUseCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,7 +26,7 @@ class BookInfoViewModel @Inject constructor(
         get() = _imgCover
 
     fun getBookItem(bookItemId: Int) {
-        viewModelScope.launch {
+        CoroutineScope(Dispatchers.IO).launch {
             val item = getMyBookUseCase.getMyBook(bookItemId)
             _bookItem.value = item
             loadCover()
@@ -56,7 +57,7 @@ class BookInfoViewModel @Inject constructor(
     }
 
     private fun loadCover() {
-        viewModelScope.launch {
+        CoroutineScope(Dispatchers.IO).launch {
             if (_bookItem.value != null) {
                 _imgCover.value = getBookCoverUseCase.getBookCover(
                     BookItem(
