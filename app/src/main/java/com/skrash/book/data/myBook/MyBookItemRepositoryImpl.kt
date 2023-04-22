@@ -39,7 +39,7 @@ class MyBookItemRepositoryImpl @Inject constructor(
         if (!file.delete()){
             throw RuntimeException("could not delete file")
         }
-        myBookListDao.deleteMyBookItem(bookItem.id)
+        myBookListDao.deleteMyBookItem(bookItem.path)
     }
 
     override suspend fun editMyBookItem(bookItem: BookItem) {

@@ -16,8 +16,8 @@ interface MyBookListDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addMyBookItem(myBookItemDbModel: MyBookItemDbModel): Long
 
-    @Query("DELETE FROM book_items WHERE id=:bookItemId")
-    suspend fun deleteMyBookItem(bookItemId: Int)
+    @Query("DELETE FROM book_items WHERE path=:bookItemPath")
+    suspend fun deleteMyBookItem(bookItemPath: String)
 
     @Query("SELECT * FROM book_items WHERE id=:bookItemID LIMIT 1")
     suspend fun getBookItem(bookItemID: Int): MyBookItemDbModel

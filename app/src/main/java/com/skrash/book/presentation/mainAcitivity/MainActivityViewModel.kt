@@ -2,10 +2,7 @@ package com.skrash.book.presentation.mainAcitivity
 
 import android.graphics.Bitmap
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.skrash.book.data.network.model.BookItemDto
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.FormatBook
@@ -27,13 +24,15 @@ class MainActivityViewModel @Inject constructor(
     private val getBookItemListUseCase: GetBookItemListUseCase
 ) : ViewModel() {
 
-    private val _bookList = MutableLiveData<List<BookItem>>()
+    private val _bookList = MediatorLiveData<List<BookItem>>()
     val bookList: LiveData<List<BookItem>>
         get() = _bookList
 
     init {
         CoroutineScope(Dispatchers.IO).launch {
-            _bookList.postValue(getMyBookListUseCase.getMyBookList().value)
+            _bookList.addSource(getMyBookListUseCase.getMyBookList()){
+                _bookList.value = it
+            }
         }
     }
 
