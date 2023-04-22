@@ -101,7 +101,7 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    fun getListBooks(errorCallback: () -> Unit, successCallback: () -> Unit) {
+    fun getListBooks(errorCallback: () -> Unit) {
         val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
             if (throwable is ConnectException){
                 CoroutineScope(Dispatchers.Main).launch {
@@ -114,9 +114,6 @@ class MainActivityViewModel @Inject constructor(
             if (_bookListNet.value == null) {
                 val bookItem = getBookItemListUseCase.getBookItemList()
                 _bookListNet.postValue(bookItem.execute().body())
-            }
-            CoroutineScope(Dispatchers.Main).launch {
-                successCallback.invoke()
             }
         }
     }

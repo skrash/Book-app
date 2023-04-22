@@ -34,14 +34,6 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="parent" />
 
-                <TextView
-                    android:id="@+id/tvError"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone"
-                    android:layout_margin="8dp"
-                    android:textColor="#FF0000"
-                    android:textSize="21sp"/>
 
                 <LinearLayout
                     android:id="@+id/llRoot"
@@ -51,7 +43,7 @@
                     app:layout_constraintBottom_toTopOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tvError">
+                    app:layout_constraintTop_toBottomOf="@id/included">
 
 
                     <androidx.recyclerview.widget.RecyclerView

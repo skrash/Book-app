@@ -19,30 +19,14 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content" />
 
-            <LinearLayout
-                android:id="@+id/llBanners"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toTopOf="@id/mainRecycler"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/included">
-
             <com.yandex.mobile.ads.banner.BannerAdView
                 android:id="@+id/yaBanner"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-
-            <TextView
-                android:id="@+id/tvError"
-                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="#FF0000"
-                android:textSize="21sp"
-                android:layout_margin="8dp"
-                android:visibility="gone"/>
-            </LinearLayout>
+                app:layout_constraintBottom_toTopOf="@id/mainRecycler"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/included"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/mainRecycler"
@@ -52,7 +36,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/llBanners" />
+                app:layout_constraintTop_toBottomOf="@id/yaBanner" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btnAdd"

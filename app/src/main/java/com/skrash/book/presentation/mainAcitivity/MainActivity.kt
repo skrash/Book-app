@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -182,11 +183,8 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
             bookListAdapterNet = BookNetworkAdapter()
             adapter = bookListAdapterNet
         }
-        viewModel.getListBooks({
-            binding.tvError.visibility = View.VISIBLE
-            binding.tvError.text = getString(R.string.network_error)
-        }){
-            binding.tvError.visibility = View.GONE
+        viewModel.getListBooks{
+            Toast.makeText(this, getString(R.string.network_error), Toast.LENGTH_LONG).show()
         }
         viewModel.bookListNet.observe(this) { bookItem ->
             bookListAdapterNet!!.submitList(bookItem)
