@@ -27,7 +27,15 @@ class MainActivityViewModel @Inject constructor(
     private val getBookItemListUseCase: GetBookItemListUseCase
 ) : ViewModel() {
 
-    val bookList = getMyBookListUseCase.getMyBookList()
+    private val _bookList = MutableLiveData<List<BookItem>>()
+    val bookList: LiveData<List<BookItem>>
+        get() = _bookList
+
+    init {
+        CoroutineScope(Dispatchers.IO).launch {
+            _bookList.postValue(getMyBookListUseCase.getMyBookList().value)
+        }
+    }
 
     private val _bookListNet = MutableLiveData<List<BookItemDto>>()
     val bookListNet: LiveData<List<BookItemDto>>
@@ -36,7 +44,7 @@ class MainActivityViewModel @Inject constructor(
     var mode = MainActivity.MODE_MY_BOOK
 
     fun deleteShopItem(bookItem: BookItem) {
-        viewModelScope.launch {
+        CoroutineScope(Dispatchers.IO).launch {
             deleteBookItemFromMyListUseCase.deleteBookItemFromMyList(bookItem)
         }
     }
@@ -70,7 +78,7 @@ class MainActivityViewModel @Inject constructor(
                     fileExtension = FormatBook.PDF.string_name,
                     startOnPage = 0
                 )
-                viewModelScope.launch {
+                CoroutineScope(Dispatchers.IO).launch {
                     addToMyBookListUseCase.addToMyBookList(book)
                 }
             }
@@ -87,7 +95,7 @@ class MainActivityViewModel @Inject constructor(
                     fileExtension = FormatBook.FB2.string_name,
                     startOnPage = 0
                 )
-                viewModelScope.launch {
+                CoroutineScope(Dispatchers.IO).launch {
                     addToMyBookListUseCase.addToMyBookList(book)
                 }
             }

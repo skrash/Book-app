@@ -111,7 +111,6 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         }
         init()
         checkFirstRun()
-        Log.d("TEST_WORKER", "mode main activity: ${viewModel.mode}")
         if (viewModel.mode == "" || viewModel.mode == MODE_MY_BOOK) {
             viewMyBook()
         } else {
@@ -313,8 +312,7 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
             }
             RequestFileAccess.requestFileAccessPermission(this, {
                 bookListAdapter?.loadCoverFunction = { holder, itemBook ->
-                    val scope = CoroutineScope(Dispatchers.IO)
-                    scope.launch {
+                    CoroutineScope(Dispatchers.IO).launch {
                         val bitmap = viewModel.getBookCover(
                             BookItem(
                                 id = -1,
