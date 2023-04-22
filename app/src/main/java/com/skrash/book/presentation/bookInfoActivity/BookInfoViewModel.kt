@@ -28,7 +28,7 @@ class BookInfoViewModel @Inject constructor(
     fun getBookItem(bookItemId: Int) {
         CoroutineScope(Dispatchers.IO).launch {
             val item = getMyBookUseCase.getMyBook(bookItemId)
-            _bookItem.value = item
+            _bookItem.postValue(item)
             loadCover()
         }
     }
@@ -59,7 +59,7 @@ class BookInfoViewModel @Inject constructor(
     private fun loadCover() {
         CoroutineScope(Dispatchers.IO).launch {
             if (_bookItem.value != null) {
-                _imgCover.value = getBookCoverUseCase.getBookCover(
+                val item = getBookCoverUseCase.getBookCover(
                     BookItem(
                         id = -1,
                         title = "",
@@ -76,6 +76,7 @@ class BookInfoViewModel @Inject constructor(
                     300,
                     500
                 )
+                _imgCover.postValue(item)
             }
         }
     }

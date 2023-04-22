@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.START
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.navigation.NavigationBarView
 import com.skrash.book.BookApplication
 import com.skrash.book.R
 import com.skrash.book.databinding.ActivityMainBinding
@@ -110,7 +111,6 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
                 }
             }
         }
-        init()
         checkFirstRun()
         if (viewModel.mode == "" || viewModel.mode == MODE_MY_BOOK) {
             viewMyBook()
@@ -135,26 +135,27 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
                 }
             }
         }
-        binding.navView.setNavigationItemSelectedListener {
+        binding.bottomNavigation.setOnItemSelectedListener {
             when (it.title) {
                 getString(R.string.general_book) -> {
+                    binding.btnAdd.visibility = View.GONE
                     viewModel.mode = MODE_NET_BOOK
                     viewNetBook()
+                    true
                 }
                 getString(R.string.my_book) -> {
+                    binding.btnAdd.visibility = View.VISIBLE
                     viewModel.mode = MODE_MY_BOOK
                     viewMyBook()
+                    true
                 }
+                else -> false
             }
-            true
         }
     }
 
     private fun viewMyBook() {
         bookListAdapterNet = null
-        binding.drawlerLayout.closeDrawers()
-        binding.navView.menu[0].icon = getDrawable(R.drawable.baseline_chevron_right_24)
-        binding.navView.menu[1].icon = null
         binding.btnAdd.visibility = View.VISIBLE
         if (bookListAdapter == null){
             setupRecyclerView()
@@ -171,9 +172,6 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
 
     private fun viewNetBook() {
         bookListAdapter = null
-        binding.drawlerLayout.closeDrawers()
-        binding.navView.menu[0].icon = null
-        binding.navView.menu[1].icon = getDrawable(R.drawable.baseline_chevron_right_24)
         itemTouchHelper?.attachToRecyclerView(null)
         binding.btnAdd.visibility = View.GONE
         if (bookListAdapterNet == null) {
@@ -214,18 +212,6 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
             initBookList()
             pref.edit().putBoolean("first_run", false).apply()
         }
-    }
-
-    private fun init() {
-        val toggle = ActionBarDrawerToggle(
-            this,
-            binding.drawlerLayout,
-            binding.included.toolbar,
-            R.string.button_open,
-            R.string.button_closed
-        )
-        binding.drawlerLayout.addDrawerListener(toggle)
-        toggle.syncState()
     }
 
     private fun setupRecyclerView() {
