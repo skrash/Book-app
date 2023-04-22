@@ -65,7 +65,7 @@ class TorrentService : Service() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val address = InetAddress.getByName("0.0.0.0")
+                val address = InetAddress.getByName("192.168.0.100")
                     val dataPath = getExternalFilesDir(Environment.getDataDirectory().absolutePath)
                     ?.absolutePath
                 val sharedBookCursor: Cursor? = contentResolver.query(

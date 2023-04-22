@@ -121,6 +121,7 @@ class BookInfoFragment : Fragment() {
                     startActivity(OpenBookActivity.newIntent(requireContext(), viewModel.bookItem.value!!.id))
                 }
             } else {
+                binding.btnOpen.isEnabled = false
                 val gson = Gson()
                 val bookJson = gson.toJson(bookItemDto)
                 val downloadWorker = WorkManager.getInstance(requireContext().applicationContext)
