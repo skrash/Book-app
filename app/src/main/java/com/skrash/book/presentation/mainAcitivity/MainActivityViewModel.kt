@@ -1,6 +1,7 @@
 package com.skrash.book.presentation.mainAcitivity
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -14,9 +15,8 @@ import com.skrash.book.domain.usecases.MyList.GetBookCoverUseCase
 import com.skrash.book.domain.usecases.MyList.AddToMyBookListUseCase
 import com.skrash.book.domain.usecases.MyList.DeleteBookItemFromMyListUseCase
 import com.skrash.book.domain.usecases.MyList.GetMyBookListUseCase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import java.net.ConnectException
 import javax.inject.Inject
 
 class MainActivityViewModel @Inject constructor(
@@ -94,11 +94,22 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    fun getListBooks() {
-        CoroutineScope(Dispatchers.IO).launch{
+    fun getListBooks(errorCallback: () -> Unit, successCallback: () -> Unit) {
+        val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+            if (throwable is ConnectException){
+                CoroutineScope(Dispatchers.Main).launch {
+                    errorCallback.invoke()
+                }
+            }
+            Log.d("ERRORS", throwable.localizedMessage)
+        }
+        CoroutineScope(Dispatchers.IO + exceptionHandler).launch{
             if (_bookListNet.value == null) {
                 val bookItem = getBookItemListUseCase.getBookItemList()
                 _bookListNet.postValue(bookItem.execute().body())
+            }
+            CoroutineScope(Dispatchers.Main).launch {
+                successCallback.invoke()
             }
         }
     }

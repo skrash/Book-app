@@ -36,6 +36,7 @@ import com.yandex.mobile.ads.common.AdRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -182,7 +183,12 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
             bookListAdapterNet = BookNetworkAdapter()
             adapter = bookListAdapterNet
         }
-        viewModel.getListBooks()
+        viewModel.getListBooks({
+            binding.tvError.visibility = View.VISIBLE
+            binding.tvError.text = getString(R.string.network_error)
+        }){
+            binding.tvError.visibility = View.GONE
+        }
         viewModel.bookListNet.observe(this) { bookItem ->
             bookListAdapterNet!!.submitList(bookItem)
         }
@@ -307,7 +313,7 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
             }
             RequestFileAccess.requestFileAccessPermission(this, {
                 bookListAdapter?.loadCoverFunction = { holder, itemBook ->
-                    val scope = CoroutineScope(Dispatchers.Main)
+                    val scope = CoroutineScope(Dispatchers.IO)
                     scope.launch {
                         val bitmap = viewModel.getBookCover(
                             BookItem(
@@ -327,8 +333,10 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
                             150,
                             150
                         )
-                        val bindingCover = holder.binding as BookItemBinding
-                        bindingCover.imCover.setImageBitmap(bitmap)
+                        withContext(Dispatchers.Main){
+                            val bindingCover = holder.binding as BookItemBinding
+                            bindingCover.imCover.setImageBitmap(bitmap)
+                        }
                     }
                 }
             }) {}
