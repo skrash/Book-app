@@ -19,6 +19,14 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content" />
 
+            <com.yandex.mobile.ads.banner.BannerAdView
+                android:id="@+id/yaBanner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintBottom_toTopOf="@id/mainRecycler"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/included"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/mainRecycler"
@@ -28,7 +36,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/included" />
+                app:layout_constraintTop_toBottomOf="@id/yaBanner" />
 
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/btnAdd"

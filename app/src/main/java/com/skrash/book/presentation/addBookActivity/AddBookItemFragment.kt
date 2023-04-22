@@ -22,7 +22,10 @@ import com.skrash.book.domain.entities.FormatBook
 import com.skrash.book.domain.entities.Genres
 import com.skrash.book.presentation.RequestFileAccess
 import com.skrash.book.presentation.ViewModelFactory
+import com.skrash.book.presentation.YandexID
 import com.skrash.book.service.SendTrackerWorker
+import com.yandex.mobile.ads.banner.AdSize
+import com.yandex.mobile.ads.common.AdRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -102,6 +105,12 @@ class AddBookItemFragment : Fragment() {
         addTextChangeListeners()
         launchRightMode()
         observeViewModel()
+        // реклама
+        binding.yaBanner.setAdUnitId(YandexID.AdUnitId)
+        binding.yaBanner.setAdSize(AdSize.stickySize(300))
+        val adRequest = AdRequest.Builder().build()
+        binding.yaBanner.loadAd(adRequest)
+
     }
 
     private fun addTextChangeListeners() {

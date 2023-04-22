@@ -17,9 +17,12 @@ import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.BookApplication
 import com.skrash.book.data.network.model.BookItemDto
 import com.skrash.book.presentation.ViewModelFactory
+import com.skrash.book.presentation.YandexID
 import com.skrash.book.presentation.openBookActivity.OpenBookActivity
 import com.skrash.book.service.DownloadBookWorker
 import com.skrash.book.service.SendTrackerWorker
+import com.yandex.mobile.ads.banner.AdSize
+import com.yandex.mobile.ads.common.AdRequest
 import javax.inject.Inject
 
 class BookInfoFragment : Fragment() {
@@ -105,6 +108,13 @@ class BookInfoFragment : Fragment() {
         if (modeIsMyBook) {
             viewModel.getBookItem(bookItemId)
         }
+
+        // реклама
+        binding.yaBanner.setAdUnitId(YandexID.AdUnitId)
+        binding.yaBanner.setAdSize(AdSize.stickySize(300))
+        val adRequest = AdRequest.Builder().build()
+        binding.yaBanner.loadAd(adRequest)
+
         binding.btnOpen.setOnClickListener {
             if (modeIsMyBook){
                 if(viewModel.bookItem.value != null){
