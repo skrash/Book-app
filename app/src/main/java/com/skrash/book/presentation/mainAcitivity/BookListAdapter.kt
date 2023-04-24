@@ -17,6 +17,7 @@ class BookListAdapter : ListAdapter<BookItem, BookListAdapter.BookItemViewHolder
 
     var onBookItemClickListener: ((BookItem) -> Unit)? = null
     var onEditBookClickListener: ((BookItem) -> Unit)? = null
+    var disableUnused: ((BookItem, BookItemBinding) -> Unit)? = null
     var loadCoverFunction: ((BookItemViewHolder, BookItem) -> Unit)? = null
 
     inner class BookItemViewHolder(
@@ -42,11 +43,7 @@ class BookListAdapter : ListAdapter<BookItem, BookListAdapter.BookItemViewHolder
         loadCoverFunction?.invoke(holder, bookItem)
         when(binding){
             is BookItemBinding -> {
-                if (bookItem.shareAccess){
-                    binding.ivShareAccess.setImageResource(R.drawable.ic_baseline_cloud_upload_24_green)
-                } else {
-                    binding.ivShareAccess.setImageResource(R.drawable.ic_baseline_cloud_upload_24)
-                }
+                disableUnused?.invoke(bookItem, binding)
                 binding.ivShareAccess.visibility = View.VISIBLE
                 binding.btnEdit.setOnClickListener {
                     onEditBookClickListener?.invoke(bookItem)

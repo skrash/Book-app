@@ -3,7 +3,7 @@ package com.skrash.book.presentation.mainAcitivity
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.*
-import com.skrash.book.data.network.model.BookItemDto
+import com.skrash.book.data.network.model.BookItemDtoMapper
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.FormatBook
 import com.skrash.book.domain.entities.Genres
@@ -24,21 +24,19 @@ class MainActivityViewModel @Inject constructor(
     private val getBookItemListUseCase: GetBookItemListUseCase
 ) : ViewModel() {
 
-    private val _bookList = MediatorLiveData<List<BookItem>>()
+    private val _myBookList = MediatorLiveData<List<BookItem>>()
     val bookList: LiveData<List<BookItem>>
-        get() = _bookList
+        get() = _myBookList
+    private val _netBookList = MutableLiveData<List<BookItem>>()
+    val netBookList: LiveData<List<BookItem>>
+        get() = _netBookList
 
-    init {
-        CoroutineScope(Dispatchers.IO).launch {
-            _bookList.addSource(getMyBookListUseCase.getMyBookList()){
-                _bookList.value = it
-            }
+    fun initMyBook(errorCallback: () -> Unit) {
+        _myBookList.addSource(getMyBookListUseCase.getMyBookList()){
+            _myBookList.value = it
         }
+        getListBooks(errorCallback)
     }
-
-    private val _bookListNet = MutableLiveData<List<BookItemDto>>()
-    val bookListNet: LiveData<List<BookItemDto>>
-        get() = _bookListNet
 
     var mode = MainActivity.MODE_MY_BOOK
 
@@ -103,18 +101,23 @@ class MainActivityViewModel @Inject constructor(
 
     fun getListBooks(errorCallback: () -> Unit) {
         val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
-            if (throwable is ConnectException){
+            if (throwable is ConnectException) {
                 CoroutineScope(Dispatchers.Main).launch {
                     errorCallback.invoke()
                 }
             }
             Log.d("ERRORS", throwable.localizedMessage)
+            throwable.printStackTrace()
         }
-        CoroutineScope(Dispatchers.IO + exceptionHandler).launch{
-            if (_bookListNet.value == null) {
-                val bookItem = getBookItemListUseCase.getBookItemList()
-                _bookListNet.postValue(bookItem.execute().body())
+        CoroutineScope(Dispatchers.IO + exceptionHandler).launch {
+            var bookItems: List<BookItem> = listOf()
+            val bookItemsDto = getBookItemListUseCase.getBookItemList()
+            if (bookItemsDto.execute().body() != null) {
+                bookItems = BookItemDtoMapper.bookItemDtoListToBookItemList(
+                    bookItemsDto.clone().execute().body()!!
+                )
             }
+            _netBookList.postValue(bookItems)
         }
     }
 
