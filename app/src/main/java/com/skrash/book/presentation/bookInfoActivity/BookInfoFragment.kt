@@ -23,6 +23,10 @@ import com.skrash.book.service.DownloadBookWorker
 import com.skrash.book.service.SendTrackerWorker
 import com.yandex.mobile.ads.banner.AdSize
 import com.yandex.mobile.ads.common.AdRequest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class BookInfoFragment : Fragment() {
@@ -49,8 +53,8 @@ class BookInfoFragment : Fragment() {
         parseParams()
     }
 
-    private fun initCover(){
-        viewModel.imgCover.observe(viewLifecycleOwner){
+    private fun initCover() {
+        viewModel.imgCover.observe(viewLifecycleOwner) {
             binding.imCover.setImageBitmap(it)
         }
     }
@@ -63,7 +67,7 @@ class BookInfoFragment : Fragment() {
         if (!args.containsKey(MODE)) {
             throw RuntimeException("Param mode is absent")
         }
-        if (args.getString(MODE) == MODE_MY_BOOK){
+        if (args.getString(MODE) == MODE_MY_BOOK) {
             bookItemId = args.getInt(BOOK_ITEM_ID, BookItem.UNDEFINED_ID)
         } else {
             bookItemDto = args.getParcelable(BookItemDto)
@@ -89,18 +93,20 @@ class BookInfoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if(!modeIsMyBook){
+        if (!modeIsMyBook) {
             binding.btnOpen.text = getString(R.string.download)
         }
         viewModel = ViewModelProvider(this, viewModelFactory)[BookInfoViewModel::class.java]
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
-        if (requireArguments().getString(MODE) == MODE_NET_BOOK){
-            viewModel.setNetBook(title = bookItemDto?.title ?: "",
+        if (requireArguments().getString(MODE) == MODE_NET_BOOK) {
+            viewModel.setNetBook(
+                title = bookItemDto?.title ?: "",
                 author = bookItemDto?.author ?: "",
                 description = bookItemDto?.description ?: "",
                 tags = bookItemDto?.tags ?: "",
-                genres = bookItemDto?.genres ?: throw java.lang.RuntimeException("incorrect value tags"),
+                genres = bookItemDto?.genres
+                    ?: throw java.lang.RuntimeException("incorrect value tags"),
                 popularity = bookItemDto?.popularity?.toFloat() ?: 0f,
                 rating = bookItemDto?.rating?.toFloat() ?: 0f
             )
@@ -110,15 +116,17 @@ class BookInfoFragment : Fragment() {
         }
 
         // реклама
-        binding.yaBanner.setAdUnitId(YandexID.AdUnitId)
-        binding.yaBanner.setAdSize(AdSize.stickySize(300))
-        val adRequest = AdRequest.Builder().build()
-        binding.yaBanner.loadAd(adRequest)
+        loadAd()
 
         binding.btnOpen.setOnClickListener {
-            if (modeIsMyBook){
-                if(viewModel.bookItem.value != null){
-                    startActivity(OpenBookActivity.newIntent(requireContext(), viewModel.bookItem.value!!.id))
+            if (modeIsMyBook) {
+                if (viewModel.bookItem.value != null) {
+                    startActivity(
+                        OpenBookActivity.newIntent(
+                            requireContext(),
+                            viewModel.bookItem.value!!.id
+                        )
+                    )
                 }
             } else {
                 binding.btnOpen.isEnabled = false
@@ -133,10 +141,10 @@ class BookInfoFragment : Fragment() {
             }
         }
         initCover()
-        viewModel.bookItem.observe(viewLifecycleOwner){
-            if (it != null){
-                if (requireArguments().getString(MODE) == MODE_MY_BOOK){
-                    if (it.shareAccess){
+        viewModel.bookItem.observe(viewLifecycleOwner) {
+            if (it != null) {
+                if (requireArguments().getString(MODE) == MODE_MY_BOOK) {
+                    if (it.shareAccess) {
                         binding.ivShareAccess.setImageResource(R.drawable.ic_baseline_cloud_upload_24_green)
                     } else {
                         binding.ivShareAccess.setImageResource(R.drawable.ic_baseline_cloud_upload_24)
@@ -144,6 +152,15 @@ class BookInfoFragment : Fragment() {
                     binding.ivShareAccess.visibility = View.VISIBLE
                 }
             }
+        }
+    }
+
+    private fun loadAd() {
+        CoroutineScope(Dispatchers.Default).launch {
+            binding.yaBanner.setAdUnitId(YandexID.AdUnitId)
+            binding.yaBanner.setAdSize(AdSize.stickySize(300))
+            val adRequest = AdRequest.Builder().build()
+            binding.yaBanner.loadAd(adRequest)
         }
     }
 
@@ -155,11 +172,15 @@ class BookInfoFragment : Fragment() {
         private const val MODE_MY_BOOK = "my_book"
         private const val MODE_NET_BOOK = "net_book"
 
-        fun newInstanceOpenItem(bookItemId: Int, mode: String, bookItemDto: BookItemDto? = null): BookInfoFragment {
+        fun newInstanceOpenItem(
+            bookItemId: Int,
+            mode: String,
+            bookItemDto: BookItemDto? = null
+        ): BookInfoFragment {
             return BookInfoFragment().apply {
                 arguments = Bundle().apply {
                     putInt(BOOK_ITEM_ID, bookItemId)
-                    if (mode == MODE_MY_BOOK){
+                    if (mode == MODE_MY_BOOK) {
                         putString(MODE, MODE_MY_BOOK)
                     } else {
                         putParcelable(BookItemDto, bookItemDto)

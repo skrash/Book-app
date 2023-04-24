@@ -65,13 +65,7 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         binding = ActivityMainBinding.inflate(layoutInflater)
         viewModel = ViewModelProvider(this, viewModelFactory)[MainActivityViewModel::class.java]
         setContentView(binding.root)
-
-        // реклама
-        binding.yaBanner.setAdUnitId(YandexID.AdUnitId)
-        binding.yaBanner.setAdSize(AdSize.stickySize(300))
-        val adRequest = AdRequest.Builder().build()
-        binding.yaBanner.loadAd(adRequest)
-
+        loadAd()
         intent = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) {
             val dataPath =
                 getExternalFilesDir(Environment.getDataDirectory().absolutePath)?.absolutePath
@@ -110,7 +104,7 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         checkFirstRun()
         val context = this
         CoroutineScope(Dispatchers.IO).launch {
-            viewModel.initMyBook{
+            viewModel.initMyBook {
                 Toast.makeText(context, getString(R.string.network_error), Toast.LENGTH_LONG).show()
             }
         }
@@ -124,6 +118,15 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
 //            this,
 //            TorrentService.newIntent(this)
 //        )
+    }
+
+    private fun loadAd() {
+        CoroutineScope(Dispatchers.Default).launch {
+            binding.yaBanner.setAdUnitId(YandexID.AdUnitId)
+            binding.yaBanner.setAdSize(AdSize.stickySize(300))
+            val adRequest = AdRequest.Builder().build()
+            binding.yaBanner.loadAd(adRequest)
+        }
     }
 
     private fun setupOnClickListeners() {
@@ -161,7 +164,7 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         viewModel.mode = MODE_MY_BOOK
         binding.btnAdd.visibility = View.VISIBLE
         setupSwipeListener(binding.mainRecycler)
-        viewModel.netBookList.observe(this){
+        viewModel.netBookList.observe(this) {
 
         }
         viewModel.bookList.observe(this) {
@@ -175,7 +178,7 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         itemTouchHelper?.attachToRecyclerView(null)
         disableListeners()
         binding.btnAdd.visibility = View.GONE
-        viewModel.netBookList.observe(this){
+        viewModel.netBookList.observe(this) {
             bookListAdapter?.submitList(it)
         }
         viewModel.bookList.observe(this) {
@@ -258,7 +261,7 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
     }
 
     private fun setupClickListener() {
-        if (viewModel.mode == "" || viewModel.mode == MODE_MY_BOOK){
+        if (viewModel.mode == "" || viewModel.mode == MODE_MY_BOOK) {
             bookListAdapter?.disableUnused = { bookItem, binding ->
                 if (viewModel.mode == MODE_MY_BOOK) {
                     if (bookItem.shareAccess) {

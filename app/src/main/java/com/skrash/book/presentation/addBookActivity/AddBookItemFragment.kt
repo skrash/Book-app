@@ -106,11 +106,17 @@ class AddBookItemFragment : Fragment() {
         launchRightMode()
         observeViewModel()
         // реклама
-        binding.yaBanner.setAdUnitId(YandexID.AdUnitId)
-        binding.yaBanner.setAdSize(AdSize.stickySize(300))
-        val adRequest = AdRequest.Builder().build()
-        binding.yaBanner.loadAd(adRequest)
+        loadAd()
 
+    }
+
+    private fun loadAd() {
+        CoroutineScope(Dispatchers.Default).launch {
+            binding.yaBanner.setAdUnitId(YandexID.AdUnitId)
+            binding.yaBanner.setAdSize(AdSize.stickySize(300))
+            val adRequest = AdRequest.Builder().build()
+            binding.yaBanner.loadAd(adRequest)
+        }
     }
 
     private fun addTextChangeListeners() {
@@ -194,7 +200,8 @@ class AddBookItemFragment : Fragment() {
                     val dataPath =
                         requireContext().getExternalFilesDir(Environment.getDataDirectory().absolutePath)?.absolutePath
                             ?: throw RuntimeException("failed to create path to data directory")
-                    val fileExtension = it.path?.split(".")?.last() ?: throw RuntimeException("failed get file extension from uri")
+                    val fileExtension = it.path?.split(".")?.last()
+                        ?: throw RuntimeException("failed get file extension from uri")
                     val cur = requireContext().contentResolver.query(it, null, null, null)
                     var fileName = ""
                     if (cur != null) {
@@ -205,17 +212,18 @@ class AddBookItemFragment : Fragment() {
                         }
                         fileName = fileName.split("/").last()
                         CoroutineScope(Dispatchers.IO).launch {
-                            val openStream: InputStream = requireContext().contentResolver.openInputStream(it)
-                                ?: throw RuntimeException("failed get output stream from file")
+                            val openStream: InputStream =
+                                requireContext().contentResolver.openInputStream(it)
+                                    ?: throw RuntimeException("failed get output stream from file")
                             val dataFile = File("$dataPath/$fileName")
-                            if (!dataFile.exists()){
+                            if (!dataFile.exists()) {
                                 dataFile.createNewFile()
                             }
                             val fileOutputStream = FileOutputStream(dataFile)
                             fileOutputStream.write(openStream.readBytes())
                             openStream.close()
                             fileOutputStream.close()
-                            withContext(Dispatchers.Main){
+                            withContext(Dispatchers.Main) {
                                 autoPaste(
                                     dataFile.path,
                                     FormatBook.valueOf(fileExtension.uppercase())
