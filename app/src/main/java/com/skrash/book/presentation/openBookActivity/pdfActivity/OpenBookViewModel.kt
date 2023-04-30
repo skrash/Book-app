@@ -63,19 +63,8 @@ class OpenBookViewModel @Inject constructor(
         }
     }
 
-    fun scrolling(offset: Int) {
-        _page.value = (_page.value!!.toInt() + (offset / _height)).toString()
-        if ((_offsetResidual + offset) / _height >= 1 || (_offsetResidual + offset) < 0) {
-            if (_offsetResidual + offset > 0){
-                _page.value = (_page.value!!.toInt() + (_offsetResidual + offset) / _height).toString()
-                _offsetResidual = 0
-            } else {
-                _page.value = (_page.value!!.toInt() - 1).toString()
-                _offsetResidual = _height
-            }
-        } else {
-            _offsetResidual += offset % _height
-        }
+    fun setPage(itemPage: Int) {
+        _page.value = itemPage.toString()
     }
 
     fun jumpTo(page: Int) {

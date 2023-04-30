@@ -15,13 +15,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.skrash.book.BookApplication
 import com.skrash.book.R
+import com.skrash.book.databinding.ActivityOpenPdfBookBinding
 import com.skrash.book.databinding.PageItemBinding
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.Bookmark
-import com.skrash.book.BookApplication
-import com.skrash.book.databinding.ActivityOpenPdfBookBinding
 import com.skrash.book.presentation.RequestFileAccess
 import com.skrash.book.presentation.ViewModelFactory
 import kotlinx.coroutines.CoroutineScope
@@ -193,16 +194,21 @@ class OpenBookActivity : AppCompatActivity() {
     private fun setupAdapterListener() {
         binding.rvMain.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                if (newState === RecyclerView.SCROLL_STATE_SETTLING) {
+                    val pagePosition =
+                        (recyclerView.layoutManager as LinearLayoutManager?)!!.findFirstVisibleItemPosition()
+                    viewModel.setPage(pagePosition)
+                    binding.fabPageNum.visibility = View.VISIBLE
+                    coroutine.launch {
+                        delay(1500)
+                        binding.fabPageNum.visibility = View.GONE
+                    }
+                }
                 super.onScrollStateChanged(recyclerView, newState)
             }
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                viewModel.scrolling(dy)
-                binding.fabPageNum.visibility = View.VISIBLE
-                coroutine.launch {
-                    delay(1500)
-                    binding.fabPageNum.visibility = View.GONE
-                }
+                super.onScrolled(recyclerView, dx, dy)
             }
         })
     }
