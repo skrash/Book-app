@@ -104,6 +104,7 @@ class MainActivityViewModel @Inject constructor(
             if (throwable is ConnectException) {
                 CoroutineScope(Dispatchers.Main).launch {
                     errorCallback.invoke()
+                    _netBookList.value = listOf()
                 }
             }
             Log.d("ERRORS", throwable.localizedMessage)

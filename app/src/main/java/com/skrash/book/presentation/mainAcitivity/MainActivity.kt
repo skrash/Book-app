@@ -3,6 +3,7 @@ package com.skrash.book.presentation.mainAcitivity
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Environment
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -31,11 +32,11 @@ import com.skrash.book.presentation.addBookActivity.AddBookItemFragment
 import com.skrash.book.presentation.bookInfoActivity.BookInfoActivity
 import com.skrash.book.presentation.bookInfoActivity.BookInfoFragment
 import com.yandex.mobile.ads.banner.AdSize
+import com.yandex.mobile.ads.banner.BannerAdEventListener
 import com.yandex.mobile.ads.common.AdRequest
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.yandex.mobile.ads.common.AdRequestError
+import com.yandex.mobile.ads.common.ImpressionData
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -82,7 +83,19 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
                         }
                     }
                     fileName = fileName.split("/").last()
-                    CoroutineScope(Dispatchers.IO).launch {
+                    val exceptionHandler =
+                        CoroutineExceptionHandler { _, throwable ->
+                            if (throwable is IllegalArgumentException) {
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    Toast.makeText(
+                                        this@MainActivity,
+                                        getString(R.string.incorrect_extension),
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            }
+                        }
+                    CoroutineScope(Dispatchers.IO + exceptionHandler).launch {
                         val openStream: InputStream = contentResolver.openInputStream(uri)
                             ?: throw RuntimeException("failed get output stream from file")
                         val dataFile = File("$dataPath/$fileName")
@@ -97,6 +110,7 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
                             dataFile.absolutePath,
                             FormatBook.valueOf(fileExtension.uppercase())
                         )
+
                     }
                 }
             }
@@ -121,12 +135,37 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
     }
 
     private fun loadAd() {
-        CoroutineScope(Dispatchers.Default).launch {
-            binding.yaBanner.setAdUnitId(YandexID.AdUnitId)
-            binding.yaBanner.setAdSize(AdSize.stickySize(300))
-            val adRequest = AdRequest.Builder().build()
-            binding.yaBanner.loadAd(adRequest)
-        }
+        binding.yaBanner.setAdUnitId(YandexID.AdUnitId)
+        binding.yaBanner.setAdSize(AdSize.stickySize(300))
+        val adRequest = AdRequest.Builder().build()
+        binding.yaBanner.setBannerAdEventListener(object : BannerAdEventListener {
+            override fun onAdLoaded() {
+                TODO("Not yet implemented")
+            }
+
+            override fun onAdFailedToLoad(p0: AdRequestError) {
+                Log.d("Reklama", p0.code.toString())
+                Log.d("Reklama", p0.description)
+            }
+
+            override fun onAdClicked() {
+                TODO("Not yet implemented")
+            }
+
+            override fun onLeftApplication() {
+                TODO("Not yet implemented")
+            }
+
+            override fun onReturnedToApplication() {
+                TODO("Not yet implemented")
+            }
+
+            override fun onImpression(p0: ImpressionData?) {
+                TODO("Not yet implemented")
+            }
+
+        })
+        binding.yaBanner.loadAd(adRequest)
     }
 
     private fun setupOnClickListeners() {

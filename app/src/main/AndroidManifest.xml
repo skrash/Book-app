@@ -25,7 +25,15 @@
             android:exported="true" />
 
         <activity
-            android:name=".presentation.openBookActivity.OpenBookActivity"
+            android:name=".presentation.openBookActivity.pdfActivity.OpenBookActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Book.noActionBar">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".presentation.openBookActivity.fb2Activity.OpenFB2BookActivity"
             android:exported="false"
             android:theme="@style/Theme.Book.noActionBar">
             <meta-data

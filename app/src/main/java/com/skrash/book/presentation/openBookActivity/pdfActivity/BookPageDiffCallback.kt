@@ -1,4 +1,4 @@
-package com.skrash.book.presentation.openBookActivity
+package com.skrash.book.presentation.openBookActivity.pdfActivity
 
 import androidx.recyclerview.widget.DiffUtil
 

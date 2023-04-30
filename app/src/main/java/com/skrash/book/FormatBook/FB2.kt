@@ -1,39 +1,52 @@
 package com.skrash.book.FormatBook
 
-import android.util.Log
-import org.xmlpull.v1.XmlPullParser
-import org.xmlpull.v1.XmlPullParserFactory
+import com.skrash.book.FormatBook.FB2Parser.FictionBook
+import com.skrash.book.FormatBook.FB2Parser.P
 import java.io.File
-import java.io.StringReader
 
 class FB2(private val file: File) {
 
-    private val dom = mutableMapOf<String, String>()
+    private var _fb2: FictionBook? = null
+    val fb2: FictionBook?
+        get() = _fb2
+
+    private val _listText = mutableListOf<String>()
+    val listText: List<String>
+        get() = _listText
 
     init {
-//        parseFormat()
+        _fb2 = FictionBook(file)
+        for (n in _fb2!!.body!!.sections) {
+            // эпиграф
+            if (n.title != null) {
+                for (r in n.title.paragraphs) {
+                    _listText.add(BOLD_TEXT + r.text + BOLD_TEXT)
+                }
+            }
+
+            if (n.image != null) {
+                _listText.add(IMAGE_TAG + n?.image?.value?.substring(1) + IMAGE_TAG)
+            }
+            // перебор всех абзацев
+            for (i in n.elements) {
+                if (i is P) {
+                    if (i.images != null) {
+                        for (z in i.images) {
+                            _listText.add(IMAGE_TAG + z.value.substring(1) + IMAGE_TAG)
+                        }
+                    }
+                    if (i.strong != null) {
+                        _listText.add(BOLD_TEXT + i.text + BOLD_TEXT)
+                    } else {
+                        _listText.add(i.text)
+                    }
+                }
+            }
+        }
     }
 
-    fun parseFormat(){
-        val bytes = file.readBytes()
-        val text = String(bytes, Charsets.UTF_8)
-        val parserFactory = XmlPullParserFactory.newInstance()
-        val parser = parserFactory.newPullParser()
-
-        parser.setInput(StringReader(text))
-        var eventType = parser.eventType
-        var tagName = ""
-        while (eventType != XmlPullParser.END_DOCUMENT){
-            if(eventType == XmlPullParser.START_TAG) {
-                tagName = parser.name
-            } else if(eventType == XmlPullParser.TEXT) {
-                dom[tagName] = parser.text
-            }
-            eventType = parser.next();
-        }
-        dom.forEach {
-            Log.d("FB2", "tag: ${it.key} value: ${it.value}")
-        }
-        Log.d("FB2", "lengh: ${dom.size}")
+    companion object {
+        const val IMAGE_TAG = ":image:"
+        const val BOLD_TEXT = ":bold:"
     }
 }

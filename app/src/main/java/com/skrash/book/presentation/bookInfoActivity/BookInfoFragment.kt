@@ -16,17 +16,17 @@ import com.skrash.book.databinding.FragmentBookInfoBinding
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.BookApplication
 import com.skrash.book.data.network.model.BookItemDto
+import com.skrash.book.domain.entities.FormatBook
 import com.skrash.book.presentation.ViewModelFactory
 import com.skrash.book.presentation.YandexID
-import com.skrash.book.presentation.openBookActivity.OpenBookActivity
+import com.skrash.book.presentation.openBookActivity.fb2Activity.OpenFB2BookActivity
+import com.skrash.book.presentation.openBookActivity.pdfActivity.OpenBookActivity
 import com.skrash.book.service.DownloadBookWorker
-import com.skrash.book.service.SendTrackerWorker
 import com.yandex.mobile.ads.banner.AdSize
 import com.yandex.mobile.ads.common.AdRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class BookInfoFragment : Fragment() {
@@ -97,6 +97,7 @@ class BookInfoFragment : Fragment() {
             binding.btnOpen.text = getString(R.string.download)
         }
         viewModel = ViewModelProvider(this, viewModelFactory)[BookInfoViewModel::class.java]
+        initCover()
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         if (requireArguments().getString(MODE) == MODE_NET_BOOK) {
@@ -121,12 +122,24 @@ class BookInfoFragment : Fragment() {
         binding.btnOpen.setOnClickListener {
             if (modeIsMyBook) {
                 if (viewModel.bookItem.value != null) {
-                    startActivity(
-                        OpenBookActivity.newIntent(
-                            requireContext(),
-                            viewModel.bookItem.value!!.id
-                        )
-                    )
+                    when (viewModel.bookItem.value!!.fileExtension){
+                        FormatBook.FB2.name.lowercase() -> {
+                            startActivity(
+                                OpenFB2BookActivity.newIntent(
+                                    requireContext(),
+                                    viewModel.bookItem.value!!.id
+                                )
+                            )
+                        }
+                        FormatBook.PDF.name.lowercase() -> {
+                            startActivity(
+                                OpenBookActivity.newIntent(
+                                    requireContext(),
+                                    viewModel.bookItem.value!!.id
+                                )
+                            )
+                        }
+                    }
                 }
             } else {
                 binding.btnOpen.isEnabled = false
@@ -140,7 +153,6 @@ class BookInfoFragment : Fragment() {
                 )
             }
         }
-        initCover()
         viewModel.bookItem.observe(viewLifecycleOwner) {
             if (it != null) {
                 if (requireArguments().getString(MODE) == MODE_MY_BOOK) {
@@ -156,12 +168,10 @@ class BookInfoFragment : Fragment() {
     }
 
     private fun loadAd() {
-        CoroutineScope(Dispatchers.Default).launch {
-            binding.yaBanner.setAdUnitId(YandexID.AdUnitId)
-            binding.yaBanner.setAdSize(AdSize.stickySize(300))
-            val adRequest = AdRequest.Builder().build()
-            binding.yaBanner.loadAd(adRequest)
-        }
+        binding.yaBanner.setAdUnitId(YandexID.AdUnitId)
+        binding.yaBanner.setAdSize(AdSize.stickySize(300))
+        val adRequest = AdRequest.Builder().build()
+        binding.yaBanner.loadAd(adRequest)
     }
 
     companion object {

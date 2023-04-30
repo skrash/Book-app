@@ -1,6 +1,7 @@
 package com.skrash.book.presentation.bookInfoActivity
 
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -29,7 +30,24 @@ class BookInfoViewModel @Inject constructor(
         CoroutineScope(Dispatchers.IO).launch {
             val item = getMyBookUseCase.getMyBook(bookItemId)
             _bookItem.postValue(item)
-            loadCover()
+            val itemCover = getBookCoverUseCase.getBookCover(
+                BookItem(
+                    id = -1,
+                    title = "",
+                    author = "",
+                    description = "",
+                    rating = 0.0f,
+                    popularity = 0.0f,
+                    genres = Genres.Other,
+                    tags = "",
+                    path = item.path,
+                    startOnPage = 0,
+                    fileExtension = item.fileExtension.uppercase(),
+                ),
+                300,
+                500
+            )
+            _imgCover.postValue(itemCover)
         }
     }
 
@@ -54,34 +72,5 @@ class BookInfoViewModel @Inject constructor(
             path = "network",
             startOnPage = -1
         )
-    }
-
-    private fun loadCover() {
-        CoroutineScope(Dispatchers.IO).launch {
-            if (_bookItem.value != null) {
-                val item = getBookCoverUseCase.getBookCover(
-                    BookItem(
-                        id = -1,
-                        title = "",
-                        author = "",
-                        description = "",
-                        rating = 0.0f,
-                        popularity = 0.0f,
-                        genres = Genres.Other,
-                        tags = "",
-                        path = _bookItem.value!!.path,
-                        startOnPage = 0,
-                        fileExtension = _bookItem.value!!.fileExtension.uppercase(),
-                    ),
-                    300,
-                    500
-                )
-                _imgCover.postValue(item)
-            }
-        }
-    }
-
-    fun downloadBook() {
-
     }
 }

@@ -5,7 +5,8 @@ import com.skrash.book.data.BookProvider
 import com.skrash.book.presentation.addBookActivity.AddBookItemFragment
 import com.skrash.book.presentation.bookInfoActivity.BookInfoFragment
 import com.skrash.book.presentation.mainAcitivity.MainActivity
-import com.skrash.book.presentation.openBookActivity.OpenBookActivity
+import com.skrash.book.presentation.openBookActivity.fb2Activity.OpenFB2BookActivity
+import com.skrash.book.presentation.openBookActivity.pdfActivity.OpenBookActivity
 import dagger.BindsInstance
 import dagger.Component
 
@@ -27,6 +28,8 @@ interface ApplicationComponent {
     fun inject(activity: OpenBookActivity)
 
     fun inject(contentProvider: BookProvider)
+
+    fun inject(activity: OpenFB2BookActivity)
 
     @Component.Factory
     interface Factory {

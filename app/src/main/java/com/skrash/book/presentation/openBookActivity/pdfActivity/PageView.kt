@@ -1,8 +1,7 @@
-package com.skrash.book.presentation.openBookActivity
+package com.skrash.book.presentation.openBookActivity.pdfActivity
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector

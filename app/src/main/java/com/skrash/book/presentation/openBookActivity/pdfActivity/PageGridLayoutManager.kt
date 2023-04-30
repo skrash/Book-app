@@ -1,4 +1,4 @@
-package com.skrash.book.presentation.openBookActivity
+package com.skrash.book.presentation.openBookActivity.pdfActivity
 
 import android.content.Context
 import androidx.recyclerview.widget.LinearLayoutManager

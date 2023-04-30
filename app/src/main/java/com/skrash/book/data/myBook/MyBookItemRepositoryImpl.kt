@@ -1,8 +1,10 @@
 package com.skrash.book.data.myBook
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Environment
+import android.util.Base64
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
@@ -64,7 +66,16 @@ class MyBookItemRepositoryImpl @Inject constructor(
                 pdf.getCover(width, height)
             }
             FormatBook.FB2 -> {
-                Bitmap.createBitmap(1,1, Bitmap.Config.ARGB_4444)
+                val file = File(Uri.parse(bookItem.path).path)
+                val fb2 = FB2(file)
+                if (fb2.fb2!!.binaries.isNotEmpty()){
+                    val imageBytes = Base64.decode(fb2.fb2!!.binaries.iterator().next().value.binary, Base64.DEFAULT)
+                    val decodedImage =
+                        BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                    decodedImage
+                } else {
+                    Bitmap.createBitmap(1,1, Bitmap.Config.ARGB_4444)
+                }
             }
         }
     }
@@ -98,10 +109,7 @@ class MyBookItemRepositoryImpl @Inject constructor(
                     pdf.getPageCount()
                 }
                 FormatBook.FB2 -> {
-                    val file = File(curBook!!.path)
-                    val fb2 = FB2(file)
-                    fb2.parseFormat()
-                    1
+                    0
                 }
             }
         } else {

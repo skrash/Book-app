@@ -26,10 +26,7 @@ import com.skrash.book.presentation.YandexID
 import com.skrash.book.service.SendTrackerWorker
 import com.yandex.mobile.ads.banner.AdSize
 import com.yandex.mobile.ads.common.AdRequest
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -111,12 +108,10 @@ class AddBookItemFragment : Fragment() {
     }
 
     private fun loadAd() {
-        CoroutineScope(Dispatchers.Default).launch {
-            binding.yaBanner.setAdUnitId(YandexID.AdUnitId)
-            binding.yaBanner.setAdSize(AdSize.stickySize(300))
-            val adRequest = AdRequest.Builder().build()
-            binding.yaBanner.loadAd(adRequest)
-        }
+        binding.yaBanner.setAdUnitId(YandexID.AdUnitId)
+        binding.yaBanner.setAdSize(AdSize.stickySize(300))
+        val adRequest = AdRequest.Builder().build()
+        binding.yaBanner.loadAd(adRequest)
     }
 
     private fun addTextChangeListeners() {
@@ -211,7 +206,18 @@ class AddBookItemFragment : Fragment() {
                             }
                         }
                         fileName = fileName.split("/").last()
-                        CoroutineScope(Dispatchers.IO).launch {
+                        val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+                            if (throwable is IllegalArgumentException){
+                                CoroutineScope(Dispatchers.Main).launch {
+                                    Toast.makeText(
+                                        this@AddBookItemFragment.context,
+                                        getString(R.string.incorrect_extension),
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            }
+                        }
+                        CoroutineScope(Dispatchers.IO + exceptionHandler).launch {
                             val openStream: InputStream =
                                 requireContext().contentResolver.openInputStream(it)
                                     ?: throw RuntimeException("failed get output stream from file")

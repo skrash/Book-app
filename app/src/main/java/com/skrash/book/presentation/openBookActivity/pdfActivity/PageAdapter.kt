@@ -1,4 +1,4 @@
-package com.skrash.book.presentation.openBookActivity
+package com.skrash.book.presentation.openBookActivity.pdfActivity
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -14,7 +14,7 @@ class PageAdapter :
         BookPageDiffCallback()
     ) {
 
-    var renderPageImage: ((holder: PageAdapter.PageAdapterHolder, position: Int) -> Unit)? = null
+    var renderPageImage: ((holder: PageAdapterHolder, position: Int) -> Unit)? = null
     var disableScrollOnRecyclerCallbackAdapter: ((Boolean) -> Unit)? = null
 
     inner class PageAdapterHolder(
@@ -24,7 +24,7 @@ class PageAdapter :
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): PageAdapter.PageAdapterHolder {
+    ): PageAdapterHolder {
         val binding = DataBindingUtil.inflate<ViewDataBinding>(
             LayoutInflater.from(parent.context),
             R.layout.page_item,
@@ -35,7 +35,7 @@ class PageAdapter :
         return PageAdapterHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: PageAdapter.PageAdapterHolder, position: Int) {
+    override fun onBindViewHolder(holder: PageAdapterHolder, position: Int) {
         when (holder.binding) {
             is PageItemBinding -> {
                 renderPageImage?.invoke(holder, position)

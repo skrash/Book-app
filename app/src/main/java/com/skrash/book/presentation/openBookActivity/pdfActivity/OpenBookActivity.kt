@@ -1,4 +1,4 @@
-package com.skrash.book.presentation.openBookActivity
+package com.skrash.book.presentation.openBookActivity.pdfActivity
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -17,11 +17,11 @@ import androidx.core.view.GravityCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.skrash.book.R
-import com.skrash.book.databinding.ActivityOpenBookBinding
 import com.skrash.book.databinding.PageItemBinding
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.Bookmark
 import com.skrash.book.BookApplication
+import com.skrash.book.databinding.ActivityOpenPdfBookBinding
 import com.skrash.book.presentation.RequestFileAccess
 import com.skrash.book.presentation.ViewModelFactory
 import kotlinx.coroutines.CoroutineScope
@@ -33,7 +33,7 @@ import javax.inject.Inject
 
 class OpenBookActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityOpenBookBinding
+    private lateinit var binding: ActivityOpenPdfBookBinding
     private var bookItemId = BookItem.UNDEFINED_ID
     private lateinit var viewModel: OpenBookViewModel
 
@@ -54,7 +54,7 @@ class OpenBookActivity : AppCompatActivity() {
         component.inject(this)
 
         super.onCreate(savedInstanceState)
-        binding = ActivityOpenBookBinding.inflate(layoutInflater)
+        binding = ActivityOpenPdfBookBinding.inflate(layoutInflater)
         setContentView(binding.root)
         parseIntent()
         val display = windowManager.defaultDisplay

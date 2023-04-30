@@ -33,6 +33,7 @@
 
     <!-- errors -->
     <string name="error_input_title">Некорректное название книги</string>
+    <string name="incorrect_extension">Некорректный формат книги</string>
     <string name="error_input_author">Некорректное имя автора</string>
     <string name="error_input_description">Некорректное описание</string>
     <string name="error_input_genres">Некорректные жанры</string>

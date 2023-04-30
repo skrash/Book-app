@@ -8,7 +8,7 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        tools:context=".presentation.openBookActivity.OpenBookActivity">
+        tools:context=".presentation.openBookActivity.pdfActivity.OpenBookActivity">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvMain"
