@@ -2,6 +2,7 @@ package com.skrash.book.FormatBook
 
 import com.skrash.book.FormatBook.FB2Parser.FictionBook
 import com.skrash.book.FormatBook.FB2Parser.P
+import com.skrash.book.domain.entities.FB2MetaInfo
 import java.io.File
 
 class FB2(private val file: File) {
@@ -48,5 +49,23 @@ class FB2(private val file: File) {
     companion object {
         const val IMAGE_TAG = ":image:"
         const val BOLD_TEXT = ":bold:"
+
+        fun getMetaInfo(file: File): FB2MetaInfo {
+            val fb2static = FictionBook(file)
+            var authors = ""
+            for (person in fb2static.description.documentInfo.authors) {
+                authors += "${person.fullName},"
+            }
+            return FB2MetaInfo(
+                title = fb2static.description.srcTitleInfo.bookTitle ?: "",
+                author = authors,
+                fb_id = fb2static.description.documentInfo.id ?: "",
+                publisher = fb2static.description.publishInfo.publisher ?: "",
+                year = fb2static.description.publishInfo.year.toInt() ?: FB2MetaInfo.UNDEFINED_ID,
+                coverPageResName = fb2static.description.srcTitleInfo.coverPage.iterator()
+                    .next().value.substring(1) ?: "",
+                tag = fb2static.description.srcTitleInfo.genre.joinToString(",") ?: ""
+            )
+        }
     }
 }

@@ -3,6 +3,7 @@ package com.skrash.book.presentation.mainAcitivity
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.*
+import com.skrash.book.FormatBook.FB2
 import com.skrash.book.data.network.model.BookItemDtoMapper
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.FormatBook
@@ -13,6 +14,7 @@ import com.skrash.book.domain.usecases.MyList.AddToMyBookListUseCase
 import com.skrash.book.domain.usecases.MyList.DeleteBookItemFromMyListUseCase
 import com.skrash.book.domain.usecases.MyList.GetMyBookListUseCase
 import kotlinx.coroutines.*
+import java.io.File
 import java.net.ConnectException
 import javax.inject.Inject
 
@@ -80,14 +82,16 @@ class MainActivityViewModel @Inject constructor(
                 }
             }
             FormatBook.FB2 -> {
+                val bookFile = File(path)
+                val metaInfo = FB2.getMetaInfo(bookFile)
                 val book = BookItem(
-                    title = "",
-                    author = "",
+                    title = metaInfo.title,
+                    author = metaInfo.author,
                     description = "",
                     rating = 0.0f,
                     popularity = 0.0f,
                     Genres.Other,
-                    tags = "",
+                    tags = metaInfo.tag,
                     path = path,
                     fileExtension = FormatBook.FB2.string_name,
                     startOnPage = 0

@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkManager
 import com.skrash.book.BookApplication
+import com.skrash.book.FormatBook.FB2
 import com.skrash.book.R
 import com.skrash.book.databinding.FragmentAddBookItemBinding
 import com.skrash.book.domain.entities.BookItem
@@ -293,7 +294,11 @@ class AddBookItemFragment : Fragment() {
                 }
             }
             FormatBook.FB2 -> {
-
+                val bookFile = File(path)
+                val metaInfo = FB2.getMetaInfo(bookFile)
+                binding.tiTitle.setText(metaInfo.title)
+                binding.tiAuthor.setText(metaInfo.author)
+                binding.tiTags.setText(metaInfo.tag)
             }
         }
         viewModel.getCover(
