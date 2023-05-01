@@ -8,6 +8,7 @@ import com.skrash.book.domain.usecases.Bookmark.AddBookmarkUseCase
 import com.skrash.book.domain.usecases.Bookmark.DeleteBookmarkUseCase
 import com.skrash.book.domain.usecases.Bookmark.GetBookmarkListUseCase
 import com.skrash.book.domain.usecases.MyList.*
+import com.skrash.book.presentation.openBookActivity.BookMethods
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,7 +21,7 @@ class OpenBookViewModel @Inject constructor(
     private val deleteBookmarkUseCase: DeleteBookmarkUseCase,
     private val getPageBookItemUseCase: GetPageBookItemUseCase,
     private val getPageCountUseCase: GetPageCountUseCase
-) : ViewModel() {
+) : ViewModel(), BookMethods {
 
     private var _pageList = MutableLiveData<List<Int>>()
     val pageList: MutableLiveData<List<Int>>
@@ -63,17 +64,17 @@ class OpenBookViewModel @Inject constructor(
         }
     }
 
-    fun setPage(itemPage: Int) {
+    override fun setPage(itemPage: Int) {
         _page.value = itemPage.toString()
     }
 
-    fun jumpTo(page: Int) {
+    override fun jumpTo(page: Int) {
         _page.value = page.toString()
         _offsetResidual = _height / 2
     }
 
 
-    fun finish(page: Int) {
+    override fun finish(page: Int) {
         viewModelScope.launch {
             if(bookItem.value != null){
                 updateStartOnPageUseCase.updateStartOnPage(page, bookItem.value!!.id)
@@ -81,14 +82,14 @@ class OpenBookViewModel @Inject constructor(
         }
     }
 
-    fun addBookmark(page: Int) {
+    override fun addBookmark(page: Int) {
         viewModelScope.launch {
             val bookmark = Bookmark(bookID = _bookItem.value!!.id, page = page, comment = "")
             addBookmarkUseCase.addBookmark(bookmark)
         }
     }
 
-    fun deleteBookmark(page: Int) {
+    override fun deleteBookmark(page: Int) {
         viewModelScope.launch {
             if (_bookItem.value != null) {
                 deleteBookmarkUseCase.deleteBookmark(_bookItem.value!!.id, page)
