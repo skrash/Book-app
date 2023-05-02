@@ -87,6 +87,11 @@ class OpenFB2BookActivity : AppCompatActivity() {
 
         viewModel.offset.observe(this) {
             binding.fabPageNum.text = it
+            binding.fabPageNum.visibility = View.VISIBLE
+            CoroutineScope(Dispatchers.Main).launch {
+                delay(1500)
+                binding.fabPageNum.visibility = View.GONE
+            }
             bookmarkSetImg(isPageHaveBookmark(it.toInt()))
         }
     }

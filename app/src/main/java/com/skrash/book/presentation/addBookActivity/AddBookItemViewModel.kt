@@ -143,7 +143,7 @@ class AddBookItemViewModel @Inject constructor(
             _errorInputPath.value = true
             return
         }
-        CoroutineScope(Dispatchers.IO).launch {
+        CoroutineScope(Dispatchers.Main).launch {
             if (id == null) {
                 val id = addBookItem(
                     BookItem(
