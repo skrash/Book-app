@@ -1,7 +1,6 @@
 package com.skrash.book
 
 import android.os.Environment
-import android.util.Log
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.work.ExistingWorkPolicy
@@ -9,7 +8,7 @@ import androidx.work.WorkManager
 import com.google.gson.Gson
 import com.skrash.book.data.network.model.BookItemDto
 import org.junit.Assert.*
-import com.skrash.book.service.DownloadBookWorker
+import com.skrash.book.torrent.DownloadBookWorker
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File

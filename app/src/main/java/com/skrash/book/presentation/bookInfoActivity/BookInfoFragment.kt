@@ -21,12 +21,9 @@ import com.skrash.book.presentation.ViewModelFactory
 import com.skrash.book.presentation.YandexID
 import com.skrash.book.presentation.openBookActivity.fb2Activity.OpenFB2BookActivity
 import com.skrash.book.presentation.openBookActivity.pdfActivity.OpenBookActivity
-import com.skrash.book.service.DownloadBookWorker
+import com.skrash.book.torrent.DownloadBookWorker
 import com.yandex.mobile.ads.banner.AdSize
 import com.yandex.mobile.ads.common.AdRequest
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class BookInfoFragment : Fragment() {

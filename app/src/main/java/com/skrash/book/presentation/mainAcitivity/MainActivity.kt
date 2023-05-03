@@ -32,7 +32,7 @@ import com.skrash.book.presentation.addBookActivity.AddBookActivity
 import com.skrash.book.presentation.addBookActivity.AddBookItemFragment
 import com.skrash.book.presentation.bookInfoActivity.BookInfoActivity
 import com.skrash.book.presentation.bookInfoActivity.BookInfoFragment
-import com.skrash.book.service.TorrentService
+import com.skrash.book.torrent.ShareBookService
 import com.yandex.mobile.ads.banner.AdSize
 import com.yandex.mobile.ads.banner.BannerAdEventListener
 import com.yandex.mobile.ads.common.AdRequest
@@ -132,7 +132,7 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         setupRecyclerView()
         ContextCompat.startForegroundService(
             this,
-            TorrentService.newIntent(this)
+            ShareBookService.newIntent(this)
         )
     }
 

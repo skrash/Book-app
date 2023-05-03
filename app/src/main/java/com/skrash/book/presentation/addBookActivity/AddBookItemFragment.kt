@@ -24,7 +24,7 @@ import com.skrash.book.domain.entities.Genres
 import com.skrash.book.presentation.RequestFileAccess
 import com.skrash.book.presentation.ViewModelFactory
 import com.skrash.book.presentation.YandexID
-import com.skrash.book.service.SendTrackerWorker
+import com.skrash.book.torrent.UploadTorrentFileWorker
 import com.yandex.mobile.ads.banner.AdSize
 import com.yandex.mobile.ads.common.AdRequest
 import kotlinx.coroutines.*
@@ -329,9 +329,9 @@ class AddBookItemFragment : Fragment() {
             if (it != -1 && it != 0) {
                 val workSendToTracker = WorkManager.getInstance(requireContext().applicationContext)
                 workSendToTracker.enqueueUniqueWork(
-                    SendTrackerWorker.WORK_NAME,
+                    UploadTorrentFileWorker.WORK_NAME,
                     ExistingWorkPolicy.APPEND_OR_REPLACE,
-                    SendTrackerWorker.makeRequest(it)
+                    UploadTorrentFileWorker.makeRequest(it)
                 )
             }
         }

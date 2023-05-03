@@ -71,7 +71,7 @@
                 android:value="" />
         </activity>
 
-        <service android:name=".service.TorrentService" />
+        <service android:name=".torrent.ShareBookService" />
     </application>
 
 </manifest>
