@@ -13,12 +13,16 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.skrash.book.R
+import com.skrash.book.data.network.ApiFactory
 import com.skrash.book.torrent.client.SimpleClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 import java.net.InetAddress
+import java.net.NetworkInterface
+import java.net.SocketException
+import java.util.*
 
 
 class ShareBookService : Service() {
@@ -66,12 +70,13 @@ class ShareBookService : Service() {
                     null,
                     null
                 )
+                val client = SimpleClient()
+                val ipResponse = ApiFactory.apiService.getIp()
                 while (sharedBookCursor?.moveToNext() == true) {
                     val title =
                         sharedBookCursor.getString(sharedBookCursor.getColumnIndexOrThrow("title"))
                     val torrentFile = File("$dataPath/$title.torrent")
-                    val client = SimpleClient()
-                    val address = InetAddress.getByName("192.168.0.100")
+                    val address = InetAddress.getByName(ipResponse.string())
                     try {
                         client.downloadTorrent(
                             torrentFile.path,

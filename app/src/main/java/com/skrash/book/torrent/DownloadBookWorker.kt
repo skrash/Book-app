@@ -11,11 +11,18 @@ import com.skrash.book.data.network.ApiFactory
 import com.skrash.book.data.network.model.BookItemDto
 import com.skrash.book.torrent.client.SimpleClient
 import com.skrash.book.torrent.client.common.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import okhttp3.Dispatcher
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
 import java.io.File
 import java.net.InetAddress
+import java.net.NetworkInterface
+import java.net.SocketException
+import java.util.*
 
 
 class DownloadBookWorker(
@@ -40,7 +47,6 @@ class DownloadBookWorker(
                     ?: throw java.lang.RuntimeException("download worker request wrong data. missing title book"),
                 response
             )
-            stopShareService()
             downloadBook(torrentFile, bookJson)
         } else {
             Log.d("TEST_WORKER", "response null")
@@ -48,25 +54,24 @@ class DownloadBookWorker(
         return Result.success()
     }
 
-    private fun stopShareService() {
-//        context.
-    }
-
     private fun downloadBook(torrentFile: File, bookItemDto: BookItemDto) {
         val client = SimpleClient()
-        val address = InetAddress.getByName("192.168.0.100")
-        try {
-            client.downloadTorrent(
-                torrentFile.path,
-                dataPath,
-                address
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
+        CoroutineScope(Dispatchers.IO).launch{
+            val ipResponse = ApiFactory.apiService.getIp()
+            val address = InetAddress.getByName(ipResponse.string())
+            try {
+                client.downloadTorrent(
+                    torrentFile.path,
+                    dataPath,
+                    address
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            client.stop()
+            val metadata = TorrentParser().parseFromFile(torrentFile)
+            addToDbBook((metadata as TorrentMetadataImpl).myName,bookItemDto)
         }
-        client.stop()
-        val metadata = TorrentParser().parseFromFile(torrentFile)
-        addToDbBook((metadata as TorrentMetadataImpl).myName,bookItemDto)
     }
 
     private fun saveTorrentFile(title: String, response: ResponseBody): File {

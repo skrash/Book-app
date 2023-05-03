@@ -27,6 +27,9 @@ interface ApiService {
     @GET("list_books")
     fun listBook(): Call<List<BookItemDto>>
 
+    @GET("my_ip")
+    suspend fun getIp(): ResponseBody
+
     @POST("download")
     suspend fun download(
         @Body bookItem: RequestBody
