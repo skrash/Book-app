@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -31,6 +32,7 @@ import com.skrash.book.presentation.addBookActivity.AddBookActivity
 import com.skrash.book.presentation.addBookActivity.AddBookItemFragment
 import com.skrash.book.presentation.bookInfoActivity.BookInfoActivity
 import com.skrash.book.presentation.bookInfoActivity.BookInfoFragment
+import com.skrash.book.service.TorrentService
 import com.yandex.mobile.ads.banner.AdSize
 import com.yandex.mobile.ads.banner.BannerAdEventListener
 import com.yandex.mobile.ads.common.AdRequest
@@ -128,10 +130,10 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
             viewNetBook()
         }
         setupRecyclerView()
-//        ContextCompat.startForegroundService(
-//            this,
-//            TorrentService.newIntent(this)
-//        )
+        ContextCompat.startForegroundService(
+            this,
+            TorrentService.newIntent(this)
+        )
     }
 
     private fun loadAd() {

@@ -11,8 +11,11 @@ import com.skrash.book.data.TorrentSettings
 import com.skrash.book.data.network.ApiFactory
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.Genres
-import com.turn.ttorrent.common.Torrent
-import com.turn.ttorrent.tracker.Tracker
+import com.skrash.book.service.client.SharedTorrent
+import com.skrash.book.service.client.common.TorrentCreator
+import com.skrash.book.service.client.common.TorrentFile
+import com.skrash.book.service.client.common.TorrentSerializer
+import com.skrash.book.service.tracker.Tracker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,6 +25,7 @@ import okhttp3.RequestBody
 import java.io.File
 import java.io.FileOutputStream
 import java.net.InetSocketAddress
+import java.net.URI
 
 
 class SendTrackerWorker(
@@ -84,7 +88,8 @@ class SendTrackerWorker(
     private fun publish(book: BookItem) {
         val tfile = createTorrentFile(book)
         val torrentFile = File(tfile)
-        val requestFile = RequestBody.create(MediaType.parse("application/x-bittorrent"), torrentFile)
+        val requestFile =
+            RequestBody.create(MediaType.parse("application/x-bittorrent"), torrentFile)
         val gson = Gson()
         val bookJson = gson.toJson(book)
         val bookInfoPart = RequestBody.create(MediaType.parse("text/plain"), bookJson)
@@ -92,29 +97,24 @@ class SendTrackerWorker(
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 ApiFactory.apiService.publishTorrent(filePart, bookInfoPart)
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 Log.d("TEST_WORKER", e.localizedMessage)
             }
         }
     }
 
-    private fun createTorrentFile(book: BookItem): String{
-        val socketAddress =
-            InetSocketAddress(TorrentSettings.DEST_ADDRESS, TorrentSettings.DEST_PORT)
-        val tracker = Tracker(socketAddress)
-        tracker.start()
+    private fun createTorrentFile(book: BookItem): String {
         val bookFile = File(
             Uri.parse(book.path).path
                 ?: throw RuntimeException("unable to generate uri path. perhaps the path is wrong")
         )
-        val torrent = Torrent.create(bookFile, tracker.announceUrl.toURI(), "")
         val dataPath = context.getExternalFilesDir(Environment.getDataDirectory().absolutePath)
             ?.absolutePath
         val torrentFilePath = dataPath + "/" + book.title + ".torrent"
         val fos = FileOutputStream(torrentFilePath)
-        torrent.save(fos)
+        val metadata = TorrentCreator.create(bookFile, URI.create("http://${TorrentSettings.DEST_ADDRESS}:${TorrentSettings.DEST_PORT}/announce"), "")
+        fos.write(TorrentSerializer().serialize(metadata))
         fos.close()
-        tracker.stop()
         return torrentFilePath
     }
 

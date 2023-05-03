@@ -13,21 +13,18 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.skrash.book.R
+import com.skrash.book.data.TorrentSettings
 import com.skrash.book.data.network.ApiFactory
-import com.turn.ttorrent.client.Client
-import com.turn.ttorrent.client.ConnectionHandler
-import com.turn.ttorrent.client.SharedTorrent
-import com.turn.ttorrent.common.Torrent
+import com.skrash.book.service.client.SharedTorrent
+import com.skrash.book.service.client.SimpleClient
+import com.skrash.book.service.client.common.TorrentParser
+import com.skrash.book.service.tracker.TrackedTorrent
+import com.skrash.book.service.tracker.Tracker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.net.InetAddress
-import java.net.InetSocketAddress
-import java.nio.channels.FileChannel
 
 
 class TorrentService : Service() {
@@ -65,8 +62,7 @@ class TorrentService : Service() {
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val address = InetAddress.getByName("192.168.0.100")
-                    val dataPath = getExternalFilesDir(Environment.getDataDirectory().absolutePath)
+                val dataPath = getExternalFilesDir(Environment.getDataDirectory().absolutePath)
                     ?.absolutePath
                 val sharedBookCursor: Cursor? = contentResolver.query(
                     Uri.parse("content://com.skrash.book/shared"),
@@ -77,20 +73,20 @@ class TorrentService : Service() {
                     null
                 )
                 while (sharedBookCursor?.moveToNext() == true) {
-                    val title = sharedBookCursor.getString(sharedBookCursor.getColumnIndexOrThrow("title"))
+                    val title =
+                        sharedBookCursor.getString(sharedBookCursor.getColumnIndexOrThrow("title"))
                     val torrentFile = File("$dataPath/$title.torrent")
-                    val torrent = Torrent.load(torrentFile)
-                    val sharedFile = File(dataPath)
-                    val sharedTorrent = SharedTorrent(torrent, sharedFile)
-                    val client = Client(address, sharedTorrent)
-                    client.share()
-                    Thread{
-                        Thread.sleep(3000)
-                        Log.d("TEST_WORKER", "client state: ${client.state}")
-                        Log.d("TEST_WORKER", "client port: ${client.peerSpec.port}")
-
-                    }.start()
-                    ApiFactory.apiService.announce(torrent.hexInfoHash, client.peerSpec.hexPeerId, 1, 0, 1, client.peerSpec.port)
+                    val client = SimpleClient()
+                    val address = InetAddress.getByName("192.168.0.100")
+                    try {
+                        client.downloadTorrent(
+                            torrentFile.path,
+                            dataPath,
+                            address
+                        )
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             } catch (e: Exception) {
                 Log.d("TEST_WORKER", "torrent client: ${e.localizedMessage}")

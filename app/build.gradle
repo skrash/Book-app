@@ -69,7 +69,6 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
-    implementation "com.turn:ttorrent-core:1.5"
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
 
     implementation "com.google.code.gson:gson:2.9.0"
@@ -80,4 +79,8 @@ dependencies {
 
     // реклама
     implementation 'com.yandex.android:mobileads:5.7.0'
+
+    implementation 'commons-io:commons-io:2.1'
+    implementation 'commons-codec:commons-codec:1.11'
+    implementation 'org.simpleframework:simple:4.1.21'
 }
