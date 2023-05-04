@@ -20,29 +20,34 @@ class BookInfoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_info)
         parseIntent()
-        if (mode == MODE_MY_BOOK){
+        if (mode == MODE_MY_BOOK) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.book_item_container, BookInfoFragment.newInstanceOpenItem(bookItemId, mode))
+                .replace(
+                    R.id.book_item_container,
+                    BookInfoFragment.newInstanceOpenItem(bookItemId, mode)
+                )
                 .commit()
         }
-        if (mode == MODE_NET_BOOK){
-            Log.d("TEST_WORKER", "${bookItemDto == null}")
+        if (mode == MODE_NET_BOOK) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.book_item_container, BookInfoFragment.newInstanceOpenItem(bookItemId, mode, bookItemDto))
+                .replace(
+                    R.id.book_item_container,
+                    BookInfoFragment.newInstanceOpenItem(bookItemId, mode, bookItemDto)
+                )
                 .commit()
         }
     }
 
-    private fun parseIntent(){
+    private fun parseIntent() {
         mode = intent.getStringExtra(MODE) ?: throw RuntimeException("Param mode is absent")
         Log.d("TEST_WORKER", "mode: $mode")
         if (mode != MODE_MY_BOOK && mode != MODE_NET_BOOK) {
             throw RuntimeException("Unknown screen mode $mode")
         }
-        if (mode == MODE_MY_BOOK){
+        if (mode == MODE_MY_BOOK) {
             bookItemId = intent.getIntExtra(BOOK_ITEM_ID, BookItem.UNDEFINED_ID)
         }
-        if (mode == MODE_NET_BOOK){
+        if (mode == MODE_NET_BOOK) {
             bookItemDto = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 intent.extras?.getParcelable(BOOK_ITEM_DTO, BookItemDto::class.java)
             } else {
@@ -58,10 +63,15 @@ class BookInfoActivity : AppCompatActivity() {
         private const val MODE = "mode"
         const val MODE_MY_BOOK = "my_book"
         const val MODE_NET_BOOK = "net_book"
-        fun newIntentOpenItem(context: Context, bookItemId: Int, mode: String, bookItemDto: BookItemDto? = null): Intent {
+        fun newIntentOpenItem(
+            context: Context,
+            bookItemId: Int,
+            mode: String,
+            bookItemDto: BookItemDto? = null
+        ): Intent {
             Log.d("TEST_WORKER", "in companion ${bookItemDto == null}")
             val intent = Intent(context, BookInfoActivity::class.java)
-            if (mode == MODE_NET_BOOK){
+            if (mode == MODE_NET_BOOK) {
                 intent.apply {
                     putExtra(MODE, MODE_NET_BOOK)
                     putExtra(BOOK_ITEM_DTO, bookItemDto)

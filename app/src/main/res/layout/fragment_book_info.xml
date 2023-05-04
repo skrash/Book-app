@@ -14,6 +14,7 @@
         android:layout_height="match_parent">
 
         <LinearLayout
+            android:id="@+id/llRoot"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
@@ -152,6 +153,14 @@
                 android:layout_margin="8dp"
                 android:text="@{viewModel.bookItem.tags}"/>
 
+            <ProgressBar
+                android:id="@+id/progressDownload"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:visibility="gone"
+                />
+
             <Button
                 android:id="@+id/btnOpen"
                 android:layout_width="wrap_content"
@@ -161,6 +170,15 @@
                 android:textSize="17sp"
                 android:layout_margin="8dp" />
 
+            <Button
+                android:id="@+id/btnDownload"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/download"
+                style="@style/Widget.Material3.Button"
+                android:textSize="17sp"
+                android:layout_margin="8dp"
+                android:visibility="gone"/>
 
             <com.yandex.mobile.ads.banner.BannerAdView
                 android:id="@+id/yaBanner"

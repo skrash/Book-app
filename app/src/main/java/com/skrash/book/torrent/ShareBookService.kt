@@ -70,7 +70,9 @@ class ShareBookService : Service() {
                     null,
                     null
                 )
-                val client = SimpleClient()
+                val client = SimpleClient{ pieceInformation, peerInformation ->
+
+                }
                 val ipResponse = ApiFactory.apiService.getIp()
                 while (sharedBookCursor?.moveToNext() == true) {
                     val title =

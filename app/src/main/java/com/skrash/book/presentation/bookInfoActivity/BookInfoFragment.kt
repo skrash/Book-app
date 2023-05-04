@@ -11,11 +11,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkManager
 import com.google.gson.Gson
+import com.skrash.book.BookApplication
 import com.skrash.book.R
+import com.skrash.book.data.network.model.BookItemDto
 import com.skrash.book.databinding.FragmentBookInfoBinding
 import com.skrash.book.domain.entities.BookItem
-import com.skrash.book.BookApplication
-import com.skrash.book.data.network.model.BookItemDto
 import com.skrash.book.domain.entities.FormatBook
 import com.skrash.book.presentation.ViewModelFactory
 import com.skrash.book.presentation.YandexID
@@ -90,14 +90,13 @@ class BookInfoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (!modeIsMyBook) {
-            binding.btnOpen.text = getString(R.string.download)
-        }
         viewModel = ViewModelProvider(this, viewModelFactory)[BookInfoViewModel::class.java]
         initCover()
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         if (requireArguments().getString(MODE) == MODE_NET_BOOK) {
+            binding.btnOpen.visibility = View.GONE
+            binding.btnDownload.visibility = View.VISIBLE
             viewModel.setNetBook(
                 title = bookItemDto?.title ?: "",
                 author = bookItemDto?.author ?: "",
@@ -117,38 +116,10 @@ class BookInfoFragment : Fragment() {
         loadAd()
 
         binding.btnOpen.setOnClickListener {
-            if (modeIsMyBook) {
-                if (viewModel.bookItem.value != null) {
-                    when (viewModel.bookItem.value!!.fileExtension){
-                        FormatBook.FB2.name.lowercase() -> {
-                            startActivity(
-                                OpenFB2BookActivity.newIntent(
-                                    requireContext(),
-                                    viewModel.bookItem.value!!.id
-                                )
-                            )
-                        }
-                        FormatBook.PDF.name.lowercase() -> {
-                            startActivity(
-                                OpenBookActivity.newIntent(
-                                    requireContext(),
-                                    viewModel.bookItem.value!!.id
-                                )
-                            )
-                        }
-                    }
-                }
-            } else {
-                binding.btnOpen.isEnabled = false
-                val gson = Gson()
-                val bookJson = gson.toJson(bookItemDto)
-                val downloadWorker = WorkManager.getInstance(requireContext().applicationContext)
-                downloadWorker.enqueueUniqueWork(
-                    DownloadBookWorker.WORK_NAME,
-                    ExistingWorkPolicy.APPEND_OR_REPLACE,
-                    DownloadBookWorker.makeRequest(bookJson)
-                )
-            }
+            openBook()
+        }
+        binding.btnDownload.setOnClickListener {
+            downloadBook()
         }
         viewModel.bookItem.observe(viewLifecycleOwner) {
             if (it != null) {
@@ -159,6 +130,54 @@ class BookInfoFragment : Fragment() {
                         binding.ivShareAccess.setImageResource(R.drawable.ic_baseline_cloud_upload_24)
                     }
                     binding.ivShareAccess.visibility = View.VISIBLE
+                }
+            }
+        }
+    }
+
+    private fun downloadBook(){
+        binding.btnDownload.isEnabled = false
+        val gson = Gson()
+        val bookJson = gson.toJson(bookItemDto)
+        val downloadWorker = WorkManager.getInstance(requireContext().applicationContext)
+        val request = DownloadBookWorker.makeRequest(bookJson)
+        downloadWorker.enqueueUniqueWork(
+            DownloadBookWorker.WORK_NAME,
+            ExistingWorkPolicy.APPEND_OR_REPLACE,
+            request
+        )
+        binding.progressDownload.visibility = View.VISIBLE
+        downloadWorker.getWorkInfoByIdLiveData(request.id).observe(viewLifecycleOwner) {
+            if (it.progress.getInt(DownloadBookWorker.TAG_PROGRESS, 0) == 100) {
+                binding.progressDownload.visibility = View.GONE
+                modeIsMyBook = true
+                binding.btnOpen.visibility = View.VISIBLE
+                binding.llRoot.removeView(binding.btnDownload)
+                binding.btnDownload.visibility = View.GONE
+            }
+            binding.progressDownload.progress =
+                it.progress.getInt(DownloadBookWorker.TAG_PROGRESS, 0)
+        }
+    }
+
+    private fun openBook() {
+        if (viewModel.bookItem.value != null) {
+            when (viewModel.bookItem.value!!.fileExtension) {
+                FormatBook.FB2.name.lowercase() -> {
+                    startActivity(
+                        OpenFB2BookActivity.newIntent(
+                            requireContext(),
+                            viewModel.bookItem.value!!.id
+                        )
+                    )
+                }
+                FormatBook.PDF.name.lowercase() -> {
+                    startActivity(
+                        OpenBookActivity.newIntent(
+                            requireContext(),
+                            viewModel.bookItem.value!!.id
+                        )
+                    )
                 }
             }
         }

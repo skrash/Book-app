@@ -11,6 +11,7 @@ import com.skrash.book.data.network.ApiFactory
 import com.skrash.book.data.network.model.BookItemDto
 import com.skrash.book.torrent.client.SimpleClient
 import com.skrash.book.torrent.client.common.*
+import com.skrash.book.torrent.client.peer.SharingPeer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,6 +24,7 @@ import java.net.InetAddress
 import java.net.NetworkInterface
 import java.net.SocketException
 import java.util.*
+import kotlin.math.roundToInt
 
 
 class DownloadBookWorker(
@@ -54,24 +56,38 @@ class DownloadBookWorker(
         return Result.success()
     }
 
-    private fun downloadBook(torrentFile: File, bookItemDto: BookItemDto) {
-        val client = SimpleClient()
-        CoroutineScope(Dispatchers.IO).launch{
-            val ipResponse = ApiFactory.apiService.getIp()
-            val address = InetAddress.getByName(ipResponse.string())
-            try {
-                client.downloadTorrent(
-                    torrentFile.path,
-                    dataPath,
-                    address
-                )
-            } catch (e: Exception) {
-                e.printStackTrace()
+    private suspend fun downloadBook(torrentFile: File, bookItemDto: BookItemDto) {
+        setProgress(workDataOf(TAG_PROGRESS to 0))
+        val client = SimpleClient { _, peerInformation ->
+            if ((peerInformation as SharingPeer).torrent.completedPieces.cardinality() != 0) {
+                CoroutineScope(Dispatchers.Unconfined).launch {
+                    if (peerInformation.torrent.completedPieces.cardinality() + 1 == peerInformation.torrent.pieceCount){
+                        setProgress(workDataOf(TAG_PROGRESS to 100))
+                    } else {
+                        setProgress(
+                            workDataOf(
+                                TAG_PROGRESS to ((peerInformation.torrent.completedPieces.cardinality()
+                                    .toFloat() / peerInformation.torrent.pieceCount.toFloat()) * 100).roundToInt()
+                            )
+                        )
+                    }
+                }
             }
-            client.stop()
-            val metadata = TorrentParser().parseFromFile(torrentFile)
-            addToDbBook((metadata as TorrentMetadataImpl).myName,bookItemDto)
         }
+        val metadata = TorrentParser().parseFromFile(torrentFile)
+        val ipResponse = ApiFactory.apiService.getIp()
+        val address = InetAddress.getByName(ipResponse.string())
+        try {
+            client.downloadTorrent(
+                torrentFile.path,
+                dataPath,
+                address
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        client.stop()
+        addToDbBook((metadata as TorrentMetadataImpl).myName, bookItemDto)
     }
 
     private fun saveTorrentFile(title: String, response: ResponseBody): File {
@@ -99,6 +115,7 @@ class DownloadBookWorker(
 
         const val WORK_NAME = "DownloadWorker"
         const val BookItemDto = "book_item_dto"
+        const val TAG_PROGRESS = "progress"
 
         fun makeRequest(bookItemDto: String): OneTimeWorkRequest {
             return OneTimeWorkRequestBuilder<DownloadBookWorker>()

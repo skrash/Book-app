@@ -1,5 +1,7 @@
 package com.skrash.book.torrent.client;
 
+import com.skrash.book.torrent.PieceDownloadHandler;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Arrays;
@@ -13,8 +15,11 @@ public class SimpleClient {
   private final static int DEFAULT_EXECUTOR_SIZE = 10;
   private final CommunicationManager communicationManager;
 
-  public SimpleClient() {
+  private PieceDownloadHandler pieceDownloadHandler;
+
+  public SimpleClient(PieceDownloadHandler pieceDownloadHandler) {
     this(DEFAULT_EXECUTOR_SIZE, DEFAULT_EXECUTOR_SIZE);
+    this.pieceDownloadHandler = pieceDownloadHandler;
   }
 
   public SimpleClient(int workingExecutorSize, int validatorExecutorSize) {
@@ -59,6 +64,12 @@ public class SimpleClient {
     TorrentManager torrentManager = communicationManager.addTorrent(torrentFile, downloadDir);
     final Semaphore semaphore = new Semaphore(0);
     torrentManager.addListener(new TorrentListenerWrapper() {
+      @Override
+      public void pieceDownloaded(PieceInformation pieceInformation, PeerInformation peerInformation) {
+        pieceDownloadHandler.pieceDownload(pieceInformation, peerInformation);
+        super.pieceDownloaded(pieceInformation, peerInformation);
+      }
+
       @Override
       public void downloadComplete() {
         semaphore.release();
