@@ -151,9 +151,13 @@ class BookInfoFragment : Fragment() {
             if (it.progress.getInt(DownloadBookWorker.TAG_PROGRESS, 0) == 100) {
                 binding.progressDownload.visibility = View.GONE
                 modeIsMyBook = true
-                binding.btnOpen.visibility = View.VISIBLE
                 binding.llRoot.removeView(binding.btnDownload)
                 binding.btnDownload.visibility = View.GONE
+            }
+            val id = it.progress.getInt(DownloadBookWorker.TAG_CREATED_BOOK_ID, -1)
+            if (id != -1){
+                binding.btnOpen.visibility = View.VISIBLE
+                viewModel.getBookItem(id)
             }
             binding.progressDownload.progress =
                 it.progress.getInt(DownloadBookWorker.TAG_PROGRESS, 0)

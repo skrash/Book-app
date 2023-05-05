@@ -1,7 +1,9 @@
 package com.skrash.book.torrent
 
+import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
+import android.content.UriMatcher
 import android.net.Uri
 import android.os.Environment
 import android.util.Log
@@ -12,9 +14,7 @@ import com.skrash.book.data.network.model.BookItemDto
 import com.skrash.book.torrent.client.SimpleClient
 import com.skrash.book.torrent.client.common.*
 import com.skrash.book.torrent.client.peer.SharingPeer
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import okhttp3.Dispatcher
 import okhttp3.MediaType
 import okhttp3.RequestBody
@@ -53,6 +53,8 @@ class DownloadBookWorker(
         } else {
             Log.d("TEST_WORKER", "response null")
         }
+        // TODO: Костыль. Ожидание добавлено чтобы setProgress успел выполниться раньше, чем воркер завершит работу
+        delay(3000)
         return Result.success()
     }
 
@@ -61,7 +63,7 @@ class DownloadBookWorker(
         val client = SimpleClient { _, peerInformation ->
             if ((peerInformation as SharingPeer).torrent.completedPieces.cardinality() != 0) {
                 CoroutineScope(Dispatchers.Unconfined).launch {
-                    if (peerInformation.torrent.completedPieces.cardinality() + 1 == peerInformation.torrent.pieceCount){
+                    if (peerInformation.torrent.completedPieces.cardinality() + 1 == peerInformation.torrent.pieceCount) {
                         setProgress(workDataOf(TAG_PROGRESS to 100))
                     } else {
                         setProgress(
@@ -97,7 +99,7 @@ class DownloadBookWorker(
         return file
     }
 
-    private fun addToDbBook(downloadedFileName: String, bookItemDto: BookItemDto) {
+    private suspend fun addToDbBook(downloadedFileName: String, bookItemDto: BookItemDto) {
         val contentValues = ContentValues()
         contentValues.put("title", bookItemDto.title)
         contentValues.put("author", bookItemDto.author)
@@ -108,7 +110,14 @@ class DownloadBookWorker(
         contentValues.put("fileExtension", bookItemDto.fileExtension)
         contentValues.put("tags", bookItemDto.tags)
         contentValues.put("path", "$dataPath/$downloadedFileName")
-        context.contentResolver.insert(Uri.parse("content://com.skrash.book/create"), contentValues)
+        val uri = context.contentResolver.insert(
+            Uri.parse("content://com.skrash.book/create"),
+            contentValues
+        )?.path ?: throw RuntimeException("Could not get uri")
+        val id = uri.split("/").last().toInt()
+        runBlocking {
+            setProgress(workDataOf(TAG_CREATED_BOOK_ID to id))
+        }
     }
 
     companion object {
@@ -116,6 +125,7 @@ class DownloadBookWorker(
         const val WORK_NAME = "DownloadWorker"
         const val BookItemDto = "book_item_dto"
         const val TAG_PROGRESS = "progress"
+        const val TAG_CREATED_BOOK_ID = "created_book_id"
 
         fun makeRequest(bookItemDto: String): OneTimeWorkRequest {
             return OneTimeWorkRequestBuilder<DownloadBookWorker>()

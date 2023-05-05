@@ -16,6 +16,7 @@ import com.skrash.book.domain.usecases.MyList.AddToMyBookListUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 class BookProvider : ContentProvider() {
@@ -65,12 +66,18 @@ class BookProvider : ContentProvider() {
                     fileExtension = fileExtension,
                     startOnPage = 0
                 )
-                CoroutineScope(Dispatchers.IO).launch {
-                    addToMyBookListUseCase.addToMyBookList(bookItem)
+                // TODO: кажется тут какая то дичь, но как вернуть uri из корутины не знаю
+                return runBlocking {
+                    val id = addToMyBookListUseCase.addToMyBookList(bookItem)
+                    val uriUpdated = ContentUris.withAppendedId(uri, id)
+                    context?.contentResolver?.notifyChange(uri, null)
+                    uriUpdated
                 }
             }
+            else -> {
+                return null
+            }
         }
-        return super.insert(uri, contentValues, extras)
     }
 
     override fun query(
