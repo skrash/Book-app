@@ -6,6 +6,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.skrash.book.domain.entities.BookItem
 
 @Dao
 interface MyBookListDao {
@@ -30,4 +31,10 @@ interface MyBookListDao {
 
     @Query("SELECT * FROM book_items WHERE shareAccess=1")
     fun getSharedBooks(): Cursor
+
+    @Query("SELECT hash FROM book_items")
+    suspend fun getAllHashes(): List<String>
+
+    @Query("SELECT * FROM book_items WHERE hash=:hashString")
+    suspend fun getBookItemByHash(hashString: String): BookItem
 }

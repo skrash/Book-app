@@ -24,6 +24,9 @@ import com.skrash.book.presentation.openBookActivity.pdfActivity.OpenBookActivit
 import com.skrash.book.torrent.DownloadBookWorker
 import com.yandex.mobile.ads.banner.AdSize
 import com.yandex.mobile.ads.common.AdRequest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class BookInfoFragment : Fragment() {
@@ -108,6 +111,14 @@ class BookInfoFragment : Fragment() {
                 rating = bookItemDto?.rating?.toFloat() ?: 0f,
                 hash = bookItemDto!!.hash
             )
+            CoroutineScope(Dispatchers.IO).launch {
+                val isMyBook = viewModel.checkNetBookIsMyBook()
+                if (isMyBook){
+                    bookIsDownloaded()
+                    binding.btnOpen.visibility = View.VISIBLE
+                    viewModel.setBookItemByHash(bookItemDto!!.hash)
+                }
+            }
         }
         if (modeIsMyBook) {
             viewModel.getBookItem(bookItemId)
@@ -150,10 +161,7 @@ class BookInfoFragment : Fragment() {
         binding.progressDownload.visibility = View.VISIBLE
         downloadWorker.getWorkInfoByIdLiveData(request.id).observe(viewLifecycleOwner) {
             if (it.progress.getInt(DownloadBookWorker.TAG_PROGRESS, 0) == 100) {
-                binding.progressDownload.visibility = View.GONE
-                modeIsMyBook = true
-                binding.llRoot.removeView(binding.btnDownload)
-                binding.btnDownload.visibility = View.GONE
+                bookIsDownloaded()
             }
             val id = it.progress.getInt(DownloadBookWorker.TAG_CREATED_BOOK_ID, -1)
             if (id != -1){
@@ -163,6 +171,13 @@ class BookInfoFragment : Fragment() {
             binding.progressDownload.progress =
                 it.progress.getInt(DownloadBookWorker.TAG_PROGRESS, 0)
         }
+    }
+
+    private fun bookIsDownloaded(){
+        binding.progressDownload.visibility = View.GONE
+        modeIsMyBook = true
+        binding.llRoot.removeView(binding.btnDownload)
+        binding.btnDownload.visibility = View.GONE
     }
 
     private fun openBook() {

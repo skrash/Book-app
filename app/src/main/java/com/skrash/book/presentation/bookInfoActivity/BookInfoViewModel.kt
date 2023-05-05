@@ -7,7 +7,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.Genres
+import com.skrash.book.domain.usecases.MyList.GetAllMyBookHashes
 import com.skrash.book.domain.usecases.MyList.GetBookCoverUseCase
+import com.skrash.book.domain.usecases.MyList.GetMyBookItemByHash
 import com.skrash.book.domain.usecases.MyList.GetMyBookUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +18,9 @@ import javax.inject.Inject
 
 class BookInfoViewModel @Inject constructor(
     private val getMyBookUseCase: GetMyBookUseCase,
-    private val getBookCoverUseCase: GetBookCoverUseCase
+    private val getBookCoverUseCase: GetBookCoverUseCase,
+    private val getAllMyBookHashes: GetAllMyBookHashes,
+    private val getMyBookItemByHash: GetMyBookItemByHash
 ) : ViewModel() {
     private val _bookItem = MutableLiveData<BookItem>()
     val bookItem: LiveData<BookItem>
@@ -50,6 +54,22 @@ class BookInfoViewModel @Inject constructor(
             )
             _imgCover.postValue(itemCover)
         }
+    }
+
+    fun setBookItemByHash(hash: String){
+        CoroutineScope(Dispatchers.IO).launch{
+            _bookItem.postValue(getMyBookItemByHash.getMyBookItemByHash(hash))
+        }
+    }
+
+    suspend fun checkNetBookIsMyBook(): Boolean {
+        val hashesList = getAllMyBookHashes.getAllMyBookHashes()
+        for (hashMyBook in hashesList){
+            if (_bookItem.value!!.hash == hashMyBook){
+                return true
+            }
+        }
+        return false
     }
 
     fun setNetBook(

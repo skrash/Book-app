@@ -28,4 +28,7 @@ interface MyBookItemRepository {
 
     fun getHash(path: String): String
 
+    suspend fun getAllMyBookHashes(): List<String>
+
+    suspend fun getMyBookItemByHash(hash: String): BookItem
 }

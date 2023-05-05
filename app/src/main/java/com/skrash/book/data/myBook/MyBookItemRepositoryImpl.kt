@@ -125,4 +125,12 @@ class MyBookItemRepositoryImpl @Inject constructor(
     override fun getHash(path: String): String {
         return TorrentCreator.create(File(path), URI.create("http://${TorrentSettings.DEST_ADDRESS}:${TorrentSettings.DEST_PORT}/announce"), "").hexInfoHash.lowercase()
     }
+
+    override suspend fun getAllMyBookHashes(): List<String> {
+        return myBookListDao.getAllHashes()
+    }
+
+    override suspend fun getMyBookItemByHash(hash: String): BookItem {
+        return myBookListDao.getBookItemByHash(hash)
+    }
 }
