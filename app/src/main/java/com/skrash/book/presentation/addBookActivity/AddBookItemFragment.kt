@@ -314,6 +314,7 @@ class AddBookItemFragment : Fragment() {
                 path = path,
                 startOnPage = 0,
                 fileExtension = path.substringAfterLast(".", "").uppercase(),
+                hash = ""
             ), COVER_SIZE, COVER_SIZE
         )
         viewModel.imageCover.observe(viewLifecycleOwner) {

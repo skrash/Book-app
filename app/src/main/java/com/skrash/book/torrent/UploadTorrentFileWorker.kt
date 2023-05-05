@@ -56,6 +56,7 @@ class UploadTorrentFileWorker(
                 val shareAccess =
                     bookCursor.getInt(bookCursor.getColumnIndexOrThrow("shareAccess")) > 0
                 val id = bookCursor.getInt(bookCursor.getColumnIndexOrThrow("id"))
+                val hash = bookCursor.getString(bookCursor.getColumnIndexOrThrow("hash"))
                 val book = BookItem(
                     title,
                     author,
@@ -68,6 +69,7 @@ class UploadTorrentFileWorker(
                     fileException,
                     startOnPage,
                     shareAccess,
+                    hash,
                     id
                 )
                 bookCursor.close()

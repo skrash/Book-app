@@ -26,4 +26,6 @@ interface MyBookItemRepository {
 
     fun getPageCount(bookItem: BookItem): Int
 
+    fun getHash(path: String): String
+
 }

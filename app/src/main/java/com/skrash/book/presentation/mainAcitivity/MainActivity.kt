@@ -378,6 +378,7 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
                                 startOnPage = 0,
                                 fileExtension = itemBook.path.substringAfterLast(".", "")
                                     .uppercase(),
+                                hash = itemBook.hash
                             ),
                             150,
                             150

@@ -10,18 +10,17 @@ import com.skrash.book.domain.entities.FormatBook
 import com.skrash.book.domain.entities.Genres
 import com.skrash.book.domain.usecases.MyList.AddToMyBookListUseCase
 import com.skrash.book.domain.usecases.MyList.GetBookCoverUseCase
+import com.skrash.book.domain.usecases.MyList.GetHashMyBookUseCase
 import com.skrash.book.domain.usecases.MyList.GetMyBookUseCase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.io.File
 import javax.inject.Inject
 
 class AddBookItemViewModel @Inject constructor(
     private val addToMyBookListUseCase: AddToMyBookListUseCase,
     private val getMyBookUseCase: GetMyBookUseCase,
-    private val getBookCoverUseCase: GetBookCoverUseCase
+    private val getBookCoverUseCase: GetBookCoverUseCase,
+    private val getHashMyBookUseCase: GetHashMyBookUseCase
 ) : ViewModel() {
 
     private val _imageCover = MutableLiveData<Bitmap>()
@@ -143,48 +142,51 @@ class AddBookItemViewModel @Inject constructor(
             _errorInputPath.value = true
             return
         }
-        CoroutineScope(Dispatchers.Main).launch {
-            if (id == null) {
-                val id = addBookItem(
-                    BookItem(
-                        title = title.trim(),
-                        author = author.trim(),
-                        description = description.trim(),
-                        rating = 0.0f,
-                        popularity = 0.0f,
-                        genres = genresParsed,
-                        tags = tags.trim(),
-                        path = path,
-                        startOnPage = 0,
-                        shareAccess = shareAccess,
-                        fileExtension = fileExtension,
+        CoroutineScope(Dispatchers.IO).launch {
+            val hash = getHashMyBookUseCase.getHashMyBook(path)
+            withContext(Dispatchers.Main){
+                if (id == null) {
+                    val id = addBookItem(
+                        BookItem(
+                            title = title.trim(),
+                            author = author.trim(),
+                            description = description.trim(),
+                            rating = 0.0f,
+                            popularity = 0.0f,
+                            genres = genresParsed,
+                            tags = tags.trim(),
+                            path = path,
+                            startOnPage = 0,
+                            shareAccess = shareAccess,
+                            fileExtension = fileExtension,
+                            hash = hash
+                        )
                     )
-                )
-                Log.d("TEST_WORKER", "added id ${id.toInt()}")
-                _itemIdManipulated.postValue(id.toInt())
-            } else {
-                addBookItem(
-                    BookItem(
-                        id = id,
-                        title = title.trim(),
-                        author = author.trim(),
-                        description = description.trim(),
-                        rating = 0.0f,
-                        popularity = 0.0f,
-                        genres = genresParsed,
-                        tags = tags.trim(),
-                        path = path,
-                        startOnPage = 0,
-                        shareAccess = shareAccess,
-                        fileExtension = fileExtension,
+                    Log.d("TEST_WORKER", "added id ${id.toInt()}")
+                    _itemIdManipulated.postValue(id.toInt())
+                } else {
+                    addBookItem(
+                        BookItem(
+                            id = id,
+                            title = title.trim(),
+                            author = author.trim(),
+                            description = description.trim(),
+                            rating = 0.0f,
+                            popularity = 0.0f,
+                            genres = genresParsed,
+                            tags = tags.trim(),
+                            path = path,
+                            startOnPage = 0,
+                            shareAccess = shareAccess,
+                            fileExtension = fileExtension,
+                            hash = hash
+                        )
                     )
-                )
-                Log.d("TEST_WORKER", "added id ${id.toInt()}")
-                _itemIdManipulated.value = id.toInt()
+                    Log.d("TEST_WORKER", "added id ${id.toInt()}")
+                    _itemIdManipulated.value = id.toInt()
+                }
             }
         }
-
-
         finishWork()
     }
 

@@ -54,6 +54,7 @@ class BookProvider : ContentProvider() {
                 val tags = contentValues?.getAsString("tags") ?: ""
                 val path = contentValues?.getAsString("path") ?: ""
                 val fileExtension = contentValues?.getAsString("fileExtension") ?: ""
+                val hash = contentValues?.getAsString("hash") ?: throw RuntimeException("hash field not found")
                 val bookItem = BookItem(
                     title = title,
                     author = author,
@@ -64,7 +65,8 @@ class BookProvider : ContentProvider() {
                     tags = tags,
                     path = path,
                     fileExtension = fileExtension,
-                    startOnPage = 0
+                    startOnPage = 0,
+                    hash = hash
                 )
                 // TODO: кажется тут какая то дичь, но как вернуть uri из корутины не знаю
                 return runBlocking {

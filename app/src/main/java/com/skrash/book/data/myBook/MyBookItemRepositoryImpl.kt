@@ -3,23 +3,25 @@ package com.skrash.book.data.myBook
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Environment
 import android.util.Base64
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.skrash.book.FormatBook.FB2
 import com.skrash.book.FormatBook.PDF
+import com.skrash.book.data.TorrentSettings
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.FormatBook
 import com.skrash.book.domain.usecases.MyList.MyBookItemRepository
+import com.skrash.book.torrent.client.common.TorrentCreator
+import com.skrash.book.torrent.client.common.TorrentUtils
 import java.io.File
+import java.net.URI
 import javax.inject.Inject
 
 class MyBookItemRepositoryImpl @Inject constructor(
     private val myBookListDao: MyBookListDao,
     private val mapper: MyBookItemMapper
-): MyBookItemRepository {
+) : MyBookItemRepository {
 
     private var curBook: BookItem? = null
     override suspend fun addToMyBookList(bookItem: BookItem): Long {
@@ -28,7 +30,7 @@ class MyBookItemRepositoryImpl @Inject constructor(
 
     override fun getMyBookList(): LiveData<List<BookItem>> = Transformations.map(
         myBookListDao.getMyBookList()
-    ){
+    ) {
         mapper.mapListDbModelToListDomain(it)
     }
 
@@ -38,7 +40,7 @@ class MyBookItemRepositoryImpl @Inject constructor(
 
     override suspend fun deleteBookItemFromMyList(bookItem: BookItem) {
         val file = File(bookItem.path)
-        if (!file.delete()){
+        if (!file.delete()) {
             throw RuntimeException("could not delete file")
         }
         myBookListDao.deleteMyBookItem(bookItem.path)
@@ -68,13 +70,16 @@ class MyBookItemRepositoryImpl @Inject constructor(
             FormatBook.FB2 -> {
                 val file = File(Uri.parse(bookItem.path).path)
                 val fb2 = FB2(file)
-                if (fb2.fb2!!.binaries.isNotEmpty()){
-                    val imageBytes = Base64.decode(fb2.fb2!!.binaries.iterator().next().value.binary, Base64.DEFAULT)
+                if (fb2.fb2!!.binaries.isNotEmpty()) {
+                    val imageBytes = Base64.decode(
+                        fb2.fb2!!.binaries.iterator().next().value.binary,
+                        Base64.DEFAULT
+                    )
                     val decodedImage =
                         BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
                     decodedImage
                 } else {
-                    Bitmap.createBitmap(1,1, Bitmap.Config.ARGB_4444)
+                    Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_4444)
                 }
             }
         }
@@ -91,7 +96,7 @@ class MyBookItemRepositoryImpl @Inject constructor(
                 FormatBook.FB2 -> {
                     val file = File(curBook!!.path)
                     val fb2 = FB2(file)
-                    Bitmap.createBitmap(1,1, Bitmap.Config.ARGB_4444)
+                    Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_4444)
                 }
             }
         } else {
@@ -115,5 +120,9 @@ class MyBookItemRepositoryImpl @Inject constructor(
         } else {
             return 0
         }
+    }
+
+    override fun getHash(path: String): String {
+        return TorrentCreator.create(File(path), URI.create("http://${TorrentSettings.DEST_ADDRESS}:${TorrentSettings.DEST_PORT}/announce"), "").hexInfoHash.lowercase()
     }
 }

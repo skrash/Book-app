@@ -9,10 +9,7 @@ import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.FormatBook
 import com.skrash.book.domain.entities.Genres
 import com.skrash.book.domain.usecases.GetBookItemListUseCase
-import com.skrash.book.domain.usecases.MyList.GetBookCoverUseCase
-import com.skrash.book.domain.usecases.MyList.AddToMyBookListUseCase
-import com.skrash.book.domain.usecases.MyList.DeleteBookItemFromMyListUseCase
-import com.skrash.book.domain.usecases.MyList.GetMyBookListUseCase
+import com.skrash.book.domain.usecases.MyList.*
 import kotlinx.coroutines.*
 import java.io.File
 import java.net.ConnectException
@@ -23,7 +20,8 @@ class MainActivityViewModel @Inject constructor(
     private val deleteBookItemFromMyListUseCase: DeleteBookItemFromMyListUseCase,
     private val getBookCoverUseCase: GetBookCoverUseCase,
     private val addToMyBookListUseCase: AddToMyBookListUseCase,
-    private val getBookItemListUseCase: GetBookItemListUseCase
+    private val getBookItemListUseCase: GetBookItemListUseCase,
+    private val hashMyBookUseCase: GetHashMyBookUseCase
 ) : ViewModel() {
 
     private val _myBookList = MediatorLiveData<List<BookItem>>()
@@ -49,55 +47,60 @@ class MainActivityViewModel @Inject constructor(
     }
 
     fun compileDefaultBookItem(path: String, formatBook: FormatBook) {
-        when (formatBook) {
-            FormatBook.PDF -> {
-                val fileName = path.substringAfterLast("/")
-                val regexAuthor = "[A-ZА-ЯЁa-zа-яё]+ ([A-ZА-ЯЁ]{1}[.]){1,2}".toRegex()
-                val tryAuthor = regexAuthor.findAll(fileName)
-                var authorString = ""
-                var title = fileName
-                for (i in tryAuthor) {
-                    title = title.replace(i.value, "")
-                    if (i.value != "") {
-                        authorString += "${i.value},"
+        CoroutineScope(Dispatchers.IO).launch {
+            val hash = hashMyBookUseCase.getHashMyBook(path)
+            when (formatBook) {
+                FormatBook.PDF -> {
+                    val fileName = path.substringAfterLast("/")
+                    val regexAuthor = "[A-ZА-ЯЁa-zа-яё]+ ([A-ZА-ЯЁ]{1}[.]){1,2}".toRegex()
+                    val tryAuthor = regexAuthor.findAll(fileName)
+                    var authorString = ""
+                    var title = fileName
+                    for (i in tryAuthor) {
+                        title = title.replace(i.value, "")
+                        if (i.value != "") {
+                            authorString += "${i.value},"
+                        }
+                    }
+                    title = title.replace("." + title.substringAfterLast(".", ""), "")
+                    title = title.replace("[,.-]+".toRegex(), "")
+                    title = title.trim()
+                    val book = BookItem(
+                        title = title,
+                        author = authorString,
+                        description = "",
+                        rating = 0.0f,
+                        popularity = 0.0f,
+                        Genres.Other,
+                        tags = "",
+                        path = path,
+                        fileExtension = FormatBook.PDF.string_name,
+                        startOnPage = 0,
+                        hash = hash
+                    )
+                    CoroutineScope(Dispatchers.IO).launch {
+                        addToMyBookListUseCase.addToMyBookList(book)
                     }
                 }
-                title = title.replace("." + title.substringAfterLast(".", ""), "")
-                title = title.replace("[,.-]+".toRegex(), "")
-                title = title.trim()
-                val book = BookItem(
-                    title = title,
-                    author = authorString,
-                    description = "",
-                    rating = 0.0f,
-                    popularity = 0.0f,
-                    Genres.Other,
-                    tags = "",
-                    path = path,
-                    fileExtension = FormatBook.PDF.string_name,
-                    startOnPage = 0
-                )
-                CoroutineScope(Dispatchers.IO).launch {
-                    addToMyBookListUseCase.addToMyBookList(book)
-                }
-            }
-            FormatBook.FB2 -> {
-                val bookFile = File(path)
-                val metaInfo = FB2.getMetaInfo(bookFile)
-                val book = BookItem(
-                    title = metaInfo.title,
-                    author = metaInfo.author,
-                    description = "",
-                    rating = 0.0f,
-                    popularity = 0.0f,
-                    Genres.Other,
-                    tags = metaInfo.tag,
-                    path = path,
-                    fileExtension = FormatBook.FB2.string_name,
-                    startOnPage = 0
-                )
-                CoroutineScope(Dispatchers.IO).launch {
-                    addToMyBookListUseCase.addToMyBookList(book)
+                FormatBook.FB2 -> {
+                    val bookFile = File(path)
+                    val metaInfo = FB2.getMetaInfo(bookFile)
+                    val book = BookItem(
+                        title = metaInfo.title,
+                        author = metaInfo.author,
+                        description = "",
+                        rating = 0.0f,
+                        popularity = 0.0f,
+                        Genres.Other,
+                        tags = metaInfo.tag,
+                        path = path,
+                        fileExtension = FormatBook.FB2.string_name,
+                        startOnPage = 0,
+                        hash = hash
+                    )
+                    CoroutineScope(Dispatchers.IO).launch {
+                        addToMyBookListUseCase.addToMyBookList(book)
+                    }
                 }
             }
         }

@@ -40,16 +40,9 @@ abstract class MyBookDB : RoomDatabase() {
                     MyBookDB::class.java,
                     DB_NAME
                 )
-                    .addMigrations(MIGRATION_6_7)
                     .build()
                 INSTANCE = db
                 return db
-            }
-        }
-
-        private val MIGRATION_6_7 = object : Migration(6,7){
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE book_items ADD COLUMN shareAccess BOOLEAN NOT NULL DEFAULT 0")
             }
         }
     }

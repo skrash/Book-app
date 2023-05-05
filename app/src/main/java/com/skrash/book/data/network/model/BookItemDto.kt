@@ -38,5 +38,9 @@ data class BookItemDto(
 
     @SerializedName("fileExtension")
     @Expose
-    var fileExtension: String? = null
-): Parcelable
+    var fileExtension: String? = null,
+
+    @SerializedName("hash")
+    @Expose
+    var hash: String
+) : Parcelable

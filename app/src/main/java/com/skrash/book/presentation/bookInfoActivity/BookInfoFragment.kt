@@ -105,7 +105,8 @@ class BookInfoFragment : Fragment() {
                 genres = bookItemDto?.genres
                     ?: throw java.lang.RuntimeException("incorrect value tags"),
                 popularity = bookItemDto?.popularity?.toFloat() ?: 0f,
-                rating = bookItemDto?.rating?.toFloat() ?: 0f
+                rating = bookItemDto?.rating?.toFloat() ?: 0f,
+                hash = bookItemDto!!.hash
             )
         }
         if (modeIsMyBook) {

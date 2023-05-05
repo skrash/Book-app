@@ -110,6 +110,7 @@ class DownloadBookWorker(
         contentValues.put("fileExtension", bookItemDto.fileExtension)
         contentValues.put("tags", bookItemDto.tags)
         contentValues.put("path", "$dataPath/$downloadedFileName")
+        contentValues.put("hash", bookItemDto.hash)
         val uri = context.contentResolver.insert(
             Uri.parse("content://com.skrash.book/create"),
             contentValues

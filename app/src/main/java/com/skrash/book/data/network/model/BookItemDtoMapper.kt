@@ -19,6 +19,7 @@ class BookItemDtoMapper {
             fileExtension = bookItemDto.fileExtension ?: "",
             startOnPage = 0,
             shareAccess = false,
+            hash = bookItemDto.hash,
             id = -1
         )
 
@@ -34,7 +35,8 @@ class BookItemDtoMapper {
             rating = bookItem.rating.toDouble(),
             tags = bookItem.tags,
             title = bookItem.title,
-            fileExtension = bookItem.fileExtension
+            fileExtension = bookItem.fileExtension,
+            hash = bookItem.hash
         )
     }
 }

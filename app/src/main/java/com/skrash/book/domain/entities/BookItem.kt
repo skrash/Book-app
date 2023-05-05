@@ -12,6 +12,7 @@ data class BookItem(
     val fileExtension: String,
     val startOnPage: Int,
     val shareAccess: Boolean = false,
+    val hash: String,
     var id: Int = UNDEFINED_ID
 ){
     companion object {

@@ -43,6 +43,7 @@ class BookInfoViewModel @Inject constructor(
                     path = item.path,
                     startOnPage = 0,
                     fileExtension = item.fileExtension.uppercase(),
+                    hash = ""
                 ),
                 300,
                 500
@@ -58,7 +59,8 @@ class BookInfoViewModel @Inject constructor(
         genres: String,
         tags: String,
         popularity: Float,
-        rating: Float
+        rating: Float,
+        hash: String
     ) {
         _bookItem.value = BookItem(
             title = title,
@@ -70,7 +72,8 @@ class BookInfoViewModel @Inject constructor(
             rating = rating,
             fileExtension = "",
             path = "network",
-            startOnPage = -1
+            startOnPage = -1,
+            hash = hash
         )
     }
 }
