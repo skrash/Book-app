@@ -20,7 +20,7 @@ class BookInfoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_book_info)
         parseIntent()
-        if (mode == MODE_MY_BOOK) {
+        if (mode == MODE_MY_BOOK && savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
                 .replace(
                     R.id.book_item_container,
@@ -28,7 +28,7 @@ class BookInfoActivity : AppCompatActivity() {
                 )
                 .commit()
         }
-        if (mode == MODE_NET_BOOK) {
+        if (mode == MODE_NET_BOOK && savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
                 .replace(
                     R.id.book_item_container,

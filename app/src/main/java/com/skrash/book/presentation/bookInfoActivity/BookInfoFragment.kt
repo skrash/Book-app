@@ -124,6 +124,10 @@ class BookInfoFragment : Fragment() {
             viewModel.getBookItem(bookItemId)
         }
 
+        if (viewModel.isDownloading.value == true){
+            continueDownloadProgress()
+        }
+
         // реклама
         loadAd()
 
@@ -147,8 +151,26 @@ class BookInfoFragment : Fragment() {
         }
     }
 
+    private fun continueDownloadProgress(){
+        binding.btnDownload.isEnabled = false
+        binding.progressDownload.visibility = View.VISIBLE
+        viewModel.workerLiveData!!.observe(viewLifecycleOwner){
+            viewModel.setDownloadingProgress(it.progress.getInt(DownloadBookWorker.TAG_PROGRESS, 0))
+            if (viewModel.downloadingProgress.value == 100) {
+                bookIsDownloaded()
+            }
+            val id = it.progress.getInt(DownloadBookWorker.TAG_CREATED_BOOK_ID, -1)
+            if (id != -1){
+                binding.btnOpen.visibility = View.VISIBLE
+                viewModel.getBookItem(id)
+            }
+            binding.progressDownload.progress = viewModel.downloadingProgress.value ?: 0
+        }
+    }
+
     private fun downloadBook(){
         binding.btnDownload.isEnabled = false
+        viewModel.setDownloading(true)
         val gson = Gson()
         val bookJson = gson.toJson(bookItemDto)
         val downloadWorker = WorkManager.getInstance(requireContext().applicationContext)
@@ -159,8 +181,11 @@ class BookInfoFragment : Fragment() {
             request
         )
         binding.progressDownload.visibility = View.VISIBLE
-        downloadWorker.getWorkInfoByIdLiveData(request.id).observe(viewLifecycleOwner) {
-            if (it.progress.getInt(DownloadBookWorker.TAG_PROGRESS, 0) == 100) {
+        val workerLiveData = downloadWorker.getWorkInfoByIdLiveData(request.id)
+        viewModel.setWorkerLiveData(workerLiveData)
+        workerLiveData.observe(viewLifecycleOwner) {
+            viewModel.setDownloadingProgress(it.progress.getInt(DownloadBookWorker.TAG_PROGRESS, 0))
+            if (viewModel.downloadingProgress.value == 100) {
                 bookIsDownloaded()
             }
             val id = it.progress.getInt(DownloadBookWorker.TAG_CREATED_BOOK_ID, -1)
@@ -168,8 +193,7 @@ class BookInfoFragment : Fragment() {
                 binding.btnOpen.visibility = View.VISIBLE
                 viewModel.getBookItem(id)
             }
-            binding.progressDownload.progress =
-                it.progress.getInt(DownloadBookWorker.TAG_PROGRESS, 0)
+            binding.progressDownload.progress = viewModel.downloadingProgress.value ?: 0
         }
     }
 

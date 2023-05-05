@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.work.WorkInfo
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.Genres
 import com.skrash.book.domain.usecases.MyList.GetAllMyBookHashes
@@ -29,6 +30,18 @@ class BookInfoViewModel @Inject constructor(
     private val _imgCover = MutableLiveData<Bitmap>()
     val imgCover
         get() = _imgCover
+
+    private val _isDownloading = MutableLiveData<Boolean>(false)
+    val isDownloading: LiveData<Boolean>
+        get() = _isDownloading
+
+    private val _downloadingProgress = MutableLiveData<Int>(0)
+    val downloadingProgress: LiveData<Int>
+        get() = _downloadingProgress
+
+    private var _workerLiveData: LiveData<WorkInfo>? = null
+    val workerLiveData: LiveData<WorkInfo>?
+        get() = _workerLiveData
 
     fun getBookItem(bookItemId: Int) {
         CoroutineScope(Dispatchers.IO).launch {
@@ -56,16 +69,16 @@ class BookInfoViewModel @Inject constructor(
         }
     }
 
-    fun setBookItemByHash(hash: String){
-        CoroutineScope(Dispatchers.IO).launch{
+    fun setBookItemByHash(hash: String) {
+        CoroutineScope(Dispatchers.IO).launch {
             _bookItem.postValue(getMyBookItemByHash.getMyBookItemByHash(hash))
         }
     }
 
     suspend fun checkNetBookIsMyBook(): Boolean {
         val hashesList = getAllMyBookHashes.getAllMyBookHashes()
-        for (hashMyBook in hashesList){
-            if (_bookItem.value!!.hash == hashMyBook){
+        for (hashMyBook in hashesList) {
+            if (_bookItem.value!!.hash == hashMyBook) {
                 return true
             }
         }
@@ -95,5 +108,17 @@ class BookInfoViewModel @Inject constructor(
             startOnPage = -1,
             hash = hash
         )
+    }
+
+    fun setDownloading(isDownloading: Boolean) {
+        _isDownloading.value = isDownloading
+    }
+
+    fun setDownloadingProgress(progress: Int) {
+        _downloadingProgress.value = progress
+    }
+
+    fun setWorkerLiveData(workerLiveDataSrc: LiveData<WorkInfo>){
+        _workerLiveData = workerLiveDataSrc
     }
 }
