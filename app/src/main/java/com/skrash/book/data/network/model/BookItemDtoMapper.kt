@@ -20,7 +20,8 @@ class BookItemDtoMapper {
             startOnPage = 0,
             shareAccess = false,
             hash = bookItemDto.hash,
-            id = -1
+            id = -1,
+            voted = bookItemDto.voted
         )
 
         fun bookItemDtoListToBookItemList(list: List<BookItemDto>) = list.map {
@@ -36,7 +37,8 @@ class BookItemDtoMapper {
             tags = bookItem.tags,
             title = bookItem.title,
             fileExtension = bookItem.fileExtension,
-            hash = bookItem.hash
+            hash = bookItem.hash,
+            voted = bookItem.voted
         )
     }
 }

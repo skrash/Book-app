@@ -122,11 +122,11 @@ class BookInfoViewModel @Inject constructor(
         _downloadingProgress.value = progress
     }
 
-    fun setWorkerLiveData(workerLiveDataSrc: LiveData<WorkInfo>){
+    fun setWorkerLiveData(workerLiveDataSrc: LiveData<WorkInfo>) {
         _workerLiveData = workerLiveDataSrc
     }
 
-    fun vote(id: String, votePoint: Int, errorCallback: () -> Unit){
+    fun vote(id: String, votePoint: Int, errorCallback: () -> Unit) {
         val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
             if (throwable is ConnectException) {
                 CoroutineScope(Dispatchers.Main).launch {

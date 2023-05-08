@@ -10,7 +10,7 @@ class GetBookItemListUseCase @Inject constructor(
     private val bookItemRepository: BookItemRepository
 ) {
 
-    suspend fun getBookItemList(): Call<List<BookItemDto>> {
-        return bookItemRepository.getBookItemList()
+    suspend fun getBookItemList(userID: String): Call<List<BookItemDto>> {
+        return bookItemRepository.getBookItemList(userID)
     }
 }

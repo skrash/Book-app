@@ -42,5 +42,9 @@ data class BookItemDto(
 
     @SerializedName("hash")
     @Expose
-    var hash: String
+    var hash: String,
+
+    @SerializedName("voted")
+    @Expose
+    var voted: Boolean
 ) : Parcelable

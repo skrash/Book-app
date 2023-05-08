@@ -3,6 +3,7 @@ package com.skrash.book.presentation.mainAcitivity
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Environment
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.Toast
@@ -68,6 +69,12 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         binding = ActivityMainBinding.inflate(layoutInflater)
         viewModel = ViewModelProvider(this, viewModelFactory)[MainActivityViewModel::class.java]
         setContentView(binding.root)
+        viewModel.updateDB(
+            Settings.Secure.getString(
+                contentResolver,
+                Settings.Secure.ANDROID_ID
+            )
+        )
         loadAd()
         intent = registerForActivityResult(ActivityResultContracts.GetMultipleContents()) {
             val dataPath =
@@ -119,8 +126,11 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         }
         checkFirstRun()
         val context = this
-        CoroutineScope(Dispatchers.IO).launch {
-            viewModel.initMyBook {
+        CoroutineScope(Dispatchers.Main).launch {
+            viewModel.initMyBook(Settings.Secure.getString(
+                contentResolver,
+                Settings.Secure.ANDROID_ID
+            )) {
                 Toast.makeText(context, getString(R.string.network_error), Toast.LENGTH_LONG).show()
             }
         }

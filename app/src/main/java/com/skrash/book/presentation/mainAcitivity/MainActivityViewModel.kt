@@ -21,7 +21,8 @@ class MainActivityViewModel @Inject constructor(
     private val getBookCoverUseCase: GetBookCoverUseCase,
     private val addToMyBookListUseCase: AddToMyBookListUseCase,
     private val getBookItemListUseCase: GetBookItemListUseCase,
-    private val hashMyBookUseCase: GetHashMyBookUseCase
+    private val hashMyBookUseCase: GetHashMyBookUseCase,
+    private val updateUseCase: GetUpdateUseCase
 ) : ViewModel() {
 
     private val _myBookList = MediatorLiveData<List<BookItem>>()
@@ -31,11 +32,11 @@ class MainActivityViewModel @Inject constructor(
     val netBookList: LiveData<List<BookItem>>
         get() = _netBookList
 
-    fun initMyBook(errorCallback: () -> Unit) {
+    fun initMyBook(userID: String, errorCallback: () -> Unit) {
         _myBookList.addSource(getMyBookListUseCase.getMyBookList()){
             _myBookList.value = it
         }
-        getListBooks(errorCallback)
+        getListBooks(userID, errorCallback)
     }
 
     var mode = MainActivity.MODE_MY_BOOK
@@ -106,7 +107,7 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    fun getListBooks(errorCallback: () -> Unit) {
+    fun getListBooks(userID: String, errorCallback: () -> Unit) {
         val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
             if (throwable is ConnectException) {
                 CoroutineScope(Dispatchers.Main).launch {
@@ -119,7 +120,7 @@ class MainActivityViewModel @Inject constructor(
         }
         CoroutineScope(Dispatchers.IO + exceptionHandler).launch {
             var bookItems: List<BookItem> = listOf()
-            val bookItemsDto = getBookItemListUseCase.getBookItemList()
+            val bookItemsDto = getBookItemListUseCase.getBookItemList(userID)
             if (bookItemsDto.execute().body() != null) {
                 bookItems = BookItemDtoMapper.bookItemDtoListToBookItemList(
                     bookItemsDto.clone().execute().body()!!
@@ -135,5 +136,11 @@ class MainActivityViewModel @Inject constructor(
         height: Int
     ): Bitmap {
         return getBookCoverUseCase.getBookCover(bookItem, width, height)
+    }
+
+    fun updateDB(userID: String){
+        CoroutineScope(Dispatchers.IO).launch {
+            updateUseCase.getUpdate(userID)
+        }
     }
 }

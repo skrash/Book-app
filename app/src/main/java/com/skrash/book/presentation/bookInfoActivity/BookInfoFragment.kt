@@ -102,6 +102,9 @@ class BookInfoFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if (bookItemDto?.voted == true){
+            binding.ratingBar.setIsIndicator(true)
+        }
         viewModel = ViewModelProvider(this, viewModelFactory)[BookInfoViewModel::class.java]
         initCover()
         binding.viewModel = viewModel

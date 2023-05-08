@@ -58,19 +58,19 @@ class UploadTorrentFileWorker(
                 val id = bookCursor.getInt(bookCursor.getColumnIndexOrThrow("id"))
                 val hash = bookCursor.getString(bookCursor.getColumnIndexOrThrow("hash"))
                 val book = BookItem(
-                    title,
-                    author,
-                    description,
-                    rating,
-                    popularity,
-                    Genres.valueOf(genres),
-                    tags,
-                    path,
-                    fileException,
-                    startOnPage,
-                    shareAccess,
-                    hash,
-                    id
+                    title = title,
+                    author = author,
+                    description = description,
+                    rating = rating,
+                    popularity = popularity,
+                    genres = Genres.valueOf(genres),
+                    tags = tags,
+                    path = path,
+                    fileExtension = fileException,
+                    startOnPage = startOnPage,
+                    shareAccess = shareAccess,
+                    hash = hash,
+                    id = id
                 )
                 bookCursor.close()
                 publish(book)

@@ -13,6 +13,7 @@ data class BookItem(
     val startOnPage: Int,
     val shareAccess: Boolean = false,
     val hash: String,
+    val voted: Boolean = false,
     var id: Int = UNDEFINED_ID
 ){
     companion object {

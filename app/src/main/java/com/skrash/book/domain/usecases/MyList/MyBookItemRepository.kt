@@ -2,7 +2,9 @@ package com.skrash.book.domain.usecases.MyList
 
 import android.graphics.Bitmap
 import androidx.lifecycle.LiveData
+import com.skrash.book.data.network.model.UpdateItemDto
 import com.skrash.book.domain.entities.BookItem
+import retrofit2.Call
 
 interface MyBookItemRepository {
 
@@ -31,4 +33,6 @@ interface MyBookItemRepository {
     suspend fun getAllMyBookHashes(): List<String>
 
     suspend fun getMyBookItemByHash(hash: String): BookItem
+
+    suspend fun getUpdate(userID: String)
 }

@@ -9,11 +9,15 @@ import androidx.lifecycle.Transformations
 import com.skrash.book.FormatBook.FB2
 import com.skrash.book.FormatBook.PDF
 import com.skrash.book.data.TorrentSettings
+import com.skrash.book.data.network.ApiFactory
+import com.skrash.book.data.network.model.RequestUpdateDto
+import com.skrash.book.data.network.model.UpdateItemDto
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.FormatBook
 import com.skrash.book.domain.usecases.MyList.MyBookItemRepository
 import com.skrash.book.torrent.client.common.TorrentCreator
 import com.skrash.book.torrent.client.common.TorrentUtils
+import retrofit2.Call
 import java.io.File
 import java.net.URI
 import javax.inject.Inject
@@ -132,5 +136,23 @@ class MyBookItemRepositoryImpl @Inject constructor(
 
     override suspend fun getMyBookItemByHash(hash: String): BookItem {
         return myBookListDao.getBookItemByHash(hash)
+    }
+
+    override suspend fun getUpdate(
+        userID: String,
+    ){
+        val listHashes = myBookListDao.getAllHashes()
+        if (listHashes.isNotEmpty()){
+            val requestUpdateDto = RequestUpdateDto(
+                userID,
+                listHashes
+            )
+            val updateItemDtoList = ApiFactory.apiService.getUpdate(requestUpdateDto)
+            if (updateItemDtoList != null) {
+                for (updateItem in updateItemDtoList){
+                    myBookListDao.updateBDInfo(updateItem.rating.toFloat(), updateItem.popularity.toFloat(), updateItem.voted, updateItem.hash)
+                }
+            }
+        }
     }
 }

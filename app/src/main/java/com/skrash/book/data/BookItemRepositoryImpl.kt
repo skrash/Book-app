@@ -14,8 +14,8 @@ import javax.inject.Inject
 
 class BookItemRepositoryImpl @Inject constructor(): BookItemRepository {
 
-    override suspend fun getBookItemList(): Call<List<BookItemDto>> {
-        return ApiFactory.apiService.listBook()
+    override suspend fun getBookItemList(userID: String): Call<List<BookItemDto>> {
+        return ApiFactory.apiService.listBook(userID)
     }
 
     override suspend fun vote(bookItem: BookItem, id: String, votePoint: Int) {

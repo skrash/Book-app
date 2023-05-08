@@ -37,4 +37,7 @@ interface MyBookListDao {
 
     @Query("SELECT * FROM book_items WHERE hash=:hashString")
     suspend fun getBookItemByHash(hashString: String): BookItem
+
+    @Query("UPDATE book_items SET rating=:ratingValue, popularity=:popularityValue, voted=:votedValue where hash=:hashValue")
+    suspend fun updateBDInfo(ratingValue: Float, popularityValue: Float, votedValue: Boolean, hashValue: String)
 }

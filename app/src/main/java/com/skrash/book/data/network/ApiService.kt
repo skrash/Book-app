@@ -1,6 +1,8 @@
 package com.skrash.book.data.network
 
 import com.skrash.book.data.network.model.BookItemDto
+import com.skrash.book.data.network.model.RequestUpdateDto
+import com.skrash.book.data.network.model.UpdateItemDto
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
@@ -25,7 +27,7 @@ interface ApiService {
     ): ResponseBody
 
     @GET("list_books")
-    fun listBook(): Call<List<BookItemDto>>
+    fun listBook(@Query("userID") userID: String): Call<List<BookItemDto>>
 
     @GET("my_ip")
     suspend fun getIp(): ResponseBody
@@ -41,4 +43,9 @@ interface ApiService {
         @Query("userID") userID: String,
         @Query("votePoint") votePoint: Int
     ): ResponseBody
+
+    @POST("get_update")
+    suspend fun getUpdate(
+        @Body requestUpdate: RequestUpdateDto
+    ): List<UpdateItemDto>
 }

@@ -20,5 +20,6 @@ data class MyBookItemDbModel
     val startOnPage: Int,
     val shareAccess: Boolean = false,
     val fileExtension: String,
-    val hash: String
+    val hash: String,
+    val voted: Boolean = false
 )
