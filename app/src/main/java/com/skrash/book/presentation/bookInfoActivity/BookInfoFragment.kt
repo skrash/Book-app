@@ -1,11 +1,17 @@
 package com.skrash.book.presentation.bookInfoActivity
 
 import android.content.Context
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
+import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.work.ExistingWorkPolicy
@@ -26,8 +32,11 @@ import com.yandex.mobile.ads.banner.AdSize
 import com.yandex.mobile.ads.common.AdRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.net.ConnectException
 import javax.inject.Inject
+import kotlin.math.absoluteValue
 
 class BookInfoFragment : Fragment() {
 
@@ -133,6 +142,26 @@ class BookInfoFragment : Fragment() {
 
         binding.btnOpen.setOnClickListener {
             openBook()
+        }
+
+        binding.ratingBar.rating = viewModel.bookItem.value?.rating ?: 0f
+
+        binding.ratingBar.setOnRatingBarChangeListener { _, rating, _ ->
+            binding.ratingBar.setIsIndicator(true)
+            val id = Settings.Secure.getString(
+                requireContext().contentResolver,
+                Settings.Secure.ANDROID_ID
+            )
+            CoroutineScope(Dispatchers.Main).launch {
+                binding.ratingBar.setBackgroundColor(requireContext().getColor(R.color.light_green))
+                delay(1500)
+                binding.ratingBar.progressTintList = ColorStateList.valueOf(requireContext().getColor(R.color.dark_gray))
+                binding.ratingBar.setBackgroundColor(Color.TRANSPARENT)
+                binding.ratingBar.rating = viewModel.bookItem.value?.rating ?: 0f
+            }
+            viewModel.vote(id, rating.toInt()){
+                Toast.makeText(requireContext(), getText(R.string.network_error), Toast.LENGTH_LONG)
+            }
         }
         binding.btnDownload.setOnClickListener {
             downloadBook()

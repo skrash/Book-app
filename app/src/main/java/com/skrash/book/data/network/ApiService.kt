@@ -34,4 +34,11 @@ interface ApiService {
     suspend fun download(
         @Body bookItem: RequestBody
     ): Response<ResponseBody>
+
+    @GET("vote")
+    suspend fun vote(
+        @Query("hash") hash: String,
+        @Query("userID") userID: String,
+        @Query("votePoint") votePoint: Int
+    ): ResponseBody
 }

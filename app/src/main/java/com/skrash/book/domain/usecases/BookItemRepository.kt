@@ -10,4 +10,6 @@ import retrofit2.Call
 interface BookItemRepository {
     suspend fun getBookItemList(): Call<List<BookItemDto>>
 
+    suspend fun vote(bookItem: BookItem, id: String, votePoint: Int)
+
 }

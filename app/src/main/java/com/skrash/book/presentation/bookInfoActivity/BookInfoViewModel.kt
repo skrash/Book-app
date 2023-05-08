@@ -12,16 +12,20 @@ import com.skrash.book.domain.usecases.MyList.GetAllMyBookHashes
 import com.skrash.book.domain.usecases.MyList.GetBookCoverUseCase
 import com.skrash.book.domain.usecases.MyList.GetMyBookItemByHash
 import com.skrash.book.domain.usecases.MyList.GetMyBookUseCase
+import com.skrash.book.domain.usecases.VoteUseCase
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.net.ConnectException
 import javax.inject.Inject
 
 class BookInfoViewModel @Inject constructor(
     private val getMyBookUseCase: GetMyBookUseCase,
     private val getBookCoverUseCase: GetBookCoverUseCase,
     private val getAllMyBookHashes: GetAllMyBookHashes,
-    private val getMyBookItemByHash: GetMyBookItemByHash
+    private val getMyBookItemByHash: GetMyBookItemByHash,
+    private val voteUseCase: VoteUseCase
 ) : ViewModel() {
     private val _bookItem = MutableLiveData<BookItem>()
     val bookItem: LiveData<BookItem>
@@ -120,5 +124,20 @@ class BookInfoViewModel @Inject constructor(
 
     fun setWorkerLiveData(workerLiveDataSrc: LiveData<WorkInfo>){
         _workerLiveData = workerLiveDataSrc
+    }
+
+    fun vote(id: String, votePoint: Int, errorCallback: () -> Unit){
+        val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+            if (throwable is ConnectException) {
+                CoroutineScope(Dispatchers.Main).launch {
+                    errorCallback.invoke()
+                }
+            }
+            Log.d("ERRORS", throwable.localizedMessage)
+            throwable.printStackTrace()
+        }
+        CoroutineScope(Dispatchers.IO + exceptionHandler).launch {
+            voteUseCase.vote(bookItem.value!!, id, votePoint)
+        }
     }
 }
