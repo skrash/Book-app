@@ -19,6 +19,7 @@ import com.skrash.book.torrent.client.common.TorrentCreator
 import com.skrash.book.torrent.client.common.TorrentUtils
 import retrofit2.Call
 import java.io.File
+import java.net.ConnectException
 import java.net.URI
 import javax.inject.Inject
 
@@ -147,11 +148,15 @@ class MyBookItemRepositoryImpl @Inject constructor(
                 userID,
                 listHashes
             )
-            val updateItemDtoList = ApiFactory.apiService.getUpdate(requestUpdateDto)
-            if (updateItemDtoList != null) {
-                for (updateItem in updateItemDtoList){
-                    myBookListDao.updateBDInfo(updateItem.rating.toFloat(), updateItem.popularity.toFloat(), updateItem.voted, updateItem.hash)
+            try {
+                val updateItemDtoList = ApiFactory.apiService.getUpdate(requestUpdateDto)
+                if (updateItemDtoList != null) {
+                    for (updateItem in updateItemDtoList){
+                        myBookListDao.updateBDInfo(updateItem.rating.toFloat(), updateItem.popularity.toFloat(), updateItem.voted, updateItem.hash)
+                    }
                 }
+            }catch (e: ConnectException){
+                e.printStackTrace()
             }
         }
     }

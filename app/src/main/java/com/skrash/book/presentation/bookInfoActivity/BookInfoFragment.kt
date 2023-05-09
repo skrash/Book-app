@@ -162,8 +162,9 @@ class BookInfoFragment : Fragment() {
                 binding.ratingBar.setBackgroundColor(Color.TRANSPARENT)
                 binding.ratingBar.rating = viewModel.bookItem.value?.rating ?: 0f
             }
-            viewModel.vote(id, rating.toInt()){
-                Toast.makeText(requireContext(), getText(R.string.network_error), Toast.LENGTH_LONG)
+            val newrat = Math.ceil(rating.toDouble()).toInt()
+            viewModel.vote(id, newrat){
+                Toast.makeText(requireContext(), getText(R.string.network_error), Toast.LENGTH_LONG).show()
             }
         }
         binding.btnDownload.setOnClickListener {
