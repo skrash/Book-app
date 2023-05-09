@@ -130,7 +130,7 @@ public class HTTPTrackerClient extends TrackerClient {
       }
       final List<HTTPTrackerMessage> responsesForCurrentIp = new ArrayList<HTTPTrackerMessage>();
       final String bodyStr = body.substring(0, body.length() - 1);
-      sendAnnounce(trackerUrl, bodyStr, "POST", new ResponseParser() {
+      sendAnnounce(trackerUrl, bodyStr, "GET", new ResponseParser() {
         @Override
         public void parse(InputStream inputStream, int responseCode) throws IOException, TrackerMessage.MessageValidationException {
 

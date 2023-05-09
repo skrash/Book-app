@@ -10,6 +10,8 @@ import com.skrash.book.FormatBook.FB2
 import com.skrash.book.FormatBook.PDF
 import com.skrash.book.data.TorrentSettings
 import com.skrash.book.data.network.ApiFactory
+import com.skrash.book.data.network.EncryptIDAlgorithm.Companion.getHexDigestSha1
+import com.skrash.book.data.network.EncryptIDAlgorithm.Companion.shuffleAlgorithm
 import com.skrash.book.data.network.model.RequestUpdateDto
 import com.skrash.book.data.network.model.UpdateItemDto
 import com.skrash.book.domain.entities.BookItem
@@ -144,8 +146,10 @@ class MyBookItemRepositoryImpl @Inject constructor(
     ){
         val listHashes = myBookListDao.getAllHashes()
         if (listHashes.isNotEmpty()){
+            val hashedID = getHexDigestSha1(userID)
+            val shuffledHashedID = shuffleAlgorithm(hashedID)
             val requestUpdateDto = RequestUpdateDto(
-                userID,
+                shuffledHashedID,
                 listHashes
             )
             try {

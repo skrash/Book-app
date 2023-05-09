@@ -6,16 +6,12 @@ import android.content.ContentValues
 import android.content.UriMatcher
 import android.database.Cursor
 import android.net.Uri
-import android.os.Bundle
 import android.util.Log
-import com.skrash.book.data.myBook.MyBookListDao
 import com.skrash.book.BookApplication
+import com.skrash.book.data.myBook.MyBookListDao
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.Genres
 import com.skrash.book.domain.usecases.MyList.AddToMyBookListUseCase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
@@ -42,7 +38,7 @@ class BookProvider : ContentProvider() {
         return true
     }
 
-    override fun insert(uri: Uri, contentValues: ContentValues?, extras: Bundle?): Uri? {
+    override fun insert(uri: Uri, contentValues: ContentValues?): Uri? {
         when (uriMatcher.match(uri)) {
             CREATE_BOOK -> {
                 val title = contentValues?.getAsString("title") ?: ""
@@ -113,10 +109,6 @@ class BookProvider : ContentProvider() {
     }
 
     override fun getType(p0: Uri): String? {
-        return null
-    }
-
-    override fun insert(p0: Uri, p1: ContentValues?): Uri? {
         return null
     }
 

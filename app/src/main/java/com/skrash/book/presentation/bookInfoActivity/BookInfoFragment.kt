@@ -19,6 +19,7 @@ import androidx.work.WorkManager
 import com.google.gson.Gson
 import com.skrash.book.BookApplication
 import com.skrash.book.R
+import com.skrash.book.data.network.EncryptIDAlgorithm
 import com.skrash.book.data.network.model.BookItemDto
 import com.skrash.book.databinding.FragmentBookInfoBinding
 import com.skrash.book.domain.entities.BookItem
@@ -204,6 +205,13 @@ class BookInfoFragment : Fragment() {
     private fun downloadBook(){
         binding.btnDownload.isEnabled = false
         viewModel.setDownloading(true)
+        var userID = Settings.Secure.getString(
+            requireContext().contentResolver,
+            Settings.Secure.ANDROID_ID
+        )
+        val hashedID = EncryptIDAlgorithm.getHexDigestSha1(userID)
+        val shuffledHashedID = EncryptIDAlgorithm.shuffleAlgorithm(hashedID)
+        bookItemDto!!.userID = shuffledHashedID
         val gson = Gson()
         val bookJson = gson.toJson(bookItemDto)
         val downloadWorker = WorkManager.getInstance(requireContext().applicationContext)

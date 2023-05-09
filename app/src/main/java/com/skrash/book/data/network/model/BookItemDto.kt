@@ -46,5 +46,9 @@ data class BookItemDto(
 
     @SerializedName("voted")
     @Expose
-    var voted: Boolean
+    var voted: Boolean,
+
+    @SerializedName("user_id")
+    @Expose
+    var userID: String = ""
 ) : Parcelable
