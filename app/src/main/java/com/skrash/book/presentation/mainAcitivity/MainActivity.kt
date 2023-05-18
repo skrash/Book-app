@@ -150,33 +150,6 @@ class MainActivity : AppCompatActivity(), AddBookItemFragment.OnEditingFinishedL
         binding.yaBanner.setAdUnitId(YandexID.AdUnitId)
         binding.yaBanner.setAdSize(AdSize.stickySize(300))
         val adRequest = AdRequest.Builder().build()
-        binding.yaBanner.setBannerAdEventListener(object : BannerAdEventListener {
-            override fun onAdLoaded() {
-                TODO("Not yet implemented")
-            }
-
-            override fun onAdFailedToLoad(p0: AdRequestError) {
-                Log.d("Reklama", p0.code.toString())
-                Log.d("Reklama", p0.description)
-            }
-
-            override fun onAdClicked() {
-                TODO("Not yet implemented")
-            }
-
-            override fun onLeftApplication() {
-                TODO("Not yet implemented")
-            }
-
-            override fun onReturnedToApplication() {
-                TODO("Not yet implemented")
-            }
-
-            override fun onImpression(p0: ImpressionData?) {
-                TODO("Not yet implemented")
-            }
-
-        })
         binding.yaBanner.loadAd(adRequest)
     }
 

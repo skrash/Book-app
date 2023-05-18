@@ -150,6 +150,22 @@ class BookInfoFragment : Fragment() {
 
         binding.ratingBar.rating = viewModel.bookItem.value?.rating ?: 0f
 
+        binding.btnDownload.setOnClickListener {
+            downloadBook()
+        }
+        viewModel.bookItem.observe(viewLifecycleOwner) {
+            if (it != null) {
+                if (requireArguments().getString(MODE) == MODE_MY_BOOK) {
+                    binding.ratingBar.rating = it.rating
+                    if (it.shareAccess) {
+                        binding.ivShareAccess.setImageResource(R.drawable.ic_baseline_cloud_upload_24_green)
+                    } else {
+                        binding.ivShareAccess.setImageResource(R.drawable.ic_baseline_cloud_upload_24)
+                    }
+                    binding.ivShareAccess.visibility = View.VISIBLE
+                }
+            }
+        }
         binding.ratingBar.setOnRatingBarChangeListener { _, rating, _ ->
             binding.ratingBar.setIsIndicator(true)
             val id = Settings.Secure.getString(
@@ -163,24 +179,8 @@ class BookInfoFragment : Fragment() {
                 binding.ratingBar.setBackgroundColor(Color.TRANSPARENT)
                 binding.ratingBar.rating = viewModel.bookItem.value?.rating ?: 0f
             }
-            val newrat = Math.ceil(rating.toDouble()).toInt()
-            viewModel.vote(id, newrat){
+            viewModel.vote(id, Math.ceil(rating.toDouble()).toInt()){
                 Toast.makeText(requireContext(), getText(R.string.network_error), Toast.LENGTH_LONG).show()
-            }
-        }
-        binding.btnDownload.setOnClickListener {
-            downloadBook()
-        }
-        viewModel.bookItem.observe(viewLifecycleOwner) {
-            if (it != null) {
-                if (requireArguments().getString(MODE) == MODE_MY_BOOK) {
-                    if (it.shareAccess) {
-                        binding.ivShareAccess.setImageResource(R.drawable.ic_baseline_cloud_upload_24_green)
-                    } else {
-                        binding.ivShareAccess.setImageResource(R.drawable.ic_baseline_cloud_upload_24)
-                    }
-                    binding.ivShareAccess.visibility = View.VISIBLE
-                }
             }
         }
     }
