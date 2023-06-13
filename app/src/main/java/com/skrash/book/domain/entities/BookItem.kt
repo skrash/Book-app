@@ -8,9 +8,12 @@ data class BookItem(
     val popularity: Float,
     val genres: Genres,
     val tags: String,
-    val cover: String,
     val path: String,
     val fileExtension: String,
+    val startOnPage: Int,
+    val shareAccess: Boolean = false,
+    val hash: String,
+    val voted: Boolean = false,
     var id: Int = UNDEFINED_ID
 ){
     companion object {

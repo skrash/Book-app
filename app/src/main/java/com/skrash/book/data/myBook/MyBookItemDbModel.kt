@@ -16,7 +16,10 @@ data class MyBookItemDbModel
     val popularity: Float,
     val genres: Genres,
     val tags: String,
-    val cover: String,
     val path: String,
-    val fileExtension: String
+    val startOnPage: Int,
+    val shareAccess: Boolean = false,
+    val fileExtension: String,
+    val hash: String,
+    val voted: Boolean = false
 )

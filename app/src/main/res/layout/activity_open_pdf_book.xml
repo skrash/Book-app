@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout >
+
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/flRoot"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        tools:context=".presentation.openBookActivity.pdfActivity.OpenBookActivity">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvMain"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            >
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editText"
+                android:maxLines="1"
+                android:layout_margin="60dp"
+                android:inputType="number"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="@string/page_hint"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/imBookmark"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:alpha="0.1"
+                android:layout_alignParentEnd="true"
+                android:src="@drawable/bookmark"
+                android:background="@android:color/transparent"
+                />
+
+            <TextView
+                android:id="@+id/fabPageNum"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:textSize="20sp"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                />
+
+        </RelativeLayout>
+
+        <com.google.android.material.navigation.NavigationView
+            android:id="@+id/navBookmark"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            app:menu="@menu/bookmark_nav_menu" />
+    </androidx.drawerlayout.widget.DrawerLayout>
+</layout>

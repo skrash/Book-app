@@ -1,23 +1,31 @@
 package com.skrash.book.presentation.addBookActivity
 
+import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.skrash.book.domain.entities.BookItem
 import com.skrash.book.domain.entities.FormatBook
 import com.skrash.book.domain.entities.Genres
 import com.skrash.book.domain.usecases.MyList.AddToMyBookListUseCase
+import com.skrash.book.domain.usecases.MyList.GetBookCoverUseCase
+import com.skrash.book.domain.usecases.MyList.GetHashMyBookUseCase
 import com.skrash.book.domain.usecases.MyList.GetMyBookUseCase
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.io.File
 import javax.inject.Inject
 
 class AddBookItemViewModel @Inject constructor(
     private val addToMyBookListUseCase: AddToMyBookListUseCase,
-    private val getMyBookUseCase: GetMyBookUseCase
+    private val getMyBookUseCase: GetMyBookUseCase,
+    private val getBookCoverUseCase: GetBookCoverUseCase,
+    private val getHashMyBookUseCase: GetHashMyBookUseCase
 ) : ViewModel() {
+
+    private val _imageCover = MutableLiveData<Bitmap>()
+    val imageCover
+        get() = _imageCover
 
     private val _bookItem = MutableLiveData<BookItem>()
     val bookItem: LiveData<BookItem>
@@ -26,6 +34,10 @@ class AddBookItemViewModel @Inject constructor(
     private val _shouldCloseScreen = MutableLiveData<Unit>()
     val shouldCloseScreen: LiveData<Unit>
         get() = _shouldCloseScreen
+
+    private val _itemIdManipulated = MutableLiveData<Int>()
+    val itemIdManipulated: LiveData<Int>
+        get() = _itemIdManipulated
 
     // VALIDATORS
 
@@ -54,11 +66,12 @@ class AddBookItemViewModel @Inject constructor(
         get() = _errorInputPath
     // ======================================
 
-    private fun addBookItem(bookItem: BookItem) {
-        viewModelScope.launch {
-            addToMyBookListUseCase.addToMyBookList(bookItem)
+    private suspend fun addBookItem(bookItem: BookItem): Long {
+        val deferred = CoroutineScope(Dispatchers.IO).async {
+            val id = addToMyBookListUseCase.addToMyBookList(bookItem)
+            id
         }
-
+        return deferred.await()
     }
 
     fun finishEditing(
@@ -68,7 +81,8 @@ class AddBookItemViewModel @Inject constructor(
         description: String?,
         genres: String?,
         tags: String?,
-        path: String?
+        path: String?,
+        shareAccess: Boolean
     ) {
         if (title == null) {
             _errorInputTitle.value = true
@@ -82,7 +96,7 @@ class AddBookItemViewModel @Inject constructor(
             _errorInputAuthor.value = true
             return
         }
-        if (author.length > 50){
+        if (author.length > 50) {
             _errorInputAuthor.value = true
             return
         }
@@ -90,7 +104,7 @@ class AddBookItemViewModel @Inject constructor(
             _errorInputDescription.value = true
             return
         }
-        if (description.length > 10000){
+        if (description.length > 10000) {
             _errorInputDescription.value = true
             return
         }
@@ -100,7 +114,7 @@ class AddBookItemViewModel @Inject constructor(
         }
         try {
             Genres.valueOf(genres)
-        } catch (e: java.lang.Exception){
+        } catch (e: java.lang.Exception) {
             _errorInputGenres.value = true
             return
         }
@@ -109,7 +123,7 @@ class AddBookItemViewModel @Inject constructor(
             _errorInputTags.value = true
             return
         }
-        if(!tags.matches(Regex("[а-яё]+|[а-яё][, \\s[а-яё]]+"))){
+        if (!tags.matches(Regex("[а-яё]+|[а-яё][, \\s[а-яё]]+"))) {
             _errorInputTags.value = true
             return
         }
@@ -119,56 +133,74 @@ class AddBookItemViewModel @Inject constructor(
         }
         try {
             File(path)
-        } catch (e:Exception) {
-            _errorInputPath.value = true
-            Log.d("TEST", e.stackTraceToString())
-            return
-        }
-        val fileExtension = path.substringAfterLast('.', "")
-        if(!FormatBook.values().map { it.string_name }.contains(fileExtension)) {
+        } catch (e: Exception) {
             _errorInputPath.value = true
             return
         }
-        if (id == null)
-        {
-            addBookItem(
-                BookItem(
-                    title = title.trim(),
-                    author = author.trim(),
-                    description = description.trim(),
-                    rating = 0.0f,
-                    popularity = 0.0f,
-                    genres = genresParsed,
-                    tags = tags.trim(),
-                    cover = "", // TODO
-                    path = path,
-                    fileExtension = fileExtension,
-                )
-            )
-        } else {
-            addBookItem(
-                BookItem(
-                    id = id,
-                    title = title.trim(),
-                    author = author.trim(),
-                    description = description.trim(),
-                    rating = 0.0f,
-                    popularity = 0.0f,
-                    genres = genresParsed,
-                    tags = tags.trim(),
-                    cover = "", // TODO
-                    path = path,
-                    fileExtension = fileExtension,
-                )
-            )
+        val fileExtension = path.substringAfterLast('.', "").lowercase()
+        if (!FormatBook.values().map { it.string_name }.contains(fileExtension)) {
+            _errorInputPath.value = true
+            return
         }
-
+        CoroutineScope(Dispatchers.IO).launch {
+            val hash = getHashMyBookUseCase.getHashMyBook(path)
+            withContext(Dispatchers.Main){
+                if (id == null) {
+                    val id = addBookItem(
+                        BookItem(
+                            title = title.trim(),
+                            author = author.trim(),
+                            description = description.trim(),
+                            rating = 0.0f,
+                            popularity = 0.0f,
+                            genres = genresParsed,
+                            tags = tags.trim(),
+                            path = path,
+                            startOnPage = 0,
+                            shareAccess = shareAccess,
+                            fileExtension = fileExtension,
+                            hash = hash
+                        )
+                    )
+                    Log.d("TEST_WORKER", "added id ${id.toInt()}")
+                    _itemIdManipulated.postValue(id.toInt())
+                } else {
+                    addBookItem(
+                        BookItem(
+                            id = id,
+                            title = title.trim(),
+                            author = author.trim(),
+                            description = description.trim(),
+                            rating = 0.0f,
+                            popularity = 0.0f,
+                            genres = genresParsed,
+                            tags = tags.trim(),
+                            path = path,
+                            startOnPage = 0,
+                            shareAccess = shareAccess,
+                            fileExtension = fileExtension,
+                            hash = hash
+                        )
+                    )
+                    Log.d("TEST_WORKER", "added id ${id.toInt()}")
+                    _itemIdManipulated.value = id.toInt()
+                }
+            }
+        }
         finishWork()
     }
 
+    fun getCover(bookItem: BookItem, width: Int, height: Int) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val item = getBookCoverUseCase.getBookCover(bookItem, width, height)
+            _imageCover.postValue(item)
+        }
+    }
+
     fun getBookItem(bookItemId: Int) {
-        viewModelScope.launch {
-            _bookItem.value = getMyBookUseCase.getMyBook(bookItemId)
+        CoroutineScope(Dispatchers.IO).launch {
+            val item = getMyBookUseCase.getMyBook(bookItemId)
+            _bookItem.postValue(item)
         }
     }
 

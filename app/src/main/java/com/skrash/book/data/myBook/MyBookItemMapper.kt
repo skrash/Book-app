@@ -14,9 +14,11 @@ class MyBookItemMapper @Inject constructor() {
         popularity = bookItem.popularity,
         genres = bookItem.genres,
         tags = bookItem.tags,
-        cover = bookItem.cover,
         path = bookItem.path,
-        fileExtension = bookItem.fileExtension
+        startOnPage = bookItem.startOnPage,
+        shareAccess = bookItem.shareAccess,
+        fileExtension = bookItem.fileExtension,
+        hash = bookItem.hash
     )
 
     fun mapDbModelToDomain(myBookItemDbModel: MyBookItemDbModel) = BookItem(
@@ -28,9 +30,11 @@ class MyBookItemMapper @Inject constructor() {
         popularity = myBookItemDbModel.popularity,
         genres = myBookItemDbModel.genres,
         tags = myBookItemDbModel.tags,
-        cover = myBookItemDbModel.cover,
         path = myBookItemDbModel.path,
-        fileExtension = myBookItemDbModel.fileExtension
+        startOnPage = myBookItemDbModel.startOnPage,
+        shareAccess = myBookItemDbModel.shareAccess,
+        fileExtension = myBookItemDbModel.fileExtension,
+        hash = myBookItemDbModel.hash
     )
 
     fun mapListDbModelToListDomain(list: List<MyBookItemDbModel>) = list.map {

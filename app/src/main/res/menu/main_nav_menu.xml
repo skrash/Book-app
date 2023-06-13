@@ -4,10 +4,11 @@
     tools:showIn="navigation_view">
 
     <item
-        android:icon="@drawable/ic_baseline_home_24"
+        android:icon="@drawable/baseline_menu_book_24"
         android:id="@+id/menuMyBook"
         android:title="@string/my_book" />
     <item
+        android:icon="@drawable/baseline_public_24"
         android:id="@+id/menuGeneralBook"
         android:title="@string/general_book" />
 

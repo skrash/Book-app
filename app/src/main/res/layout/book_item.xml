@@ -8,137 +8,151 @@
             type="com.skrash.book.domain.entities.BookItem" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:id="@+id/cardMain"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:clickable="true"
+        app:cardBackgroundColor="?colorPrimaryVariant"
+        app:cardCornerRadius="17dp"
+        app:strokeColor="?colorPrimary"
+        app:strokeWidth="1dp">
 
-        <ImageView
-            android:id="@+id/imCover"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:layout_marginTop="8dp"
-            android:adjustViewBounds="true"
-            android:maxWidth="100dp"
-            android:maxHeight="140dp"
-            android:src="@mipmap/ic_launcher_round"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvTitle"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:text="@{bookItem.title}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toEndOf="@id/imCover"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/tvAuthor"
+        <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:text="@{bookItem.author}"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toEndOf="@id/imCover"
-            app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+            android:layout_height="wrap_content">
 
-        <androidx.constraintlayout.widget.Barrier
-            android:id="@+id/preview_bottom_barrier"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:orientation="vertical"
-            app:barrierDirection="bottom"
-            app:constraint_referenced_ids="imCover, tvTitle, tvAuthor" />
+            <ImageView
+                android:id="@+id/imCover"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:layout_marginTop="8dp"
+                android:adjustViewBounds="true"
+                android:maxWidth="100dp"
+                android:maxHeight="140dp"
+                android:src="@mipmap/ic_launcher_round"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvTitle"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <RatingBar
-            android:id="@+id/ratingBar"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:isIndicator="true"
-            android:rating="@{bookItem.rating}"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/preview_bottom_barrier" />
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:text="@{bookItem.title}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintStart_toEndOf="@id/imCover"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        <RatingBar
-            android:id="@+id/popularityBar"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:isIndicator="true"
-            android:rating="@{bookItem.popularity}"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/ratingBar" />
+            <TextView
+                android:id="@+id/tvAuthor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:text="@{bookItem.author}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0"
+                app:layout_constraintStart_toEndOf="@id/imCover"
+                app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
-        <ImageButton
-            android:id="@+id/btnEdit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_baseline_edit_24"
-            app:layout_constraintStart_toEndOf="@id/ratingBar"
-            app:layout_constraintTop_toBottomOf="@id/preview_bottom_barrier"
-            />
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/preview_bottom_barrier"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:orientation="vertical"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="imCover, tvTitle, tvAuthor" />
 
-        <Button
-            android:id="@+id/btnGenres"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/genres"
-            android:layout_margin="8dp"
-            app:layout_constraintEnd_toStartOf="@id/btnTags"
-            app:layout_constraintHorizontal_chainStyle="packed"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/popularityBar" />
+            <RatingBar
+                android:id="@+id/ratingBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:isIndicator="true"
+                android:layout_margin="8dp"
+                android:rating="@{bookItem.rating}"
+                style="@style/Widget.AppCompat.RatingBar.Indicator"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/preview_bottom_barrier" />
 
-        <Button
-            android:id="@+id/btnTags"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/tags"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_margin="8dp"
-            app:layout_constraintHorizontal_chainStyle="packed"
-            app:layout_constraintStart_toStartOf="@id/btnGenres"
-            app:layout_constraintTop_toBottomOf="@id/popularityBar" />
+            <RatingBar
+                android:id="@+id/popularityBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:isIndicator="true"
+                android:layout_margin="8dp"
+                android:rating="@{bookItem.popularity}"
+                style="@style/Widget.AppCompat.RatingBar.Indicator"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ratingBar" />
 
-        <LinearLayout
-            android:id="@+id/tagsContainer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            android:orientation="horizontal"
-            android:minHeight="50dp"
-            android:minWidth="100dp"
-            android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/btnGenres">
+
+            <ImageView
+                android:id="@+id/ivShareAccess"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_margin="8dp"
+                android:visibility="gone"
+                app:layout_constraintStart_toEndOf="@id/ratingBar"
+                app:layout_constraintTop_toBottomOf="@id/preview_bottom_barrier"  />
+
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btnEdit"
+                style="?attr/materialIconButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                app:fabCustomSize="70dp"
+                app:backgroundTint="?colorPrimary"
+                app:tint="?colorOnPrimary"
+                android:src="@drawable/ic_baseline_edit_24"
+                app:layout_constraintStart_toEndOf="@id/ivShareAccess"
+                app:layout_constraintTop_toBottomOf="@id/preview_bottom_barrier"/>
+
+            <TextView
+                android:id="@+id/hintTextTags"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                app:layout_constraintStart_toStartOf="@id/popularityBar"
+                app:layout_constraintTop_toBottomOf="@id/popularityBar"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:text="@string/tags" />
 
             <TextView
                 android:id="@+id/tvTags"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="start"
-                android:layout_weight="7"
-                />
+                android:layout_margin="8dp"
+                app:layout_constraintStart_toEndOf="@id/hintTextTags"
+                app:layout_constraintTop_toBottomOf="@id/popularityBar"
+                android:text="@{bookItem.tags}" />
 
-            <Button
-                android:id="@+id/btnCloseTags"
-                android:text="@string/button_closed"
+            <TextView
+                android:id="@+id/hintTextGenres"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:minHeight="50dp"
-                android:minWidth="100dp"
-                android:visibility="gone"
-                android:textAlignment="center"
-                android:layout_weight="2"
-                />
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                app:layout_constraintStart_toEndOf="@id/tvTags"
+                app:layout_constraintTop_toBottomOf="@id/popularityBar"
+                android:text="@string/hintGenres" />
 
-        </LinearLayout>
+            <TextView
+                android:id="@+id/tvGenres"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                app:layout_constraintStart_toEndOf="@id/hintTextGenres"
+                app:layout_constraintTop_toBottomOf="@id/popularityBar"
+                android:text="@{bookItem.genres.toString()}" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
 </layout>

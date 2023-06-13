@@ -1,43 +1,30 @@
 package com.skrash.book.data
 
+import android.provider.Settings
+import android.util.Log
 import androidx.lifecycle.LiveData
-import com.skrash.book.domain.BookItemRepository
+import androidx.lifecycle.liveData
+import com.skrash.book.data.network.ApiFactory
+import com.skrash.book.data.network.EncryptIDAlgorithm.Companion.getHexDigestSha1
+import com.skrash.book.data.network.EncryptIDAlgorithm.Companion.shuffleAlgorithm
+import com.skrash.book.data.network.model.BookItemDto
 import com.skrash.book.domain.entities.BookItem
+import com.skrash.book.domain.usecases.BookItemRepository
+import retrofit2.Call
+import java.security.MessageDigest
 import javax.inject.Inject
 
 class BookItemRepositoryImpl @Inject constructor(): BookItemRepository {
 
-    private val bookList = mutableListOf<BookItem>()
-    private var autoIncrement = 0
-
-    override suspend fun addBookItem(bookItem: BookItem) {
-        if (bookItem.id == BookItem.UNDEFINED_ID){
-            bookItem.id = autoIncrement++
-        }
-        bookList.add(bookItem)
-        updateGeneralBookList()
+    override suspend fun getBookItemList(userID: String): Call<List<BookItemDto>> {
+        val hashedID = getHexDigestSha1(userID)
+        val shuffledHashedID = shuffleAlgorithm(hashedID)
+        return ApiFactory.apiService.listBook(shuffledHashedID)
     }
 
-    override suspend fun editBookItem(bookItem: BookItem) {
-        bookList.remove(getBookItem(bookItem.id))
-        addBookItem(bookItem)
-    }
-
-    override suspend fun getBookItem(bookItemId: Int): BookItem {
-        return bookList.find {
-            it.id == bookItemId
-        } ?: throw RuntimeException("Not find element by id $bookItemId !")
-    }
-
-    override fun getBookItemList(): LiveData<List<BookItem>> {
-        return BookListGeneral.bookListGeneral
-    }
-
-    override suspend fun openBookItem(bookItem: BookItem) {
-        TODO("Not yet implemented")
-    }
-
-    private fun updateGeneralBookList(){
-        BookListGeneral.bookListGeneral.postValue(bookList.toList())
+    override suspend fun vote(bookItem: BookItem, id: String, votePoint: Int) {
+        val hashedID = getHexDigestSha1(id)
+        val shuffledHashedID = shuffleAlgorithm(hashedID)
+        ApiFactory.apiService.vote(bookItem.hash, shuffledHashedID, votePoint)
     }
 }
